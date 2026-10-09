@@ -1,0 +1,53 @@
+/* Commit 03 — tokens de design. Toda cor, espaço e raio vem daqui. */
+:root {
+  --c-bg: #eef1f4;
+  --c-surface: #ffffff;
+  --c-surface-2: #f6f8fa;
+  --c-border: #d9dfe6;
+  --c-border-strong: #b9c3ce;
+  --c-ink: #17202b;
+  --c-ink-2: #4a5666;
+  --c-ink-3: #6b7787;
+
+  --c-rail: #16212e;
+  --c-rail-2: #1f2d3d;
+  --c-rail-ink: #e6ecf2;
+  --c-rail-ink-2: #98a6b6;
+
+  --c-accent: #1d5f8a;
+  --c-accent-hover: #174d71;
+  --c-accent-soft: #e1eef6;
+
+  --c-ok: #1f7a4d;
+  --c-ok-soft: #e0f2e9;
+  --c-warn: #8a5a00;
+  --c-warn-soft: #fbf0d6;
+  --c-danger: #b3261e;
+  --c-danger-soft: #fbe4e2;
+  --c-info: #1d5f8a;
+  --c-info-soft: #e1eef6;
+  --c-neutral-soft: #e8ecf0;
+
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-md: 0.9375rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.5rem;
+  --fs-2xl: 2.25rem;
+  --lh-body: 1.5;
+
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --shadow-pop: 0 8px 24px rgba(23, 32, 43, 0.16);
+  --focus-ring: 0 0 0 3px rgba(29, 95, 138, 0.45);
+}
