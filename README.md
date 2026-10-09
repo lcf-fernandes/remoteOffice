@@ -10,6 +10,7 @@ npm install
 npm run dev      # desenvolvimento (http://localhost:5173)
 npm run build    # build de produção em dist/
 npm run preview  # servir o build localmente
+npm test         # testes de lógica (sem Firebase)
 npm run test:rules  # testes das regras do Firestore (emulador; requer Java)
 ```
 
@@ -20,7 +21,7 @@ npm run test:rules  # testes das regras do Firestore (emulador; requer Java)
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — decisões técnicas
 - [`docs/FIREBASE.md`](docs/FIREBASE.md) — configuração do Firebase
 
-## Estado atual (guia: commits 02–09)
+## Estado atual (guia: commits 02–10)
 
 - Base Vite + React + JavaScript, `.env.example` sem segredos.
 - Tokens de design em `src/styles/tokens.css`.
@@ -28,6 +29,7 @@ npm run test:rules  # testes das regras do Firestore (emulador; requer Java)
 - Componentes: Button, Card, StatusBadge, Dialog, Input/Select, estados vazio/carregando/erro.
 - Dashboard com **dados de demonstração** isolados em `src/dev/fixtures.js` (não são dados reais).
 - Navegação por hash (`#/tarefas`) e botão "Criar". Módulos ainda não construídos mostram "A implementar".
+- Módulo **Tarefas** com CRUD completo, filtros e busca; o dashboard lê as tarefas reais.
 - Login por e-mail/senha com Firebase, sessão persistente, logout e regras do Firestore (`firestore.rules`). **Requer o Firebase configurado** — veja `docs/PENDING.md`.
 
 ## Firebase

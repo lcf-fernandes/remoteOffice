@@ -2,9 +2,10 @@
 import { readFileSync } from 'node:fs'
 import { after, before, describe, it } from 'node:test'
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore'
 
 let env
+const task = { title: 'Teste', description: '', status: 'todo', priority: 'medium', due: null, category: '', tags: [] }
 const profile = { email: 'a@x.com', displayName: '', preferences: { locale: 'pt-BR' } }
 
 before(async () => {
@@ -33,9 +34,22 @@ describe('firestore.rules', () => {
     const db = env.authenticatedContext('carol').firestore()
     await assertFails(setDoc(doc(db, 'users/carol'), { ...profile, role: 'admin' }))
   })
-  it('permite ao dono gravar em subcoleções e nega a outros', async () => {
-    await assertSucceeds(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/tasks/t1'), { title: 'x' }))
-    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/tasks/t2'), { title: 'x' }))
+  it('permite ao dono criar, ler e excluir tarefa válida; nega a outros', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/tasks/t1'), task))
+    await assertSucceeds(getDoc(doc(alice, 'users/alice/tasks/t1')))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/tasks/t2'), task))
+    await assertFails(getDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/tasks/t1')))
+    await assertSucceeds(deleteDoc(doc(alice, 'users/alice/tasks/t1')))
+  })
+  it('nega tarefa inválida (status, título vazio, campo extra)', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    await assertFails(setDoc(doc(alice, 'users/alice/tasks/x1'), { ...task, status: 'qualquer' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/tasks/x2'), { ...task, title: '' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/tasks/x3'), { ...task, role: 'admin' }))
+  })
+  it('nega subcoleções não listadas', async () => {
+    await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/notes/n1'), { a: 1 }))
   })
   it('nega coleções fora de users/', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'public/x'), { a: 1 }))

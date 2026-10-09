@@ -8,6 +8,9 @@ import ModulePlaceholder from '../features/modules/ModulePlaceholder.jsx'
 import FirebaseNotice from '../components/FirebaseNotice.jsx'
 import AuthProvider, { useAuth } from '../features/auth/AuthProvider.jsx'
 import LoginPage from '../features/auth/LoginPage.jsx'
+import TasksProvider from '../features/tasks/TasksProvider.jsx'
+import TaskEditorProvider from '../features/tasks/TaskEditor.jsx'
+import TasksPage from '../features/tasks/TasksPage.jsx'
 import { ErrorState, LoadingState } from '../components/states.jsx'
 import { authErrorMessage } from '../services/auth.js'
 
@@ -48,7 +51,7 @@ function Workspace() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        {route === 'dashboard' ? <Dashboard /> : <ModulePlaceholder route={route} />}
+        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : <ModulePlaceholder route={route} />}
       </main>
 
       <aside className="col col--right" aria-label="Contexto e pendências">
@@ -64,7 +67,13 @@ function Gate() {
   if (auth.status === 'loading') return <main className="login"><LoadingState label="Verificando sessão…" /></main>
   if (auth.status === 'error') return <main className="login"><div className="login__card"><ErrorState title="Não foi possível carregar sua conta">{authErrorMessage(auth.error)}</ErrorState></div></main>
   if (auth.status === 'signedOut') return <LoginPage />
-  return <Workspace />
+  return (
+    <TasksProvider uid={auth.user.uid}>
+      <TaskEditorProvider>
+        <Workspace />
+      </TaskEditorProvider>
+    </TasksProvider>
+  )
 }
 
 export default function App() {

@@ -6,11 +6,13 @@ import Button from '../components/Button.jsx'
 import { LogOut } from 'lucide-react'
 import { useAuth } from '../features/auth/AuthProvider.jsx'
 import { signOutUser } from '../services/auth.js'
-import { demo } from '../dev/fixtures.js'
+import { useTasks } from '../features/tasks/TasksProvider.jsx'
+import { isDueToday, sortTasks } from '../utils/tasks.js'
 
 export default function LeftPanel({ route, onNavigate }) {
   const auth = useAuth()
-  const today = demo.tasks.filter((t) => new Date(t.due).toDateString() === new Date().toDateString())
+  const { status, tasks } = useTasks()
+  const today = sortTasks(tasks.filter(isDueToday))
   return (
     <div className="left">
       <div className="left__brand">
@@ -36,7 +38,10 @@ export default function LeftPanel({ route, onNavigate }) {
       </nav>
 
       <section aria-labelledby="l-hoje" className="left__section">
-        <h2 id="l-hoje" className="left__h">Hoje <span className="left__tag">demo</span></h2>
+        <h2 id="l-hoje" className="left__h">Hoje</h2>
+        {status === 'loading' && <p className="left__muted">Carregando…</p>}
+        {status === 'error' && <p className="left__muted">Não foi possível carregar as tarefas.</p>}
+        {status === 'ready' && today.length === 0 && <p className="left__muted">Nenhuma tarefa com prazo hoje.</p>}
         <ul className="left__tasks">
           {today.map((t) => (
             <li key={t.id}><span>{t.title}</span><StatusBadge status={t.status} /></li>

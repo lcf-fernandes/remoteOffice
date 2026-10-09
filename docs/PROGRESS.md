@@ -15,7 +15,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 07 | `feat: add module navigation and quick actions` | ✅ |
 | 08 | `feat: configure Firebase client services` | ✅ código · ✅ projeto Firebase criado (`remote-office-e73ae`) · ⏳ configuração local e serviços (ver PENDING.md) |
 | 09 | `feat: add secure authentication and private workspace` | ✅ código · ⏳ regras não publicadas, não testadas no emulador |
-| 10–23 | Módulos, dashboard real, segurança, polimento, publicação | ⏳ |
+| 10 | `feat: implement task management CRUD` | ✅ código · ⏳ não testado com o Firebase real |
+| 11–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -47,3 +48,20 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
   - As regras **não foram publicadas** no Firebase.
   - Não há cadastro público: o usuário é criado manualmente no console (uso pessoal).
 - **Como testar:** com o Firebase configurado, entre com o usuário criado no console; recarregue (a sessão deve continuar); clique em "Sair" (volta ao login); teste senha errada e "Esqueci a senha".
+
+## Commit 10 — Tarefas (CRUD)
+
+- **O que foi feito:**
+  - Módulo **Tarefas** (`#/tarefas`): criar, listar, visualizar (detalhe), editar, concluir/reabrir e excluir (com confirmação).
+  - Campos: título (obrigatório), descrição, status, prioridade, prazo, categoria e tags.
+  - Visões: Abertas, Hoje, Próximas, Atrasadas, Concluídas, Todas; filtros por status e prioridade; busca por título, descrição, categoria e tags.
+  - Estados de carregamento, erro (com "Tentar de novo") e lista vazia; erros de rede/permissão/documento inexistente com mensagens em português.
+  - Dados em `users/{uid}/tasks/{id}` com atualização em tempo real (uma única assinatura compartilhada por todas as telas).
+  - O **dashboard** e a lista "Hoje" do painel esquerdo agora leem as tarefas reais (mesmo serviço, sem cópias). O botão "Criar → Nova tarefa" abre o formulário real.
+  - Regras do Firestore: removida a regra genérica de subcoleções; `tasks` tem regra própria com validação (título, status, prioridade, campos permitidos). Subcoleções não listadas ficam negadas.
+  - Testes de lógica (`npm test`, 15 casos, **executados e passando**) e novos casos nas regras (`npm run test:rules`, **não executados**).
+- **Não feito:**
+  - Vínculo com cliente/projeto: os campos `clientId`/`projectId` existem (valor `null`) mas não há seletor até os commits 11 e 12.
+  - Nenhum teste de interface automatizado.
+- **Como testar (com Firebase configurado e regras publicadas):** crie uma tarefa; recarregue a página (ela deve continuar); edite; conclua e reabra; filtre por visão, status, prioridade e busca; exclua (confirmação); confira o dashboard e "Hoje". Tente salvar sem título (erro no campo). Em outra conta, as tarefas não aparecem.
+- **Atenção:** republique `firestore.rules` no console (a versão anterior permitia qualquer escrita em subcoleções do próprio usuário).

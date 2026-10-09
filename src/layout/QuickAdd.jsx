@@ -3,12 +3,14 @@ import { Plus } from 'lucide-react'
 import Button from '../components/Button.jsx'
 import Dialog from '../components/Dialog.jsx'
 import { QUICK_ACTIONS } from './nav.js'
+import { useTaskEditor } from '../features/tasks/TaskEditor.jsx'
 
 // Nenhum formulário existe ainda: a ação informa que está pendente em vez de fingir sucesso.
 export default function QuickAdd() {
   const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(null)
   const wrap = useRef(null)
+  const taskEditor = useTaskEditor()
 
   useEffect(() => {
     if (!open) return
@@ -27,7 +29,7 @@ export default function QuickAdd() {
       {open && (
         <div className="menu" role="menu" style={{ top: 'calc(100% + 4px)', left: 0 }}>
           {QUICK_ACTIONS.map((a) => (
-            <button key={a.id} role="menuitem" className="menu__item" onClick={() => { setPending(a); setOpen(false) }}>
+            <button key={a.id} role="menuitem" className="menu__item" onClick={() => { setOpen(false); if (a.id === 'tarefa') taskEditor.openNew(); else setPending(a) }}>
               {a.label}
             </button>
           ))}

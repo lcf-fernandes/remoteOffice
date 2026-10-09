@@ -10,7 +10,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - [ ] **Criar seu usuário** em Authentication → Usuários (não existe tela de cadastro, de propósito).
 - [ ] **Criar o Firestore** em modo de produção.
 - [ ] **Testar as regras no emulador:** `npm run test:rules` (requer Java e acesso à internet para o `firebase-tools`).
-- [ ] **Publicar as regras:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
+- [ ] **Republicar as regras** (`firestore.rules` mudou no commit 10: agora valida tarefas). **Publicar:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
 - [ ] Adicionar o domínio de produção em Authentication → Domínios autorizados (na publicação).
 - [ ] Escolher a hospedagem e publicar (commit 23).
 
@@ -18,7 +18,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 | Guia | Entrega |
 |---|---|
-| 10 | Tarefas (CRUD, filtros, busca) |
+| 10 (parcial) | Vínculo de tarefa com cliente/projeto: seletores entram com os commits 11 e 12 |
 | 11 | Clientes e histórico de interações |
 | 12 | Projetos e relacionamentos |
 | 13 | Agenda e prazos |
@@ -35,10 +35,11 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 ## Limitações atuais conhecidas
 
-- O dashboard, o painel direito e "Hoje" no painel esquerdo mostram **dados de demonstração**.
+- No dashboard, só as **tarefas** são reais. Agenda, projetos, propostas e pagamentos (dashboard e painel direito) ainda são **dados de demonstração**.
 - O botão "Criar" ainda não abre formulários; o painel "Notas rápidas", os "Atalhos externos" e o "Cronômetro" são só marcadores.
 - Bundle JS acima de 500 kB (SDK do Firebase): avaliar divisão de código no commit 22.
-- Sem testes automatizados de interface; só os testes de regras (ainda não executados).
+- Sem testes automatizados de interface. Há testes de lógica de tarefas (`npm test`) e de regras (`npm run test:rules`, ainda não executados).
+- Busca de tarefas é feita no navegador (adequada para uso pessoal); revisar se o volume crescer muito.
 - Sem lint/formatador configurado.
 - Commits intermediários 02–07 podem não compilar isoladamente (ver nota em [PROGRESS.md](PROGRESS.md)).
 

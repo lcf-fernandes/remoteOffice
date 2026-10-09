@@ -1,7 +1,8 @@
 rules_version = '2';
 
-// Negado por padrão. Cada usuário acessa somente users/{seuUid} e tudo abaixo dele.
+// Negado por padrão. Cada usuário acessa somente users/{seuUid} e coleções explicitamente listadas abaixo.
 // Nenhuma permissão depende de campo editável pelo cliente (ex.: "role").
+// Cada nova coleção (clientes, projetos...) ganha sua própria regra com validação nos próximos commits.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -17,14 +18,27 @@ service cloud.firestore {
         && d.preferences is map;
     }
 
+    function validTask() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['title', 'description', 'status', 'priority', 'due', 'category', 'tags',
+                               'clientId', 'projectId', 'completedAt', 'createdAt', 'updatedAt'])
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 200
+        && d.status in ['backlog', 'todo', 'in_progress', 'waiting', 'done', 'cancelled']
+        && d.priority in ['low', 'medium', 'high']
+        && (!('description' in d) || (d.description is string && d.description.size() <= 5000))
+        && (!('category' in d) || (d.category is string && d.category.size() <= 60))
+        && (!('tags' in d) || (d.tags is list && d.tags.size() <= 20))
+        && (!('due' in d) || d.due == null || d.due is timestamp);
+    }
+
     match /users/{uid} {
       allow read: if isOwner(uid);
       allow create, update: if isOwner(uid) && validProfile();
       allow delete: if false;
 
-      // Tarefas, clientes, projetos etc. ficam em users/{uid}/<coleção>/{id}.
-      match /{document=**} {
-        allow read, write: if isOwner(uid);
+      match /tasks/{taskId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validTask();
       }
     }
 
