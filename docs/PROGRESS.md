@@ -13,7 +13,7 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 04 | `feat: add responsive three-column workspace shell` | ✅ |
 | 06 | `feat: build dashboard overview with development fixtures` | ✅ |
 | 07 | `feat: add module navigation and quick actions` | ✅ |
-| 08 | `feat: configure Firebase client services` | ✅ código · ⏳ projeto Firebase ainda não criado |
+| 08 | `feat: configure Firebase client services` | ✅ código · ✅ projeto Firebase criado (`remote-office-e73ae`) · ⏳ configuração local e serviços (ver PENDING.md) |
 | 09 | `feat: add secure authentication and private workspace` | ✅ código · ⏳ regras não publicadas, não testadas no emulador |
 | 10–23 | Módulos, dashboard real, segurança, polimento, publicação | ⏳ |
 
@@ -30,7 +30,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 ## Commit 08 — Firebase (código)
 
 - **O que foi feito:** `src/services/firebase.js` inicializa Auth e Firestore a partir de `VITE_FIREBASE_*`; se faltar variável, o app não quebra e informa quais faltam; `.env.example` sem valores; `docs/FIREBASE.md` com o passo a passo.
-- **Não feito:** criar o projeto Firebase e preencher o `.env` (ação manual — ver [PENDING.md](PENDING.md)).
+- **Projeto Firebase:** criado em 2026-10-09 (`remote-office-e73ae`), app Web registrado.
+- **Não feito:** preencher o `.env` local, ativar Authentication e criar o Firestore (ações manuais — ver [PENDING.md](PENDING.md)).
 - **Como testar:** sem `.env`, a tela mostra "Firebase não configurado".
 
 ## Commit 09 — Autenticação e dados privados

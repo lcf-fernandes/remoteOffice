@@ -4,8 +4,8 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 ## Ações manuais suas (nada disso foi feito pelo código)
 
-- [ ] **Criar o projeto no Firebase** (console.firebase.google.com) e registrar um app Web — [FIREBASE.md](FIREBASE.md), passos 1–2.
-- [ ] **Criar o `.env`** a partir de `.env.example` com os valores do app Web.
+- [x] **Criar o projeto no Firebase e registrar o app Web** — feito: projeto `remote-office-e73ae`.
+- [ ] **Criar o `.env` local** a partir de `.env.example` com os valores do app Web (o arquivo não vai para o Git).
 - [ ] **Ativar Authentication → E-mail/senha.**
 - [ ] **Criar seu usuário** em Authentication → Usuários (não existe tela de cadastro, de propósito).
 - [ ] **Criar o Firestore** em modo de produção.
