@@ -21,9 +21,13 @@ npm run preview  # servir o build localmente
 - Dashboard com **dados de demonstração** isolados em `src/dev/fixtures.js` (não são dados reais).
 - Navegação por hash (`#/tarefas`) e botão "Criar". Módulos ainda não construídos mostram "A implementar".
 
+## Firebase
+
+Configuração em `src/services/firebase.js` (variáveis `VITE_FIREBASE_*`). Passo a passo e avisos de segurança em [`docs/FIREBASE.md`](docs/FIREBASE.md).
+
 ## Próximos commits
 
-08 Firebase (config segura) · 09 Autenticação e regras · 10 Tarefas (CRUD) · 11 Clientes · 12 Projetos.
+09 Autenticação e regras · 10 Tarefas (CRUD) · 11 Clientes · 12 Projetos.
 Ao chegar no 10, o dashboard deixa de ler `src/dev/fixtures.js` e passa a consumir o serviço de tarefas.
 
 ## Segurança
