@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Negado por padrão. Cada usuário acessa somente users/{seuUid} e tudo abaixo dele.
+// Nenhuma permissão depende de campo editável pelo cliente (ex.: "role").
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validProfile() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['email', 'displayName', 'preferences', 'createdAt', 'updatedAt'])
+        && d.email is string
+        && d.displayName is string
+        && d.preferences is map;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validProfile();
+      allow delete: if false;
+
+      // Tarefas, clientes, projetos etc. ficam em users/{uid}/<coleção>/{id}.
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

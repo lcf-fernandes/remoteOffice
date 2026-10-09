@@ -6,6 +6,10 @@ import RightPanel from '../layout/RightPanel.jsx'
 import Dashboard from '../features/dashboard/Dashboard.jsx'
 import ModulePlaceholder from '../features/modules/ModulePlaceholder.jsx'
 import FirebaseNotice from '../components/FirebaseNotice.jsx'
+import AuthProvider, { useAuth } from '../features/auth/AuthProvider.jsx'
+import LoginPage from '../features/auth/LoginPage.jsx'
+import { ErrorState, LoadingState } from '../components/states.jsx'
+import { authErrorMessage } from '../services/auth.js'
 
 function useHashRoute() {
   const read = () => window.location.hash.replace(/^#\/?/, '') || 'dashboard'
@@ -18,7 +22,7 @@ function useHashRoute() {
   return route
 }
 
-export default function App() {
+function Workspace() {
   const route = useHashRoute()
   const [drawer, setDrawer] = useState(false)
 
@@ -44,7 +48,6 @@ export default function App() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        <div className="center__inner" style={{ marginBottom: 'var(--sp-4)' }}><FirebaseNotice /></div>
         {route === 'dashboard' ? <Dashboard /> : <ModulePlaceholder route={route} />}
       </main>
 
@@ -52,5 +55,22 @@ export default function App() {
         <RightPanel />
       </aside>
     </div>
+  )
+}
+
+function Gate() {
+  const auth = useAuth()
+  if (auth.status === 'unconfigured') return <main className="login"><div className="login__card"><FirebaseNotice /></div></main>
+  if (auth.status === 'loading') return <main className="login"><LoadingState label="Verificando sessão…" /></main>
+  if (auth.status === 'error') return <main className="login"><div className="login__card"><ErrorState title="Não foi possível carregar sua conta">{authErrorMessage(auth.error)}</ErrorState></div></main>
+  if (auth.status === 'signedOut') return <LoginPage />
+  return <Workspace />
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <Gate />
+    </AuthProvider>
   )
 }

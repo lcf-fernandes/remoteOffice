@@ -2,9 +2,14 @@ import { NAV } from './nav.js'
 import QuickAdd from './QuickAdd.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import { formatLongDate } from '../utils/format.js'
+import Button from '../components/Button.jsx'
+import { LogOut } from 'lucide-react'
+import { useAuth } from '../features/auth/AuthProvider.jsx'
+import { signOutUser } from '../services/auth.js'
 import { demo } from '../dev/fixtures.js'
 
 export default function LeftPanel({ route, onNavigate }) {
+  const auth = useAuth()
   const today = demo.tasks.filter((t) => new Date(t.due).toDateString() === new Date().toDateString())
   return (
     <div className="left">
@@ -48,6 +53,13 @@ export default function LeftPanel({ route, onNavigate }) {
         <h2 id="l-atalhos" className="left__h">Atalhos externos</h2>
         <p className="left__muted">Nenhum atalho configurado. Você poderá adicionar GitHub, Firebase, e-mail e outras ferramentas em Configurações.</p>
       </section>
+
+      {auth?.user && (
+        <div className="left__user">
+          <span>{auth.user.email}</span>
+          <Button icon={LogOut} onClick={() => signOutUser()}>Sair</Button>
+        </div>
+      )}
     </div>
   )
 }
