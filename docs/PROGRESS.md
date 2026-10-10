@@ -33,6 +33,7 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 
 - **O que foi feito:** `src/services/firebase.js` inicializa Auth e Firestore a partir de `VITE_FIREBASE_*`; se faltar variável, o app não quebra e informa quais faltam; `.env.example` sem valores; `docs/FIREBASE.md` com o passo a passo.
 - **Projeto Firebase:** criado em 2026-10-09 (`remote-office-e73ae`), app Web registrado.
+- **Implantação:** o projeto é testado pela Vercel (sem cópia local). As variáveis precisam ser cadastradas lá — ver [FIREBASE.md](FIREBASE.md#publicar-na-vercel). O aviso na tela agora menciona a Vercel.
 - **Não feito:** preencher o `.env` local, ativar Authentication e criar o Firestore (ações manuais — ver [PENDING.md](PENDING.md)).
 - **Como testar:** sem `.env`, a tela mostra "Firebase não configurado".
 

@@ -8,7 +8,7 @@ export default function FirebaseNotice() {
     <ErrorState title="Firebase não configurado">
       {firebaseStatus.error
         ? `Falha ao iniciar o Firebase: ${firebaseStatus.error}`
-        : `Copie .env.example para .env e preencha: ${firebaseStatus.missing.join(', ')}. Veja docs/FIREBASE.md.`}
+        : `Faltam as variáveis: ${firebaseStatus.missing.join(', ')}. Localmente, crie o arquivo .env a partir do .env.example. Na Vercel, cadastre-as em Settings → Environment Variables e faça um novo deploy. Veja docs/FIREBASE.md.`}
     </ErrorState>
   )
 }

@@ -11,8 +11,10 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - [ ] **Criar o Firestore** em modo de produção.
 - [ ] **Testar as regras no emulador:** `npm run test:rules` (requer Java e acesso à internet para o `firebase-tools`).
 - [ ] **Republicar as regras** (`firestore.rules` mudou nos commits 10 e 11: valida tarefas, clientes e interações; **clientes não funcionam sem isso**). **Publicar:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
-- [ ] Adicionar o domínio de produção em Authentication → Domínios autorizados (na publicação).
-- [ ] Escolher a hospedagem e publicar (commit 23).
+- [x] Hospedagem: repositório conectado à Vercel (`remote-office-omega.vercel.app`).
+- [ ] **Vercel:** cadastrar as 6 variáveis `VITE_FIREBASE_*` em Settings → Environment Variables e fazer **Redeploy** — [FIREBASE.md](FIREBASE.md#publicar-na-vercel).
+- [ ] **Firebase:** autorizar o domínio da Vercel em Authentication → Domínios autorizados.
+- [ ] Revisão final de publicação (commit 23).
 
 ## Funcionalidades do guia ainda não construídas
 

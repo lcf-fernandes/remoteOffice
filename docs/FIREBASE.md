@@ -17,3 +17,15 @@
 - As regras estão em `firestore.rules`. Teste-as com `npm run test:rules` (emulador; requer Java) e só então publique: `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>`.
 - Os dados ficam em `users/{uid}/...`; ver [DECISIONS.md](DECISIONS.md).
 - Nunca coloque service account, chave privada ou credenciais administrativas no frontend ou no Git.
+
+## Publicar na Vercel
+
+O Vite grava as variáveis `VITE_*` **no momento do build**: elas precisam existir na Vercel antes do deploy, e qualquer mudança exige um novo deploy. O arquivo `.env` local não vai para o Git, então a Vercel não o enxerga.
+
+1. Vercel → projeto → **Settings → Environment Variables**.
+2. Cadastre as 6 variáveis `VITE_FIREBASE_*` (mesmos nomes do `.env.example`, valores do app Web do Firebase), marcadas para **Production, Preview e Development**.
+3. **Deployments →** `⋯` do último deploy **→ Redeploy** (ou faça um novo commit).
+4. No Firebase: **Authentication → Configurações → Domínios autorizados → Adicionar domínio** e inclua o domínio da Vercel (ex.: `remote-office-omega.vercel.app`). Sem isso o login falha com `auth/unauthorized-domain`.
+5. URLs de *preview* da Vercel (uma por commit/branch) são domínios diferentes: o Firebase não aceita curinga, então teste pela URL de produção ou adicione cada preview que quiser usar.
+
+Configurações de build esperadas (a Vercel detecta o Vite sozinha): comando `npm run build`, saída `dist`. A navegação usa `#/` (hash), então não é preciso configurar redirecionamentos.
