@@ -34,7 +34,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 ## Limitações atuais conhecidas
 
-- No dashboard, só as **tarefas** são reais. Agenda, projetos, propostas e pagamentos (dashboard e painel direito) ainda são **dados de demonstração**.
+- No dashboard, tarefas, clientes e projetos são reais. Agenda, propostas e pagamentos (dashboard e painel direito) ainda são **dados de demonstração**.
 - O botão "Criar" ainda não abre formulários; o painel "Notas rápidas", os "Atalhos externos" e o "Cronômetro" são só marcadores.
 - Bundle JS acima de 500 kB (SDK do Firebase): avaliar divisão de código no commit 22.
 - Sem testes automatizados de interface. Há testes de lógica de tarefas (`npm test`) e de regras (`npm run test:rules`, ainda não executados).

@@ -21,3 +21,9 @@
 | Interações como subcoleção `clients/{id}/interactions` | Histórico pertence ao cliente; carregado só quando o detalhe é aberto. |
 | Tarefa guarda só `clientId`; nome vem do provider de clientes | Sem duplicar dados; renomear o cliente reflete em todas as telas. |
 | Rota com parâmetro no hash (`#/clientes/{id}`) | Detalhe com URL própria sem adicionar biblioteca de rotas. |
+| Progresso do projeto = concluídas ÷ não canceladas, mostrado na tela | Regra única (`projectProgress`) usada por lista, Kanban, detalhe e dashboard; sem tarefas, mostra "Sem tarefas" em vez de 0%. |
+| Kanban sem arrastar e soltar; mudança de status por seletor | Acessível por teclado e leitor de tela, com menos código; usa o mesmo campo `status` da lista. |
+| Tarefa guarda `projectId` e `clientId` independentes | Uma tarefa pode ter cliente sem projeto; ao criar pela página do projeto, o cliente do projeto é preenchido. |
+| Marcos e diário como subcoleções do projeto | Crescem sem limite do documento e são carregados só no detalhe. |
+| Links do projeto: só http/https | Evita esquemas perigosos (ex.: `javascript:`); abertos com `rel="noopener noreferrer"`. |
+| Projeto de cliente arquivado continua visível | O cliente arquivado continua no cadastro; o projeto mostra "(arquivado)". |
