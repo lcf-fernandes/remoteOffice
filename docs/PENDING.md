@@ -33,7 +33,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - Todos os blocos do dashboard e do painel direito leem dados reais; **não há mais dados de demonstração**. Exceção: "Notas rápidas" e "Atalhos externos" do painel esquerdo (commits 17 e 18) ainda são marcadores.
 - Tempo: sem valor/hora nem rentabilidade, sem faturas, sem pausa/retomada (parar e iniciar outro), sem notificação de cronômetro esquecido; registros sobrepostos só geram aviso; tarefas/projetos excluídos aparecem como "(tarefa excluída)" / "(projeto excluído)" nos relatórios.
 - Financeiro: sem conversão de moedas (não há fonte de câmbio), sem recorrência, anexos/comprovantes, gráficos ou relatórios; aceitar proposta não gera lançamento (criar manualmente).
-- O botão "Criar" ainda não abre formulários; o painel "Notas rápidas", os "Atalhos externos" e o "Cronômetro" são só marcadores.
+- O botão "Criar" abre formulários reais para tarefa, cliente, projeto, evento, proposta, receita, despesa e registro de tempo; só "Nova nota" ainda mostra um aviso (commit 17). "Notas rápidas" e "Atalhos externos" do painel esquerdo são só marcadores (commits 17 e 18).
 - Bundle JS acima de 500 kB (SDK do Firebase): avaliar divisão de código no commit 22.
 - Sem testes automatizados de interface. Há testes de lógica de tarefas (`npm test`) e de regras (`npm run test:rules`, ainda não executados).
 - Comercial: sem envio de proposta/e-mail, sem anexos/PDF; o prazo de follow-up fica no navegador (vai para a conta no commit 18).
