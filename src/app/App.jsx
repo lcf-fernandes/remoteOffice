@@ -15,6 +15,10 @@ import ClientsProvider from '../features/clients/ClientsProvider.jsx'
 import ClientEditorProvider from '../features/clients/ClientEditor.jsx'
 import ClientsPage from '../features/clients/ClientsPage.jsx'
 import ClientDetail from '../features/clients/ClientDetail.jsx'
+import ProjectsProvider from '../features/projects/ProjectsProvider.jsx'
+import ProjectEditorProvider from '../features/projects/ProjectEditor.jsx'
+import ProjectsPage from '../features/projects/ProjectsPage.jsx'
+import ProjectDetail from '../features/projects/ProjectDetail.jsx'
 import { ErrorState, LoadingState } from '../components/states.jsx'
 import { authErrorMessage } from '../services/auth.js'
 
@@ -55,7 +59,7 @@ function Workspace() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : <ModulePlaceholder route={route} />}
+        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : <ModulePlaceholder route={route} />}
       </main>
 
       <aside className="col col--right" aria-label="Contexto e pendências">
@@ -74,11 +78,15 @@ function Gate() {
   return (
     <TasksProvider uid={auth.user.uid}>
       <ClientsProvider uid={auth.user.uid}>
-        <TaskEditorProvider>
-          <ClientEditorProvider>
-            <Workspace />
-          </ClientEditorProvider>
-        </TaskEditorProvider>
+        <ProjectsProvider uid={auth.user.uid}>
+          <TaskEditorProvider>
+            <ClientEditorProvider>
+              <ProjectEditorProvider>
+                <Workspace />
+              </ProjectEditorProvider>
+            </ClientEditorProvider>
+          </TaskEditorProvider>
+        </ProjectsProvider>
       </ClientsProvider>
     </TasksProvider>
   )

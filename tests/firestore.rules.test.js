@@ -67,6 +67,20 @@ describe('firestore.rules', () => {
     await assertFails(setDoc(doc(alice, 'users/alice/clients/c1/interactions/i4'), { ...ok, date: 'ontem' }))
     await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/clients/c1/interactions/i5'), ok))
   })
+  it('projetos, marcos e diário: dono grava; dados inválidos e outros usuários são negados', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const project = { name: 'Site', description: '', clientId: null, type: 'development', status: 'planning', priority: 'medium', startDate: null, dueDate: null, links: ['https://exemplo.com'] }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/projects/p1'), project))
+    await assertFails(setDoc(doc(alice, 'users/alice/projects/p2'), { ...project, name: '' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/projects/p3'), { ...project, type: 'outro' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/projects/p4'), { ...project, status: 'x' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/projects/p5'), { ...project, links: Array(11).fill('https://a.co') }))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/projects/p6'), project))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/projects/p1/milestones/m1'), { title: 'Entrega 1', date: null, done: false }))
+    await assertFails(setDoc(doc(alice, 'users/alice/projects/p1/milestones/m2'), { title: 'x', date: null, done: 'sim' }))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/projects/p1/journal/j1'), { date: Timestamp.now(), text: 'Reunião de kickoff' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/projects/p1/journal/j2'), { date: Timestamp.now(), text: '' }))
+  })
   it('nega subcoleções não listadas', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/notes/n1'), { a: 1 }))
   })

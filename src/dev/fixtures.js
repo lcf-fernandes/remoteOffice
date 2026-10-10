@@ -10,11 +10,6 @@ export const demo = {
     { id: 'e2', title: 'Edição: bloco de foco', start: day(0, 14, 0), end: day(0, 16, 30) },
     { id: 'e3', title: 'Call de proposta', start: day(0, 17, 0), end: day(0, 17, 30) },
   ],
-  projects: [
-    { id: 'p1', name: 'Vídeo institucional', client: 'Cliente A', status: 'review', progress: 80, due: day(2), attention: 'Aprovação do cliente pendente' },
-    { id: 'p2', name: 'Site da agência', client: 'Cliente B', status: 'active', progress: 45, due: day(9) },
-    { id: 'p3', name: 'App de agendamento', client: 'Cliente C', status: 'waiting_client', progress: 30, due: day(14), attention: 'Aguardando retorno há 5 dias' },
-  ],
   proposals: [
     { id: 'pr1', title: 'Redesign de landing page', client: 'Cliente D', status: 'sent', amount: 4200, currency: 'BRL', followUp: day(0) },
     { id: 'pr2', title: 'Pacote de 6 vídeos curtos', client: 'Cliente E', status: 'negotiation', amount: 3600, currency: 'BRL', followUp: day(3) },

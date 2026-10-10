@@ -17,7 +17,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 09 | `feat: add secure authentication and private workspace` | ✅ código · ⏳ regras não publicadas, não testadas no emulador |
 | 10 | `feat: implement task management CRUD` | ✅ código · ⏳ não testado com o Firebase real |
 | 11 | `feat: implement client management and interaction history` | ✅ código · ⏳ não testado com o Firebase real |
-| 12–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
+| 12 | `feat: implement projects and task relationships` | ✅ código · ⏳ não testado com o Firebase real |
+| 13–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -86,3 +87,26 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
   - Sem teste automatizado de interface.
 - **Como testar:** crie clientes (com e-mail/telefone inválidos para ver as mensagens); busque e filtre; abra o detalhe; registre interações; crie uma tarefa vinculada pelo detalhe e outra pelo módulo Tarefas escolhendo o cliente; arquive e reative; exclua um cliente com tarefas e confira que elas permanecem sem vínculo; confirme que o recarregamento mantém tudo.
 - **Atenção:** republique `firestore.rules` no console (novas coleções só funcionam depois disso — sem a regra publicada, clientes dão "Sem permissão").
+
+## Commit 12 — Projetos e tarefas vinculadas
+
+- **O que foi feito:**
+  - Módulo **Projetos** (`#/projetos`): criar, listar, editar, mudar status, arquivar/reativar e excluir.
+  - Campos: nome, descrição, cliente (opcional), tipo (Desenvolvimento, Edição, Social media, Interno, Outro), status (Planejamento, Ativo, Aguardando cliente, Em revisão, Concluído, Arquivado), prioridade, início, prazo final e links de referência (um por linha; só `http://` ou `https://`, máximo 10).
+  - **Lista e Kanban** sobre os mesmos dados e filtros (Em andamento, Concluídos, Arquivados, Todos; busca e tipo). No Kanban, o status muda pelo seletor "Mover … para" de cada cartão (acessível por teclado; arrastar e soltar não foi implementado).
+  - **Progresso com regra explícita e visível na tela:** tarefas concluídas ÷ tarefas não canceladas. Sem tarefas aparece "Sem tarefas ainda" (não 0%).
+  - **Detalhe do projeto** (`#/projetos/{id}`): resumo, links, progresso, tarefas vinculadas (com "Nova tarefa" já ligada ao projeto e ao cliente dele), **marcos** (título, data opcional, marcar como feito) e **diário** (registros por data).
+  - **Vínculos reais:** tarefas ganharam o seletor "Projeto" (nome na lista e no detalhe da tarefa); o detalhe do cliente lista os projetos dele (com "Novo projeto" já vinculado); o botão "Criar → Novo projeto" abre o formulário.
+  - **Cliente arquivado não quebra projetos:** o projeto continua legível e mostra "(arquivado)" junto ao nome do cliente. Excluir um cliente desvincula (não apaga) projetos e tarefas.
+  - **Dashboard e painel direito agora usam projetos reais:** "Projetos que pedem atenção" (prazo vencido, aguardando cliente ou entrega em até 7 dias), contadores, alerta de projetos vencidos, "Em foco" (projeto em andamento com o prazo mais próximo) e "Próximas entregas".
+  - **Política de remoção:** *Arquivar* é o padrão (reversível). *Excluir* é permanente: apaga marcos e diário e só desvincula as tarefas. Exige confirmação.
+  - Regras do Firestore para `projects`, `milestones` e `journal` com validação.
+  - Testes: 49 casos de lógica (`npm test`, **executados e passando**); novos casos de regras em `npm run test:rules` (**não executados**).
+- **Não feito:**
+  - Fatura/cobrança e cronômetro (conforme o guia, ficam para os commits 15 e 16).
+  - Arrastar e soltar no Kanban.
+  - Templates de tarefas (melhoria posterior prevista no guia: commit 19).
+  - Excluir marco/registro do diário não pede confirmação.
+  - Sem teste automatizado de interface.
+- **Como testar:** crie um projeto sem cliente e outro com cliente; mude o status pelo Kanban e confira que a lista reflete o mesmo status; crie tarefas pelo detalhe do projeto e conclua algumas (o progresso deve acompanhar, ignorando canceladas); adicione marcos e diário; arquive um cliente e confirme que os projetos dele continuam legíveis; defina prazos vencidos/próximos e confira o dashboard; exclua um projeto e confirme que as tarefas ficam sem vínculo.
+- **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, Projetos dão "Sem permissão").

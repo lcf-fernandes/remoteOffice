@@ -1,23 +1,36 @@
+import { useMemo } from 'react'
 import Card from '../../components/Card.jsx'
+import ProgressBar from '../../components/ProgressBar.jsx'
 import StatusBadge from '../../components/StatusBadge.jsx'
 import { EmptyState, ErrorState, LoadingState } from '../../components/states.jsx'
 import DayTimeline from './DayTimeline.jsx'
 import { useTasks } from '../tasks/TasksProvider.jsx'
+import { useProjects } from '../projects/ProjectsProvider.jsx'
+import { useClients } from '../clients/ClientsProvider.jsx'
 import { demo } from '../../dev/fixtures.js'
 import { greeting, formatLongDate, relativeDay, daysFromToday } from '../../utils/format.js'
 import { PRIORITY_LABEL, filterTasks, isOverdue, sortTasks } from '../../utils/tasks.js'
+import { EMPTY_PROGRESS, attentionReason, isOpenProject, progressByProject, projectIsLate, sortProjects } from '../../utils/projects.js'
 import { taskErrorMessage } from '../../services/tasks.js'
+import { projectErrorMessage } from '../../services/projects.js'
 
-// Tarefas vêm do Firestore (mesmo serviço do módulo Tarefas). Agenda, projetos e pagamentos
-// ainda usam dados de demonstração e estão marcados como tal até seus módulos existirem.
+// Tarefas, clientes e projetos são reais (mesmos serviços das telas de cada módulo).
+// Agenda, propostas e pagamentos ainda usam dados de demonstração e estão marcados como tal.
 export default function Dashboard() {
   const { status, tasks, error, retry } = useTasks()
+  const { status: pStatus, projects, error: pError, retry: pRetry } = useProjects()
+  const { byId: clientsById } = useClients()
+
   const open = filterTasks(tasks, { view: 'open' })
   const overdue = open.filter(isOverdue)
   const prioritized = sortTasks(open).slice(0, 5)
-  const attention = demo.projects.filter((p) => p.attention)
-  const dueSoon = demo.projects.filter((p) => daysFromToday(p.due) <= 7)
+  const progress = useMemo(() => progressByProject(tasks), [tasks])
+  const openProjects = projects.filter(isOpenProject)
+  const dueSoon = openProjects.filter((p) => p.dueDate && daysFromToday(p.dueDate) <= 7)
+  const lateProjects = openProjects.filter(projectIsLate)
+  const attention = sortProjects(projects.map((p) => ({ p, reason: attentionReason(p) })).filter((x) => x.reason).map((x) => x.p))
   const overduePayments = demo.payments.filter((t) => t.status === 'overdue')
+  const projectsReady = pStatus === 'ready'
 
   return (
     <div className="center__inner">
@@ -26,18 +39,19 @@ export default function Dashboard() {
           <h1 className="page-title">{greeting()}, Leandro</h1>
           <p className="dash-date">{formatLongDate()}</p>
         </div>
-        <span className="demo-flag">Tarefas reais · demais blocos em demonstração</span>
+        <span className="demo-flag">Tarefas, clientes e projetos reais · demais blocos em demonstração</span>
       </header>
 
       <dl className="stats">
         <div><dt>Tarefas abertas</dt><dd>{status === 'ready' ? open.length : '—'}</dd></div>
-        <div><dt>Entregas em 7 dias (demo)</dt><dd>{dueSoon.length}</dd></div>
-        <div><dt>Projetos ativos (demo)</dt><dd>{demo.projects.length}</dd></div>
+        <div><dt>Projetos com entrega em 7 dias</dt><dd>{projectsReady ? dueSoon.length : '—'}</dd></div>
+        <div><dt>Projetos em andamento</dt><dd>{projectsReady ? openProjects.length : '—'}</dd></div>
       </dl>
 
-      {(overdue.length > 0 || overduePayments.length > 0) && (
+      {(overdue.length > 0 || lateProjects.length > 0 || overduePayments.length > 0) && (
         <section aria-label="Alertas" className="alerts">
           {overdue.length > 0 && <p><strong>{overdue.length}</strong> {overdue.length === 1 ? 'tarefa atrasada' : 'tarefas atrasadas'}.</p>}
+          {lateProjects.length > 0 && <p><strong>{lateProjects.length}</strong> {lateProjects.length === 1 ? 'projeto com prazo vencido' : 'projetos com prazo vencido'}.</p>}
           {overduePayments.length > 0 && <p><strong>{overduePayments.length}</strong> {overduePayments.length === 1 ? 'pagamento vencido (demo)' : 'pagamentos vencidos (demo)'}.</p>}
         </section>
       )}
@@ -69,24 +83,26 @@ export default function Dashboard() {
         )}
       </Card>
 
-      <Card title="Projetos que pedem atenção" hint="Demonstração — projetos reais chegam no commit 12" id="d-proj">
-        {attention.length ? (
+      <Card title="Projetos que pedem atenção" hint="Prazo vencido, aguardando cliente ou entrega em até 7 dias" id="d-proj" action={<a href="#/projetos">Ver todos</a>}>
+        {pStatus === 'loading' && <LoadingState label="Carregando projetos…" />}
+        {pStatus === 'error' && <ErrorState title="Não foi possível carregar os projetos" onRetry={pRetry}>{projectErrorMessage(pError)}</ErrorState>}
+        {projectsReady && attention.length === 0 && <EmptyState title="Nenhum projeto pedindo atenção" />}
+        {projectsReady && attention.length > 0 && (
           <ul className="rows">
             {attention.map((p) => (
               <li key={p.id} className="row">
                 <div className="row__grow">
-                  <p className="row__title">{p.name} <span className="row__meta">· {p.client}</span></p>
-                  <p className="row__meta">{p.attention}</p>
-                  <div className="progress" role="progressbar" aria-valuenow={p.progress} aria-valuemin={0} aria-valuemax={100} aria-label={`Progresso de ${p.name}`}>
-                    <span style={{ width: `${p.progress}%` }} />
-                  </div>
+                  <p className="row__title">
+                    <a className="pcard__title" href={`#/projetos/${p.id}`}>{p.name}</a>
+                    {p.clientId && clientsById[p.clientId] ? <span className="row__meta"> · {clientsById[p.clientId].name}</span> : null}
+                  </p>
+                  <p className="row__meta">{attentionReason(p)}</p>
+                  <ProgressBar progress={progress[p.id] ?? EMPTY_PROGRESS} label={`Progresso de ${p.name}`} />
                 </div>
                 <StatusBadge status={p.status} />
               </li>
             ))}
           </ul>
-        ) : (
-          <EmptyState title="Nenhum projeto parado" />
         )}
       </Card>
     </div>

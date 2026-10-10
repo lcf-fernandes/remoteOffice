@@ -29,7 +29,8 @@ service cloud.firestore {
         && (!('category' in d) || (d.category is string && d.category.size() <= 60))
         && (!('tags' in d) || (d.tags is list && d.tags.size() <= 20))
         && (!('due' in d) || d.due == null || d.due is timestamp)
-        && (!('clientId' in d) || d.clientId == null || d.clientId is string);
+        && (!('clientId' in d) || d.clientId == null || d.clientId is string)
+        && (!('projectId' in d) || d.projectId == null || d.projectId is string);
     }
 
     function validClient() {
@@ -45,6 +46,36 @@ service cloud.firestore {
         && (!('notes' in d) || (d.notes is string && d.notes.size() <= 5000))
         && (!('nextAction' in d) || (d.nextAction is string && d.nextAction.size() <= 200))
         && (!('nextActionDate' in d) || d.nextActionDate == null || d.nextActionDate is timestamp);
+    }
+
+    function validProject() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['name', 'description', 'clientId', 'type', 'status', 'priority',
+                               'startDate', 'dueDate', 'links', 'createdAt', 'updatedAt'])
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 120
+        && d.type in ['development', 'editing', 'social_media', 'internal', 'other']
+        && d.status in ['planning', 'active', 'waiting_client', 'review', 'completed', 'archived']
+        && d.priority in ['low', 'medium', 'high']
+        && (!('description' in d) || (d.description is string && d.description.size() <= 5000))
+        && (!('clientId' in d) || d.clientId == null || d.clientId is string)
+        && (!('startDate' in d) || d.startDate == null || d.startDate is timestamp)
+        && (!('dueDate' in d) || d.dueDate == null || d.dueDate is timestamp)
+        && (!('links' in d) || (d.links is list && d.links.size() <= 10));
+    }
+
+    function validMilestone() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['title', 'date', 'done', 'createdAt'])
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 160
+        && d.done is bool
+        && (!('date' in d) || d.date == null || d.date is timestamp);
+    }
+
+    function validJournal() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['date', 'text', 'createdAt'])
+        && d.date is timestamp
+        && d.text is string && d.text.size() > 0 && d.text.size() <= 5000;
     }
 
     function validInteraction() {
@@ -63,6 +94,21 @@ service cloud.firestore {
       match /tasks/{taskId} {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid) && validTask();
+      }
+
+      match /projects/{projectId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validProject();
+
+        match /milestones/{milestoneId} {
+          allow read, delete: if isOwner(uid);
+          allow create, update: if isOwner(uid) && validMilestone();
+        }
+
+        match /journal/{entryId} {
+          allow read, delete: if isOwner(uid);
+          allow create, update: if isOwner(uid) && validJournal();
+        }
       }
 
       match /clients/{clientId} {

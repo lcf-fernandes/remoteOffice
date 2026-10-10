@@ -3,22 +3,34 @@ import StatusBadge from '../components/StatusBadge.jsx'
 import { EmptyState } from '../components/states.jsx'
 import { formatMoney, relativeDay } from '../utils/format.js'
 import { demo } from '../dev/fixtures.js'
+import { useProjects } from '../features/projects/ProjectsProvider.jsx'
+import { isOpenProject, sortProjects, projectIsLate } from '../utils/projects.js'
+import { useClients } from '../features/clients/ClientsProvider.jsx'
 
 export default function RightPanel() {
-  const focus = demo.projects[0]
-  const deliveries = [...demo.projects].sort((a, b) => new Date(a.due) - new Date(b.due))
+  const { status, projects } = useProjects()
+  const { byId: clientsById } = useClients()
+  const upcoming = sortProjects(projects.filter((p) => isOpenProject(p) && p.dueDate))
+  const focus = upcoming[0] ?? null
   return (
     <div className="right">
-      <Card title="Em foco" id="r-foco">
-        <p className="right__strong">{focus.name}</p>
-        <p className="right__muted">{focus.client}</p>
-        <div className="right__row"><StatusBadge status={focus.status} /><span className="right__muted">entrega {relativeDay(focus.due)}</span></div>
+      <Card title="Em foco" id="r-foco" hint="Projeto em andamento com o prazo mais próximo">
+        {status === 'loading' && <p className="right__muted">Carregando…</p>}
+        {status === 'ready' && !focus && <p className="right__muted">Nenhum projeto em andamento com prazo.</p>}
+        {focus && (
+          <>
+            <a className="pcard__title" href={`#/projetos/${focus.id}`}>{focus.name}</a>
+            <p className="right__muted">{focus.clientId && clientsById[focus.clientId] ? clientsById[focus.clientId].name : 'Sem cliente'}</p>
+            <div className="right__row"><StatusBadge status={focus.status} /><span className={`right__muted ${projectIsLate(focus) ? 'is-late' : ''}`}>entrega {relativeDay(focus.dueDate)}</span></div>
+          </>
+        )}
       </Card>
 
       <Card title="Próximas entregas" id="r-entregas">
+        {status === 'ready' && upcoming.length === 0 && <p className="right__muted">Nenhuma entrega com prazo definido.</p>}
         <ul className="right__list">
-          {deliveries.map((p) => (
-            <li key={p.id}><span>{p.name}</span><span className="right__muted">{relativeDay(p.due)}</span></li>
+          {upcoming.slice(0, 5).map((p) => (
+            <li key={p.id}><a href={`#/projetos/${p.id}`}>{p.name}</a><span className={`right__muted ${projectIsLate(p) ? 'is-late' : ''}`}>{relativeDay(p.dueDate)}</span></li>
           ))}
         </ul>
       </Card>

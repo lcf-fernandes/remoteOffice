@@ -4,6 +4,7 @@ import Dialog from '../../components/Dialog.jsx'
 import { Input, Select, Textarea } from '../../components/Field.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useClients } from '../clients/ClientsProvider.jsx'
+import { useProjects } from '../projects/ProjectsProvider.jsx'
 import { createTask, taskErrorMessage, updateTask } from '../../services/tasks.js'
 import { sortClients } from '../../utils/clients.js'
 import { PRIORITY_OPTIONS, STATUS_OPTIONS, dateToInput, inputToDate, parseTags, validateTask } from '../../utils/tasks.js'
@@ -11,10 +12,10 @@ import { PRIORITY_OPTIONS, STATUS_OPTIONS, dateToInput, inputToDate, parseTags, 
 const EditorContext = createContext(null)
 export const useTaskEditor = () => useContext(EditorContext)
 
-const EMPTY = { title: '', description: '', status: 'todo', priority: 'medium', due: '', category: '', tags: '', clientId: '' }
+const EMPTY = { title: '', description: '', status: 'todo', priority: 'medium', due: '', category: '', tags: '', clientId: '', projectId: '' }
 const fromTask = (t) => ({
   title: t.title, description: t.description, status: t.status, priority: t.priority,
-  due: dateToInput(t.due), category: t.category, tags: t.tags.join(', '), clientId: t.clientId ?? '',
+  due: dateToInput(t.due), category: t.category, tags: t.tags.join(', '), clientId: t.clientId ?? '', projectId: t.projectId ?? '',
 })
 
 // Provider global: qualquer tela (ou o botão "Criar") abre o mesmo formulário.
@@ -37,7 +38,12 @@ export default function TaskEditorProvider({ children }) {
 function TaskFormDialog({ open, task, initial, onClose }) {
   const { user } = useAuth()
   const { clients } = useClients()
+  const { projects } = useProjects()
   const [values, setValues] = useState(task ? fromTask(task) : { ...EMPTY, ...(initial ?? {}) })
+  const projectOptions = [
+    { value: '', label: 'Sem projeto' },
+    ...[...projects].filter((pr) => !['archived', 'completed'].includes(pr.status) || pr.id === values.projectId).sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')).map((pr) => ({ value: pr.id, label: pr.name })),
+  ]
   const clientOptions = [
     { value: '', label: 'Sem cliente' },
     ...sortClients(clients.filter((c) => c.status !== 'archived' || c.id === values.clientId)).map((c) => ({ value: c.id, label: c.company ? `${c.name} (${c.company})` : c.name })),
@@ -89,7 +95,10 @@ function TaskFormDialog({ open, task, initial, onClose }) {
           <Input label="Prazo (opcional)" type="date" value={values.due} onChange={set('due')} error={errors.due} />
           <Input label="Categoria (opcional)" value={values.category} onChange={set('category')} error={errors.category} />
         </div>
-        <Select label="Cliente (opcional)" value={values.clientId} onChange={set('clientId')} options={clientOptions} />
+        <div className="form__row">
+          <Select label="Cliente (opcional)" value={values.clientId} onChange={set('clientId')} options={clientOptions} />
+          <Select label="Projeto (opcional)" value={values.projectId} onChange={set('projectId')} options={projectOptions} />
+        </div>
         <Input label="Tags (separadas por vírgula)" value={values.tags} onChange={set('tags')} error={errors.tags} />
         {submitError && <p className="field__error" role="alert">{submitError}</p>}
       </form>

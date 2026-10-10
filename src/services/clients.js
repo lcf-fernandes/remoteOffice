@@ -50,16 +50,18 @@ export const createClient = (uid, values) => addDoc(clientsCol(uid), { ...payloa
 export const updateClient = (uid, id, values) => updateDoc(clientDoc(uid, id), payload(values))
 export const setClientStatus = (uid, id, status) => updateDoc(clientDoc(uid, id), { status, updatedAt: serverTimestamp() })
 
-// Excluir é permanente: remove as interações e desvincula as tarefas (elas continuam existindo).
+// Excluir é permanente: remove as interações e desvincula tarefas e projetos (eles continuam existindo).
 // Uso pessoal: volume pequeno, cabe em um único lote (limite do Firestore: 500 operações).
 export async function deleteClient(uid, id) {
-  const [interactions, tasks] = await Promise.all([
+  const [interactions, tasks, projects] = await Promise.all([
     getDocs(interactionsCol(uid, id)),
     getDocs(query(collection(db, 'users', uid, 'tasks'), where('clientId', '==', id))),
+    getDocs(query(collection(db, 'users', uid, 'projects'), where('clientId', '==', id))),
   ])
-  if (interactions.size + tasks.size > 480) throw Object.assign(new Error('too-many'), { code: 'too-many' })
+  if (interactions.size + tasks.size + projects.size > 480) throw Object.assign(new Error('too-many'), { code: 'too-many' })
   const batch = writeBatch(db)
   tasks.forEach((t) => batch.update(t.ref, { clientId: null, updatedAt: serverTimestamp() }))
+  projects.forEach((pr) => batch.update(pr.ref, { clientId: null, updatedAt: serverTimestamp() }))
   interactions.forEach((i) => batch.delete(i.ref))
   batch.delete(clientDoc(uid, id))
   await batch.commit()

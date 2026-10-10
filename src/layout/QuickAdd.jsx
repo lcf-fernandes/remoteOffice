@@ -5,6 +5,7 @@ import Dialog from '../components/Dialog.jsx'
 import { QUICK_ACTIONS } from './nav.js'
 import { useTaskEditor } from '../features/tasks/TaskEditor.jsx'
 import { useClientEditor } from '../features/clients/ClientEditor.jsx'
+import { useProjectEditor } from '../features/projects/ProjectEditor.jsx'
 
 // Nenhum formulário existe ainda: a ação informa que está pendente em vez de fingir sucesso.
 export default function QuickAdd() {
@@ -13,6 +14,7 @@ export default function QuickAdd() {
   const wrap = useRef(null)
   const taskEditor = useTaskEditor()
   const clientEditor = useClientEditor()
+  const projectEditor = useProjectEditor()
 
   useEffect(() => {
     if (!open) return
@@ -31,7 +33,7 @@ export default function QuickAdd() {
       {open && (
         <div className="menu" role="menu" style={{ top: 'calc(100% + 4px)', left: 0 }}>
           {QUICK_ACTIONS.map((a) => (
-            <button key={a.id} role="menuitem" className="menu__item" onClick={() => { setOpen(false); if (a.id === 'tarefa') taskEditor.openNew(); else if (a.id === 'cliente') clientEditor.openNew(); else setPending(a) }}>
+            <button key={a.id} role="menuitem" className="menu__item" onClick={() => { setOpen(false); if (a.id === 'tarefa') taskEditor.openNew(); else if (a.id === 'cliente') clientEditor.openNew(); else if (a.id === 'projeto') projectEditor.openNew(); else setPending(a) }}>
               {a.label}
             </button>
           ))}

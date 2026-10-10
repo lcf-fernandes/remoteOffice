@@ -11,6 +11,9 @@ import { useClients } from './ClientsProvider.jsx'
 import { useClientEditor } from './ClientEditor.jsx'
 import { useTasks } from '../tasks/TasksProvider.jsx'
 import { useTaskEditor } from '../tasks/TaskEditor.jsx'
+import { useProjects } from '../projects/ProjectsProvider.jsx'
+import { useProjectEditor } from '../projects/ProjectEditor.jsx'
+import { PROJECT_TYPE_LABEL, projectIsLate, sortProjects } from '../../utils/projects.js'
 import { PriorityBadge } from '../tasks/TasksPage.jsx'
 import {
   addInteraction, clientErrorMessage, deleteClient, deleteInteraction, setClientStatus, subscribeToInteractions,
@@ -25,10 +28,13 @@ export default function ClientDetail({ id }) {
   const { tasks } = useTasks()
   const clientEditor = useClientEditor()
   const taskEditor = useTaskEditor()
+  const { projects } = useProjects()
+  const projectEditor = useProjectEditor()
   const client = byId?.[id]
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState('')
+  const clientProjects = useMemo(() => sortProjects(projects.filter((p) => p.clientId === id)), [projects, id])
   const linkedTasks = useMemo(() => sortTasks(tasks.filter((t) => t.clientId === id)), [tasks, id])
 
   if (status === 'loading') return <div className="center__inner"><LoadingState label="Carregando cliente…" /></div>
@@ -105,7 +111,23 @@ export default function ClientDetail({ id }) {
         )}
       </Card>
 
-      <Card title="Projetos" id="c-proj"><EmptyState title="Disponível no commit 12">Os projetos deste cliente aparecerão aqui.</EmptyState></Card>
+      <Card title="Projetos" id="c-proj" action={<Button icon={Plus} onClick={() => projectEditor.openNew({ clientId: id })}>Novo projeto</Button>}>
+        {clientProjects.length === 0 ? (
+          <EmptyState title="Nenhum projeto deste cliente">Crie um projeto já vinculado a ele.</EmptyState>
+        ) : (
+          <ul className="rows">
+            {clientProjects.map((p) => (
+              <li key={p.id} className="row">
+                <div>
+                  <a className="pcard__title" href={`#/projetos/${p.id}`}>{p.name}</a>
+                  <p className="row__meta">{PROJECT_TYPE_LABEL[p.type]} · <span className={projectIsLate(p) ? 'is-late' : ''}>{p.dueDate ? `prazo ${formatDate(p.dueDate)} (${relativeDay(p.dueDate)})` : 'sem prazo'}</span></p>
+                </div>
+                <StatusBadge status={p.status} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
       <Card title="Propostas" id="c-prop"><EmptyState title="Disponível no commit 14">As propostas deste cliente aparecerão aqui.</EmptyState></Card>
 
       <Dialog
