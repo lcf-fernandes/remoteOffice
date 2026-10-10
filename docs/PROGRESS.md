@@ -19,7 +19,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 11 | `feat: implement client management and interaction history` | ✅ código · ⏳ não testado com o Firebase real |
 | 12 | `feat: implement projects and task relationships` | ✅ código · ⏳ não testado com o Firebase real |
 | 13 | `feat: add calendar and upcoming deadlines` | ✅ código · ⏳ não testado com o Firebase real |
-| 14–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
+| 14 | `feat: add proposal pipeline and follow-up tracking` | ✅ código · ⏳ não testado com o Firebase real |
+| 15–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -132,3 +133,25 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
   - Sem teste automatizado de interface.
 - **Como testar:** crie uma reunião com horário, um compromisso de dia inteiro e um marco; confira a hora exibida; alterne Lista/Mês e os períodos; filtre por origem; clique em um prazo de tarefa e de projeto (abre a tarefa/o projeto); edite e exclua um evento; confira a "Linha do dia" e as "Próximas entregas"; teste fim antes do início (erro no campo).
 - **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, a Agenda dá "Sem permissão").
+
+## Commit 14 — Propostas e acompanhamento comercial
+
+- **O que foi feito:**
+  - Módulo **Comercial** (`#/comercial`): criar, listar, editar e excluir (com confirmação) propostas. Campos: título, cliente (obrigatório), resumo, valor estimado, moeda (BRL, USD, EUR, PYG), data de envio, validade, status e próxima ação com data.
+  - **Ciclo completo:** Rascunho → Enviada → Em negociação → Aceita / Recusada / Expirada, com filtros por status (e "Em aberto") e busca por título, resumo, cliente e próxima ação.
+  - **Histórico de status** (subcoleção, imutável): registra criação, cada mudança de status e cada "Registrar contato". Status e histórico são gravados juntos em uma única operação.
+  - **Follow-up com regra configurável e explicada na tela:** uma proposta *pede retorno* quando (1) a próxima ação está vencida ou é hoje; (2) a validade venceu e ela está Enviada/Em negociação; ou (3) está Enviada/Em negociação sem mudança de status nem contato registrado há N dias (N = 3, 7, 14 ou 30; padrão 7; guardado neste navegador). O motivo aparece em cada proposta, no alerta do dashboard e no painel direito ("Propostas para retomar").
+  - **Aceite com confirmação explícita:** ao escolher "Aceita", abre um diálogo com três opções — apenas marcar como aceita, vincular a um projeto existente ou criar um projeto. "Criar projeto" abre o formulário **já preenchido** e o projeto só existe se você salvar; ao salvar, é vinculado à proposta. Nada é criado silenciosamente.
+  - **Dinheiro:** valor guardado como **número** + código da moeda (nunca texto formatado); formatado na exibição conforme a moeda (ex.: R$ 4.200,00, US$ 500,00, ₲ 15.000). Totais "aguardando resposta" são somados **por moeda**, sem misturar.
+  - **Vínculos:** detalhe do cliente lista as propostas dele ("Nova proposta" já vinculada); "Criar → Nova proposta" abre o formulário. Cliente com propostas **não pode ser excluído** (arquive em vez disso); excluir um projeto só desvincula as propostas.
+  - **Nenhum e-mail é enviado automaticamente** (conforme o guia).
+  - Regras do Firestore para `proposals` e `history` (valor numérico ≥ 0, moeda e status válidos, cliente obrigatório, histórico sem edição).
+  - Testes: 91 casos de lógica (`npm test`, **executados e passando**); novo caso de regras em `npm run test:rules` (**não executado**).
+- **Não feito:**
+  - Envio de propostas/e-mails e lembretes por notificação.
+  - Anexos/PDF da proposta.
+  - Conversão automática de proposta aceita em receita (financeiro, commit 15).
+  - Configuração do prazo de follow-up salva na conta (hoje fica no navegador; migra no commit 18).
+  - Sem teste automatizado de interface.
+- **Como testar:** crie uma proposta (cliente obrigatório; valor em BRL e outra em USD); veja os totais separados por moeda; mude o status e confira o histórico; deixe uma proposta enviada com data de contato antiga ou próxima ação vencida e veja o aviso, o alerta no dashboard e o painel direito; altere o prazo "Sem retorno após"; marque como **Aceita** e teste as três opções (inclusive cancelar o formulário de projeto); tente excluir um cliente com propostas; exclua uma proposta.
+- **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, Comercial dá "Sem permissão").

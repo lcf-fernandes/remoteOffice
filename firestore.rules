@@ -92,6 +92,34 @@ service cloud.firestore {
         && (!('reminderMinutes' in d) || d.reminderMinutes == null || d.reminderMinutes in [0, 10, 30, 60, 1440]);
     }
 
+    function validProposal() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['title', 'summary', 'clientId', 'amount', 'currency', 'sentDate', 'validUntil',
+                               'status', 'nextAction', 'nextActionDate', 'projectId', 'lastActivityAt',
+                               'createdAt', 'updatedAt'])
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 160
+        && d.clientId is string && d.clientId.size() > 0
+        && d.amount is number && d.amount >= 0 && d.amount <= 1000000000000
+        && d.currency in ['BRL', 'USD', 'EUR', 'PYG']
+        && d.status in ['draft', 'sent', 'negotiation', 'accepted', 'rejected', 'expired']
+        && (!('summary' in d) || (d.summary is string && d.summary.size() <= 5000))
+        && (!('nextAction' in d) || (d.nextAction is string && d.nextAction.size() <= 200))
+        && (!('projectId' in d) || d.projectId == null || d.projectId is string)
+        && (!('sentDate' in d) || d.sentDate == null || d.sentDate is timestamp)
+        && (!('validUntil' in d) || d.validUntil == null || d.validUntil is timestamp)
+        && (!('nextActionDate' in d) || d.nextActionDate == null || d.nextActionDate is timestamp)
+        && (!('lastActivityAt' in d) || d.lastActivityAt == null || d.lastActivityAt is timestamp);
+    }
+
+    function validProposalHistory() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['kind', 'from', 'to', 'at'])
+        && d.kind in ['created', 'status', 'contact']
+        && (d.from == null || d.from in ['draft', 'sent', 'negotiation', 'accepted', 'rejected', 'expired'])
+        && (d.to == null || d.to in ['draft', 'sent', 'negotiation', 'accepted', 'rejected', 'expired'])
+        && d.at is timestamp;
+    }
+
     function validInteraction() {
       let d = request.resource.data;
       return d.keys().hasOnly(['date', 'type', 'summary', 'createdAt'])
@@ -122,6 +150,17 @@ service cloud.firestore {
         match /journal/{entryId} {
           allow read, delete: if isOwner(uid);
           allow create, update: if isOwner(uid) && validJournal();
+        }
+      }
+
+      match /proposals/{proposalId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validProposal();
+
+        match /history/{entryId} {
+          allow read, delete: if isOwner(uid);
+          allow create: if isOwner(uid) && validProposalHistory();
+          allow update: if false; // histórico não é editável
         }
       }
 

@@ -95,6 +95,22 @@ describe('firestore.rules', () => {
     await assertFails(setDoc(doc(alice, 'users/alice/events/e7'), { ...ev, title: '' }))
     await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/events/e8'), ev))
   })
+  it('propostas: dono grava; valor, moeda, status e cliente validados; histórico imutável', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const pr = { title: 'Site', summary: '', clientId: 'c1', amount: 4200.5, currency: 'BRL', sentDate: null, validUntil: null, status: 'sent', nextAction: '', nextActionDate: null, projectId: null, lastActivityAt: Timestamp.now() }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/proposals/p1'), pr))
+    await assertFails(setDoc(doc(alice, 'users/alice/proposals/p2'), { ...pr, amount: '4200' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/proposals/p3'), { ...pr, amount: -1 }))
+    await assertFails(setDoc(doc(alice, 'users/alice/proposals/p4'), { ...pr, currency: 'XYZ' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/proposals/p5'), { ...pr, status: 'fechada' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/proposals/p6'), { ...pr, clientId: '' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/proposals/p7'), { ...pr, title: '' }))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/proposals/p8'), pr))
+    const h = { kind: 'status', from: 'draft', to: 'sent', at: Timestamp.now() }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/proposals/p1/history/h1'), h))
+    await assertFails(setDoc(doc(alice, 'users/alice/proposals/p1/history/h1'), { ...h, to: 'accepted' })) // sem edição
+    await assertFails(setDoc(doc(alice, 'users/alice/proposals/p1/history/h2'), { ...h, kind: 'outro' }))
+  })
   it('nega subcoleções não listadas', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/notes/n1'), { a: 1 }))
   })

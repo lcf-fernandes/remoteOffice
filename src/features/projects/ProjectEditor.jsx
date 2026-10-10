@@ -19,20 +19,21 @@ const fromProject = (p) => ({
 })
 
 export default function ProjectEditorProvider({ children }) {
-  const [state, setState] = useState({ open: false, project: null, initial: null, key: 0 })
-  const openNew = useCallback((initial = null) => setState((s) => ({ open: true, project: null, initial, key: s.key + 1 })), [])
-  const openEdit = useCallback((project) => setState((s) => ({ open: true, project, initial: null, key: s.key + 1 })), [])
+  const [state, setState] = useState({ open: false, project: null, initial: null, onSaved: null, key: 0 })
+  // onSaved (opcional): chamado com o id do projeto recém-criado (ex.: para vincular a uma proposta)
+  const openNew = useCallback((initial = null, onSaved = null) => setState((s) => ({ open: true, project: null, initial, onSaved, key: s.key + 1 })), [])
+  const openEdit = useCallback((project) => setState((s) => ({ open: true, project, initial: null, onSaved: null, key: s.key + 1 })), [])
   const close = useCallback(() => setState((s) => ({ ...s, open: false })), [])
   const value = useMemo(() => ({ openNew, openEdit }), [openNew, openEdit])
   return (
     <EditorContext.Provider value={value}>
       {children}
-      <ProjectFormDialog key={state.key} open={state.open} project={state.project} initial={state.initial} onClose={close} />
+      <ProjectFormDialog key={state.key} open={state.open} project={state.project} initial={state.initial} onSaved={state.onSaved} onClose={close} />
     </EditorContext.Provider>
   )
 }
 
-function ProjectFormDialog({ open, project, initial, onClose }) {
+function ProjectFormDialog({ open, project, initial, onSaved, onClose }) {
   const { user } = useAuth()
   const { clients } = useClients()
   const [values, setValues] = useState(project ? fromProject(project) : { ...EMPTY, ...(initial ?? {}) })
@@ -55,7 +56,10 @@ function ProjectFormDialog({ open, project, initial, onClose }) {
     const data = { ...values, startDate: inputToDate(values.startDate), dueDate: inputToDate(values.dueDate), links: parseLinks(values.links) }
     try {
       if (project) await updateProject(user.uid, project.id, data)
-      else await createProject(user.uid, data)
+      else {
+        const created = await createProject(user.uid, data)
+        try { await onSaved?.(created.id) } catch { /* o projeto foi criado; o vínculo pode ser refeito no detalhe da proposta */ }
+      }
       onClose()
     } catch (err) {
       setSubmitError(projectErrorMessage(err))

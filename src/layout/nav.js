@@ -17,5 +17,6 @@ export const QUICK_ACTIONS = [
   { id: 'cliente', label: 'Novo cliente', commit: 11 },
   { id: 'projeto', label: 'Novo projeto', commit: 12 },
   { id: 'evento', label: 'Novo evento', commit: 13 },
+  { id: 'proposta', label: 'Nova proposta', commit: 14 },
   { id: 'nota', label: 'Nova nota', commit: 17 },
 ]

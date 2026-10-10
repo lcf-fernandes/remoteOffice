@@ -32,3 +32,9 @@
 | Agenda = eventos + prazos de tarefas + prazos de projetos, calculada no cliente | Fonte única de cada dado (sem cópias); a origem é sempre mostrada. |
 | Lembrete salvo, sem envio | Notificações reais exigem infraestrutura que ainda não existe; a interface não promete envio. |
 | Calendário mensal próprio (sem biblioteca) | Grade simples e acessível; evita dependência pesada. |
+| Valor da proposta: número na moeda da proposta (unidade principal, arredondado pela moeda) | Nunca guardar texto formatado; formatar com `Intl` na tela; PYG sem casas decimais. Somas sempre por moeda. |
+| Moedas aceitas: BRL, USD, EUR, PYG | Cobre os usos atuais; lista única em `utils/proposals.js` e nas regras do Firestore. |
+| Status da proposta só muda pelo detalhe (com histórico); a edição não altera status | Garante histórico completo e que "Aceita" sempre passe pela confirmação. |
+| Aceite nunca cria projeto sozinho | Três escolhas explícitas; "criar" só abre o formulário preenchido — o projeto nasce quando o usuário salva. |
+| Regra de "sem retorno": último status/contato registrado há ≥ N dias (3/7/14/30), só Enviada/Em negociação | Simples de explicar e sem depender de edições cosméticas; "Registrar contato" zera a contagem. Preferência no `localStorage` até o commit 18. |
+| Cliente com propostas não pode ser excluído | A proposta exige cliente; evita vínculo quebrado. Arquivar preserva o histórico comercial. |

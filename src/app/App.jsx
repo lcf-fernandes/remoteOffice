@@ -22,6 +22,10 @@ import ProjectDetail from '../features/projects/ProjectDetail.jsx'
 import EventsProvider from '../features/events/EventsProvider.jsx'
 import EventEditorProvider from '../features/events/EventEditor.jsx'
 import AgendaPage from '../features/agenda/AgendaPage.jsx'
+import ProposalsProvider from '../features/proposals/ProposalsProvider.jsx'
+import ProposalEditorProvider from '../features/proposals/ProposalEditor.jsx'
+import ProposalsPage from '../features/proposals/ProposalsPage.jsx'
+import ProposalDetail from '../features/proposals/ProposalDetail.jsx'
 import { ErrorState, LoadingState } from '../components/states.jsx'
 import { authErrorMessage } from '../services/auth.js'
 
@@ -62,7 +66,7 @@ function Workspace() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : <ModulePlaceholder route={route} />}
+        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : <ModulePlaceholder route={route} />}
       </main>
 
       <aside className="col col--right" aria-label="Contexto e pendências">
@@ -83,15 +87,19 @@ function Gate() {
       <ClientsProvider uid={auth.user.uid}>
         <ProjectsProvider uid={auth.user.uid}>
           <EventsProvider uid={auth.user.uid}>
-            <TaskEditorProvider>
-              <ClientEditorProvider>
-                <ProjectEditorProvider>
-                  <EventEditorProvider>
-                    <Workspace />
-                  </EventEditorProvider>
-                </ProjectEditorProvider>
-              </ClientEditorProvider>
-            </TaskEditorProvider>
+            <ProposalsProvider uid={auth.user.uid}>
+              <TaskEditorProvider>
+                <ClientEditorProvider>
+                  <ProjectEditorProvider>
+                    <EventEditorProvider>
+                      <ProposalEditorProvider>
+                        <Workspace />
+                      </ProposalEditorProvider>
+                    </EventEditorProvider>
+                  </ProjectEditorProvider>
+                </ClientEditorProvider>
+              </TaskEditorProvider>
+            </ProposalsProvider>
           </EventsProvider>
         </ProjectsProvider>
       </ClientsProvider>

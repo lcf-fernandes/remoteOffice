@@ -8,6 +8,9 @@ import { useTasks } from '../tasks/TasksProvider.jsx'
 import { useProjects } from '../projects/ProjectsProvider.jsx'
 import { useClients } from '../clients/ClientsProvider.jsx'
 import { useEvents } from '../events/EventsProvider.jsx'
+import { useProposals } from '../proposals/ProposalsProvider.jsx'
+import useFollowUpDays from '../proposals/useFollowUpDays.js'
+import { followUpReason } from '../../utils/proposals.js'
 import { eventErrorMessage } from '../../services/events.js'
 import { localTimeZone } from '../../utils/events.js'
 import { startOfDay } from '../../utils/agenda.js'
@@ -19,12 +22,15 @@ import { taskErrorMessage } from '../../services/tasks.js'
 import { projectErrorMessage } from '../../services/projects.js'
 
 // Tarefas, clientes e projetos são reais (mesmos serviços das telas de cada módulo).
-// Propostas e pagamentos ainda usam dados de demonstração e estão marcados como tal.
+// Só os pagamentos ainda usam dados de demonstração e estão marcados como tal.
 export default function Dashboard() {
   const { status, tasks, error, retry } = useTasks()
   const { status: pStatus, projects, error: pError, retry: pRetry } = useProjects()
   const { byId: clientsById } = useClients()
   const ev = useEvents()
+  const { proposals } = useProposals()
+  const [followDays] = useFollowUpDays()
+  const needFollowUp = proposals.filter((p) => followUpReason(p, { days: followDays }))
 
   const open = filterTasks(tasks, { view: 'open' })
   const overdue = open.filter(isOverdue)
@@ -48,7 +54,7 @@ export default function Dashboard() {
           <h1 className="page-title">{greeting()}, Leandro</h1>
           <p className="dash-date">{formatLongDate()}</p>
         </div>
-        <span className="demo-flag">Tarefas, clientes, projetos e agenda reais · demais blocos em demonstração</span>
+        <span className="demo-flag">Tarefas, clientes, projetos, agenda e propostas reais · financeiro em demonstração</span>
       </header>
 
       <dl className="stats">
@@ -57,10 +63,11 @@ export default function Dashboard() {
         <div><dt>Projetos em andamento</dt><dd>{projectsReady ? openProjects.length : '—'}</dd></div>
       </dl>
 
-      {(overdue.length > 0 || lateProjects.length > 0 || overduePayments.length > 0) && (
+      {(overdue.length > 0 || lateProjects.length > 0 || needFollowUp.length > 0 || overduePayments.length > 0) && (
         <section aria-label="Alertas" className="alerts">
           {overdue.length > 0 && <p><strong>{overdue.length}</strong> {overdue.length === 1 ? 'tarefa atrasada' : 'tarefas atrasadas'}.</p>}
           {lateProjects.length > 0 && <p><strong>{lateProjects.length}</strong> {lateProjects.length === 1 ? 'projeto com prazo vencido' : 'projetos com prazo vencido'}.</p>}
+          {needFollowUp.length > 0 && <p><strong>{needFollowUp.length}</strong> {needFollowUp.length === 1 ? 'proposta pede retorno' : 'propostas pedem retorno'} (<a href="#/comercial">ver</a>).</p>}
           {overduePayments.length > 0 && <p><strong>{overduePayments.length}</strong> {overduePayments.length === 1 ? 'pagamento vencido (demo)' : 'pagamentos vencidos (demo)'}.</p>}
         </section>
       )}

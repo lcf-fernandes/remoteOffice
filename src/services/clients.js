@@ -50,9 +50,11 @@ export const createClient = (uid, values) => addDoc(clientsCol(uid), { ...payloa
 export const updateClient = (uid, id, values) => updateDoc(clientDoc(uid, id), payload(values))
 export const setClientStatus = (uid, id, status) => updateDoc(clientDoc(uid, id), { status, updatedAt: serverTimestamp() })
 
-// Excluir é permanente: remove as interações e desvincula tarefas e projetos (eles continuam existindo).
+// Cliente com propostas não pode ser excluído (a proposta exige cliente). Excluir é permanente: remove as interações e desvincula tarefas e projetos (eles continuam existindo).
 // Uso pessoal: volume pequeno, cabe em um único lote (limite do Firestore: 500 operações).
 export async function deleteClient(uid, id) {
+  const proposals = await getDocs(query(collection(db, 'users', uid, 'proposals'), where('clientId', '==', id)))
+  if (proposals.size > 0) throw Object.assign(new Error('has-proposals'), { code: 'has-proposals' })
   const [interactions, tasks, projects] = await Promise.all([
     getDocs(interactionsCol(uid, id)),
     getDocs(query(collection(db, 'users', uid, 'tasks'), where('clientId', '==', id))),
@@ -90,6 +92,8 @@ export function clientErrorMessage(error) {
       return 'Este cliente não existe mais. Volte para a lista.'
     case 'unavailable':
       return 'Sem conexão com o servidor. Suas alterações serão enviadas quando a conexão voltar.'
+    case 'has-proposals':
+      return 'Este cliente tem propostas. Exclua as propostas primeiro ou use Arquivar para preservar o histórico comercial.'
     case 'too-many':
       return 'Este cliente tem registros demais para excluir de uma vez. Arquive-o em vez de excluir.'
     default:

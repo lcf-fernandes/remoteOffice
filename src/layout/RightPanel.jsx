@@ -8,6 +8,9 @@ import { isOpenProject, sortProjects, projectIsLate } from '../utils/projects.js
 import { useClients } from '../features/clients/ClientsProvider.jsx'
 import { useTasks } from '../features/tasks/TasksProvider.jsx'
 import { useEvents } from '../features/events/EventsProvider.jsx'
+import { useProposals } from '../features/proposals/ProposalsProvider.jsx'
+import useFollowUpDays from '../features/proposals/useFollowUpDays.js'
+import { followUpReason } from '../utils/proposals.js'
 import { KIND_LABEL, buildAgendaItems, addDays, startOfDay } from '../utils/agenda.js'
 
 export default function RightPanel() {
@@ -15,6 +18,9 @@ export default function RightPanel() {
   const { byId: clientsById } = useClients()
   const { tasks } = useTasks()
   const ev = useEvents()
+  const { status: proposalsStatus, proposals } = useProposals()
+  const [followDays] = useFollowUpDays()
+  const followUps = proposals.map((p) => ({ p, reason: followUpReason(p, { days: followDays }) })).filter((x) => x.reason)
   const upcoming = sortProjects(projects.filter((p) => isOpenProject(p) && p.dueDate))
   const limit = addDays(startOfDay(new Date()), 29)
   const deliveries = buildAgendaItems({ events: ev.events.filter((e) => e.type === 'milestone'), tasks, projects })
@@ -49,18 +55,18 @@ export default function RightPanel() {
         </ul>
       </Card>
 
-      <Card title="Propostas para retomar" id="r-propostas">
+      <Card title="Propostas para retomar" id="r-propostas" hint="Próxima ação, validade vencida ou sem retorno" action={<a href="#/comercial">Ver</a>}>
+        {proposalsStatus === 'ready' && followUps.length === 0 && <p className="right__muted">Nenhuma proposta pedindo retorno.</p>}
         <ul className="right__list">
-          {demo.proposals.map((p) => (
+          {followUps.slice(0, 5).map(({ p, reason }) => (
             <li key={p.id}>
-              <span>{p.title}<span className="right__muted"> · {p.client}</span></span>
-              <span className="right__muted">{relativeDay(p.followUp)}</span>
+              <span><a href={`#/comercial/${p.id}`}>{p.title}</a><span className="right__muted"> · {reason.text}</span></span>
             </li>
           ))}
         </ul>
       </Card>
 
-      <Card title="Pagamentos" id="r-pagamentos">
+      <Card title="Pagamentos" id="r-pagamentos" hint="Demonstração — financeiro real no commit 15">
         <ul className="right__list">
           {demo.payments.map((t) => (
             <li key={t.id}>

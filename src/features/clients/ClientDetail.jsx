@@ -14,6 +14,10 @@ import { useTaskEditor } from '../tasks/TaskEditor.jsx'
 import { useProjects } from '../projects/ProjectsProvider.jsx'
 import { useProjectEditor } from '../projects/ProjectEditor.jsx'
 import { PROJECT_TYPE_LABEL, projectIsLate, sortProjects } from '../../utils/projects.js'
+import { useProposals } from '../proposals/ProposalsProvider.jsx'
+import { useProposalEditor } from '../proposals/ProposalEditor.jsx'
+import { sortProposals } from '../../utils/proposals.js'
+import { formatMoney } from '../../utils/format.js'
 import { PriorityBadge } from '../tasks/TasksPage.jsx'
 import {
   addInteraction, clientErrorMessage, deleteClient, deleteInteraction, setClientStatus, subscribeToInteractions,
@@ -30,10 +34,13 @@ export default function ClientDetail({ id }) {
   const taskEditor = useTaskEditor()
   const { projects } = useProjects()
   const projectEditor = useProjectEditor()
+  const { proposals } = useProposals()
+  const proposalEditor = useProposalEditor()
   const client = byId?.[id]
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState('')
+  const clientProposals = useMemo(() => sortProposals(proposals.filter((p) => p.clientId === id)), [proposals, id])
   const clientProjects = useMemo(() => sortProjects(projects.filter((p) => p.clientId === id)), [projects, id])
   const linkedTasks = useMemo(() => sortTasks(tasks.filter((t) => t.clientId === id)), [tasks, id])
 
@@ -128,7 +135,23 @@ export default function ClientDetail({ id }) {
           </ul>
         )}
       </Card>
-      <Card title="Propostas" id="c-prop"><EmptyState title="Disponível no commit 14">As propostas deste cliente aparecerão aqui.</EmptyState></Card>
+      <Card title="Propostas" id="c-prop" action={<Button icon={Plus} onClick={() => proposalEditor.openNew({ clientId: id })}>Nova proposta</Button>}>
+        {clientProposals.length === 0 ? (
+          <EmptyState title="Nenhuma proposta deste cliente">Crie uma proposta já vinculada a ele.</EmptyState>
+        ) : (
+          <ul className="rows">
+            {clientProposals.map((p) => (
+              <li key={p.id} className="row">
+                <div>
+                  <a className="pcard__title" href={`#/comercial/${p.id}`}>{p.title}</a>
+                  <p className="row__meta">{formatMoney(p.amount, p.currency)}</p>
+                </div>
+                <StatusBadge status={p.status} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       <Dialog
         open={confirmDelete}
@@ -141,7 +164,7 @@ export default function ClientDetail({ id }) {
           </>
         }
       >
-        <p>“{client.name}” e o histórico de interações serão excluídos para sempre. As tarefas vinculadas continuam, mas perdem o vínculo. Para só tirar da lista, use Arquivar.</p>
+        <p>“{client.name}” e o histórico de interações serão excluídos para sempre. As tarefas e projetos vinculados continuam, mas perdem o vínculo. Clientes com propostas não podem ser excluídos. Para só tirar da lista, use Arquivar.</p>
       </Dialog>
     </div>
   )
