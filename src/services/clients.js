@@ -55,17 +55,21 @@ export const setClientStatus = (uid, id, status) => updateDoc(clientDoc(uid, id)
 export async function deleteClient(uid, id) {
   const proposals = await getDocs(query(collection(db, 'users', uid, 'proposals'), where('clientId', '==', id)))
   if (proposals.size > 0) throw Object.assign(new Error('has-proposals'), { code: 'has-proposals' })
-  const [interactions, tasks, projects, txs] = await Promise.all([
+  const [interactions, tasks, projects, txs, notes, logs] = await Promise.all([
     getDocs(interactionsCol(uid, id)),
     getDocs(query(collection(db, 'users', uid, 'tasks'), where('clientId', '==', id))),
     getDocs(query(collection(db, 'users', uid, 'projects'), where('clientId', '==', id))),
     getDocs(query(collection(db, 'users', uid, 'transactions'), where('clientId', '==', id))),
+    getDocs(query(collection(db, 'users', uid, 'notes'), where('clientId', '==', id))),
+    getDocs(query(collection(db, 'users', uid, 'workLog'), where('clientId', '==', id))),
   ])
-  if (interactions.size + tasks.size + projects.size + txs.size > 480) throw Object.assign(new Error('too-many'), { code: 'too-many' })
+  if (interactions.size + tasks.size + projects.size + txs.size + notes.size + logs.size > 480) throw Object.assign(new Error('too-many'), { code: 'too-many' })
   const batch = writeBatch(db)
   tasks.forEach((t) => batch.update(t.ref, { clientId: null, updatedAt: serverTimestamp() }))
   projects.forEach((pr) => batch.update(pr.ref, { clientId: null, updatedAt: serverTimestamp() }))
   txs.forEach((t) => batch.update(t.ref, { clientId: null, updatedAt: serverTimestamp() }))
+  notes.forEach((n) => batch.update(n.ref, { clientId: null, updatedAt: serverTimestamp() }))
+  logs.forEach((l) => batch.update(l.ref, { clientId: null, updatedAt: serverTimestamp() }))
   interactions.forEach((i) => batch.delete(i.ref))
   batch.delete(clientDoc(uid, id))
   await batch.commit()

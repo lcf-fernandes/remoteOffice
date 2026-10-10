@@ -22,7 +22,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 14 | `feat: add proposal pipeline and follow-up tracking` | ✅ código · ⏳ não testado com o Firebase real |
 | 15 | `feat: add income expense and payment tracking` | ✅ código · ⏳ não testado com o Firebase real |
 | 16 | `feat: add task timer and time reports` | ✅ código · ⏳ não testado com o Firebase real |
-| 17–23 | Notas, preferências, templates, segurança, polimento, publicação | ⏳ |
+| 17 | `feat: add notes and work journal` | ✅ código · ⏳ não testado com o Firebase real |
+| 18–23 | Preferências, templates, dashboard final, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -192,3 +193,20 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 - **Não feito:** valor/hora e rentabilidade, geração de faturas, pausar/retomar (o guia pede "pausar/finalizar": a pausa é feita parando e iniciando outro registro), lembrete de cronômetro esquecido por notificação, exportação, gráficos.
 - **Como testar:** inicie um cronômetro com uma tarefa; recarregue a página (deve continuar contando do início real); abra o app em outra aba e tente iniciar outro (deve negar); pare e confira o registro; descarte um cronômetro iniciado por engano; crie um registro manual sobreposto (aviso); ajuste um registro e veja o histórico; mude período e tipo de relatório e confira que o total fecha; marque um registro como faturável e veja a coluna separada; veja o tempo no detalhe do projeto.
 - **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, Tempo dá "Sem permissão").
+
+## Commit 17 — Notas rápidas e diário de bordo
+
+- **O que foi feito:**
+  - Módulo **Notas** (`#/notas`) com duas seções: **Notas** e **Registro de trabalho** (diário de bordo). Criar, listar, editar e excluir (com confirmação) em ambas.
+  - **Nota:** título opcional, conteúdo, tags e vínculos opcionais com cliente, projeto e tarefa. Texto puro (nada é interpretado como HTML).
+  - **Registro de trabalho:** data + **"O que fiz"**, **"Bloqueios"** e **"Próximo passo"** (ao menos um preenchido), com os mesmos vínculos opcionais.
+  - **Captura rápida pela lateral** (caixa "Notas rápidas" no painel esquerdo, `Ctrl/⌘+Enter` salva) e pela **ação global** "Criar → Nova nota / Registro de trabalho". Se salvar falhar, **o texto permanece na caixa** e o erro é mostrado.
+  - **Busca e filtros:** texto (título, conteúdo e tags nas notas; os três campos no registro), **intervalo de datas** (De/Até, inclusivo), tag (notas) e projeto (registro de trabalho).
+  - **Alterações não salvas não se perdem em silêncio:** nos formulários, cancelar ou pressionar Esc com alterações abre "Descartar alterações?"; o aviso "Alterações ainda não salvas" fica visível; e recarregar/fechar a aba com texto não salvo (formulários e caixa da lateral) mostra o aviso do navegador.
+  - **Vínculos levam ao registro correto:** cliente e projeto abrem a página deles; tarefa abre o editor da tarefa; vínculos para itens excluídos aparecem como "(excluído)". Excluir cliente/projeto desvincula (não apaga) notas e registros.
+  - **Retomada:** o detalhe do projeto ganhou "Retomar de onde parou" (último registro de trabalho + notas do projeto, com "Novo registro" já vinculado); o detalhe do cliente lista as notas dele; o dashboard mostra o "Retomar" com o último registro.
+  - Regras do Firestore para `notes` e `workLog`. Testes: 159 casos de lógica (`npm test`, **executados e passando**); 1 caso novo de regras em `npm run test:rules` (**não executado**).
+- **Rascunho automático: NÃO implementado, de propósito.** O guia só o permite com tratamento de falhas claro. Em vez disso: aviso de alterações não salvas (acima) e, em falha de salvamento, o texto fica na tela. Nada é guardado no navegador em segundo plano.
+- **Não feito:** resumo por IA (o guia pede para não implementar ainda), formatação rica/Markdown, anexos, busca que inclui nomes de clientes/projetos vinculados, vincular uma nota a uma proposta/evento.
+- **Como testar:** salve uma nota pela lateral e outra pelo formulário (com tags e vínculos); recarregue a página (devem persistir); busque por texto, por tag e por datas; abra o vínculo de cliente, projeto e tarefa; digite numa nota e tente cancelar/pressionar Esc/recarregar (deve avisar); crie um registro de trabalho (tente salvar com os três campos vazios: erro); veja "Retomar de onde parou" no projeto e "Retomar" no dashboard; exclua um projeto e confirme que as notas dele ficam sem vínculo.
+- **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, Notas dá "Sem permissão").

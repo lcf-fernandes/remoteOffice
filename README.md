@@ -21,7 +21,7 @@ npm run test:rules  # testes das regras do Firestore (emulador; requer Java)
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — decisões técnicas
 - [`docs/FIREBASE.md`](docs/FIREBASE.md) — configuração do Firebase
 
-## Estado atual (guia: commits 02–16)
+## Estado atual (guia: commits 02–17)
 
 - Base Vite + React + JavaScript, `.env.example` sem segredos.
 - Tokens de design em `src/styles/tokens.css`.
@@ -29,6 +29,7 @@ npm run test:rules  # testes das regras do Firestore (emulador; requer Java)
 - Componentes: Button, Card, StatusBadge, Dialog, Input/Select, estados vazio/carregando/erro.
 - Dashboard e painéis laterais com **dados reais** do Firestore.
 - Navegação por hash (`#/tarefas`) e botão "Criar". Módulos ainda não construídos mostram "A implementar".
+- Módulo **Notas** (notas com tags e vínculos, registro de trabalho "feito/bloqueios/próximo passo", captura rápida na lateral, aviso de alterações não salvas).
 - Módulo **Tempo** (cronômetro único com início do servidor, registros ajustáveis com histórico, relatórios por dia/tarefa/projeto/categoria).
 - Módulo **Financeiro** (receitas e despesas, totais separados por moeda, vencido calculado e explicado; sem processar pagamentos).
 - Módulo **Comercial** (propostas, histórico de status, follow-up configurável, aceite com vínculo a projeto).
@@ -44,7 +45,7 @@ Configuração em `src/services/firebase.js` (variáveis `VITE_FIREBASE_*`). Pas
 
 ## Próximos commits
 
-17 Notas · 18 Preferências · 19 Templates · 20–23 Revisão, segurança, polimento e publicação. Lista completa em `docs/PENDING.md`.
+18 Preferências · 19 Templates · 20–23 Revisão, segurança, polimento e publicação. Lista completa em `docs/PENDING.md`.
 
 ## Segurança
 

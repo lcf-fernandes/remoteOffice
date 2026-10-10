@@ -50,20 +50,24 @@ export const setProjectStatus = (uid, id, status) => updateDoc(projectDoc(uid, i
 
 // Exclusão permanente: apaga marcos e diário e desvincula tarefas e eventos (que continuam existindo).
 export async function deleteProject(uid, id) {
-  const [ms, js, ts, evs, prs, txs] = await Promise.all([
+  const [ms, js, ts, evs, prs, txs, notes, logs] = await Promise.all([
     getDocs(sub(uid, id, 'milestones')),
     getDocs(sub(uid, id, 'journal')),
     getDocs(query(collection(db, 'users', uid, 'tasks'), where('projectId', '==', id))),
     getDocs(query(collection(db, 'users', uid, 'events'), where('projectId', '==', id))),
     getDocs(query(collection(db, 'users', uid, 'proposals'), where('projectId', '==', id))),
     getDocs(query(collection(db, 'users', uid, 'transactions'), where('projectId', '==', id))),
+    getDocs(query(collection(db, 'users', uid, 'notes'), where('projectId', '==', id))),
+    getDocs(query(collection(db, 'users', uid, 'workLog'), where('projectId', '==', id))),
   ])
-  if (ms.size + js.size + ts.size + evs.size + prs.size + txs.size > 480) throw Object.assign(new Error('too-many'), { code: 'too-many' })
+  if (ms.size + js.size + ts.size + evs.size + prs.size + txs.size + notes.size + logs.size > 480) throw Object.assign(new Error('too-many'), { code: 'too-many' })
   const batch = writeBatch(db)
   ts.forEach((t) => batch.update(t.ref, { projectId: null, updatedAt: serverTimestamp() }))
   evs.forEach((e) => batch.update(e.ref, { projectId: null, updatedAt: serverTimestamp() }))
   prs.forEach((pr) => batch.update(pr.ref, { projectId: null, updatedAt: serverTimestamp() }))
   txs.forEach((t) => batch.update(t.ref, { projectId: null, updatedAt: serverTimestamp() }))
+  notes.forEach((n) => batch.update(n.ref, { projectId: null, updatedAt: serverTimestamp() }))
+  logs.forEach((l) => batch.update(l.ref, { projectId: null, updatedAt: serverTimestamp() }))
   ms.forEach((m) => batch.delete(m.ref))
   js.forEach((j) => batch.delete(j.ref))
   batch.delete(projectDoc(uid, id))

@@ -169,3 +169,15 @@ details > summary.card__title { cursor: pointer; }
 .fin-table tfoot th, .fin-table tfoot td { border-top: 2px solid var(--c-border-strong); }
 
 .timer__clock--small { font-size: var(--fs-xl); margin: 0; }
+
+/* Commit 17 — notas e registro de trabalho */
+.links-inline { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); }
+.log { display: grid; gap: var(--sp-2); margin: var(--sp-2) 0 0; }
+.log dt { font-size: var(--fs-xs); color: var(--c-ink-3); font-weight: 600; }
+.log dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.left__note { display: grid; gap: var(--sp-2); }
+.left__note textarea { width: 100%; min-height: 72px; padding: var(--sp-2); background: var(--c-rail-2); color: var(--c-rail-ink); border: 1px solid #2c3d50; border-radius: var(--r-md); resize: vertical; }
+.left__note textarea::placeholder { color: var(--c-rail-ink-2); }
+.left__note .btn--secondary { background: transparent; color: var(--c-rail-ink); border-color: var(--c-rail-2); }
+.left__err { font-size: var(--fs-xs); color: #ffb4ab; }
+.left__link2 { font-size: var(--fs-xs); color: var(--c-rail-ink-2); }

@@ -153,8 +153,23 @@ describe('firestore.rules', () => {
     await assertSucceeds(setDoc(doc(alice, 'users/alice/timeEntries/e1/revisions/r1'), rev))
     await assertFails(setDoc(doc(alice, 'users/alice/timeEntries/e1/revisions/r1'), { ...rev, at: Timestamp.now() })) // sem edição
   })
+  it('notas e registro de trabalho: validação de conteúdo, limites e vínculos', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const note = { title: '', content: 'Ideia rápida', tags: ['ideia'], clientId: null, projectId: null, taskId: null }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/notes/n1'), note))
+    await assertFails(setDoc(doc(alice, 'users/alice/notes/n2'), { ...note, content: '' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/notes/n3'), { ...note, content: 'x'.repeat(10001) }))
+    await assertFails(setDoc(doc(alice, 'users/alice/notes/n4'), { ...note, tags: Array(21).fill('a') }))
+    await assertFails(setDoc(doc(alice, 'users/alice/notes/n5'), { ...note, role: 'admin' }))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/notes/n6'), note))
+    const log = { date: Timestamp.fromDate(new Date(2026, 9, 10)), done: 'Corte final', blockers: '', nextStep: 'Exportar', clientId: null, projectId: null, taskId: null }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/workLog/l1'), log))
+    await assertFails(setDoc(doc(alice, 'users/alice/workLog/l2'), { ...log, done: '', nextStep: '' })) // os três vazios
+    await assertFails(setDoc(doc(alice, 'users/alice/workLog/l3'), { ...log, date: 'hoje' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/workLog/l4'), { ...log, done: 'x'.repeat(5001) }))
+  })
   it('nega subcoleções não listadas', async () => {
-    await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/notes/n1'), { a: 1 }))
+    await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/segredos/n1'), { a: 1 }))
   })
   it('nega coleções fora de users/', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'public/x'), { a: 1 }))

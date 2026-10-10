@@ -53,3 +53,8 @@
 | Categoria e projeto do relatório vêm da tarefa atual | Evita duplicar dados; mudar a categoria/projeto da tarefa atualiza os relatórios (projeto gravado no registro é usado só quando não há tarefa). |
 | "Faturável" é só uma marcação manual | O guia pede para não inferir faturamento a partir do tempo; nenhuma cobrança ou valor é gerado. |
 | Sem pausar/retomar | Simplicidade: pausar = parar e iniciar outro registro; cada registro tem início e fim claros. |
+| Notas (livres) e registro de trabalho (estruturado: feito/bloqueios/próximo passo) em coleções separadas | Têm usos diferentes: capturar ideias vs. retomar o trabalho depois de uma pausa. O "Diário do projeto" (commit 12) continua sendo texto livre dentro do projeto. |
+| Sem rascunho automático; aviso de alterações não salvas | O guia só aceita rascunho com tratamento de falhas claro; guardar texto em segundo plano traria casos de conflito/privacidade. O aviso (Esc/Cancelar/recarregar) + manter o texto em falha de salvamento atendem o aceite. |
+| Notas em texto puro | Evita HTML/Markdown interpretado (risco de injeção) e mantém a busca simples. |
+| Vínculos de nota/registro: cliente, projeto e tarefa, todos opcionais e independentes | Cliente/projeto são desvinculados ao excluir o item; tarefa excluída aparece como "(tarefa excluída)". |
+| Filtro de datas: criação (notas) e data do registro (registro de trabalho) | Critério único e explicado na tela. |

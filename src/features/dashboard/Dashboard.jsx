@@ -8,6 +8,10 @@ import { useTasks } from '../tasks/TasksProvider.jsx'
 import { useProjects } from '../projects/ProjectsProvider.jsx'
 import { useClients } from '../clients/ClientsProvider.jsx'
 import { useEvents } from '../events/EventsProvider.jsx'
+import { useNotes } from '../notes/NotesProvider.jsx'
+import { useWorkLogEditor } from '../notes/WorkLogEditor.jsx'
+import { LogSections } from '../notes/NotesPage.jsx'
+import { sortWorkLog } from '../../utils/notes.js'
 import { useProposals } from '../proposals/ProposalsProvider.jsx'
 import useFollowUpDays from '../proposals/useFollowUpDays.js'
 import { followUpReason } from '../../utils/proposals.js'
@@ -16,7 +20,7 @@ import { localTimeZone } from '../../utils/events.js'
 import { startOfDay } from '../../utils/agenda.js'
 import { useTransactions } from '../finance/TransactionsProvider.jsx'
 import { overdueTransactions } from '../../utils/finance.js'
-import { greeting, formatLongDate, relativeDay, daysFromToday } from '../../utils/format.js'
+import { greeting, formatLongDate, formatDate, relativeDay, daysFromToday } from '../../utils/format.js'
 import { PRIORITY_LABEL, filterTasks, isOverdue, sortTasks } from '../../utils/tasks.js'
 import { EMPTY_PROGRESS, attentionReason, isOpenProject, progressByProject, projectIsLate, sortProjects } from '../../utils/projects.js'
 import { taskErrorMessage } from '../../services/tasks.js'
@@ -29,6 +33,9 @@ export default function Dashboard() {
   const { status: pStatus, projects, error: pError, retry: pRetry } = useProjects()
   const { byId: clientsById } = useClients()
   const ev = useEvents()
+  const notesCtx = useNotes()
+  const logEditor = useWorkLogEditor()
+  const lastLog = sortWorkLog(notesCtx.workLog)[0] ?? null
   const { proposals } = useProposals()
   const [followDays] = useFollowUpDays()
   const needFollowUp = proposals.filter((p) => followUpReason(p, { days: followDays }))
@@ -103,6 +110,17 @@ export default function Dashboard() {
               </li>
             ))}
           </ul>
+        )}
+      </Card>
+
+      <Card title="Retomar" hint="Seu último registro de trabalho" id="d-resume" action={<a href="#/notas">Ver registros</a>}>
+        {notesCtx.status === 'loading' && <LoadingState label="Carregando…" />}
+        {notesCtx.status === 'ready' && !lastLog && <EmptyState title="Nenhum registro de trabalho ainda" action={<a href="#/notas">Ir para Notas</a>}>Registre o que fez, os bloqueios e o próximo passo.</EmptyState>}
+        {lastLog && (
+          <>
+            <p className="row__meta"><button type="button" className="linklike" onClick={() => logEditor.openEdit(lastLog)}>{formatDate(lastLog.date, { weekday: 'long', day: '2-digit', month: 'long' })}</button></p>
+            <LogSections entry={lastLog} />
+          </>
         )}
       </Card>
 

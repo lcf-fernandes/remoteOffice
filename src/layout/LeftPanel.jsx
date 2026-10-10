@@ -1,5 +1,6 @@
 import { NAV } from './nav.js'
 import QuickAdd from './QuickAdd.jsx'
+import QuickNote from './QuickNote.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import { formatLongDate } from '../utils/format.js'
 import Button from '../components/Button.jsx'
@@ -51,7 +52,7 @@ export default function LeftPanel({ route, onNavigate }) {
 
       <section aria-labelledby="l-notas" className="left__section">
         <h2 id="l-notas" className="left__h">Notas rápidas</h2>
-        <p className="left__muted">Disponível no commit 17.</p>
+        <QuickNote />
       </section>
 
       <section aria-labelledby="l-atalhos" className="left__section">

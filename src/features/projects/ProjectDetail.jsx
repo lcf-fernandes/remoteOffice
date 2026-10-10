@@ -16,6 +16,11 @@ import { useProjectEditor } from './ProjectEditor.jsx'
 import { useTasks } from '../tasks/TasksProvider.jsx'
 import { useTaskEditor } from '../tasks/TaskEditor.jsx'
 import { useTime } from '../time/TimeProvider.jsx'
+import { useNotes } from '../notes/NotesProvider.jsx'
+import { useWorkLogEditor } from '../notes/WorkLogEditor.jsx'
+import { useNoteEditor } from '../notes/NoteEditor.jsx'
+import { LogSections } from '../notes/NotesPage.jsx'
+import { noteHeading, sortNotes, sortWorkLog } from '../../utils/notes.js'
 import { entryProjectId, totals as timeTotals } from '../../utils/time.js'
 import { formatDuration } from '../../utils/time.js'
 import {
@@ -36,6 +41,9 @@ export default function ProjectDetail({ id }) {
   const projectEditor = useProjectEditor()
   const taskEditor = useTaskEditor()
   const time = useTime()
+  const notesCtx = useNotes()
+  const logEditor = useWorkLogEditor()
+  const noteEditor = useNoteEditor()
   const project = byId?.[id]
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -43,6 +51,8 @@ export default function ProjectDetail({ id }) {
   const linked = useMemo(() => sortTasks(tasks.filter((t) => t.projectId === id)), [tasks, id])
   const tasksById = useMemo(() => Object.fromEntries(tasks.map((t) => [t.id, t])), [tasks])
   const timeSum = useMemo(() => timeTotals(time.entries.filter((e) => entryProjectId(e, tasksById) === id)), [time.entries, tasksById, id])
+  const projectLog = useMemo(() => sortWorkLog(notesCtx.workLog.filter((e) => e.projectId === id)), [notesCtx.workLog, id])
+  const projectNotes = useMemo(() => sortNotes(notesCtx.notes.filter((n) => n.projectId === id)), [notesCtx.notes, id])
   const progress = useMemo(() => (linked.length ? projectProgress(linked) : EMPTY_PROGRESS), [linked])
 
   if (status === 'loading') return <div className="center__inner"><LoadingState label="Carregando projeto…" /></div>
@@ -96,6 +106,24 @@ export default function ProjectDetail({ id }) {
 
       <Card title="Progresso" id="p-prog" hint={PROGRESS_RULE}>
         <ProgressBar progress={progress} label={`Progresso de ${project.name}`} />
+      </Card>
+
+      <Card title="Retomar de onde parou" id="p-resume" hint="Último registro de trabalho e notas deste projeto"
+        action={<Button icon={Plus} onClick={() => logEditor.openNew({ projectId: id, clientId: project.clientId ?? '' })}>Novo registro</Button>}>
+        {projectLog.length === 0 ? (
+          <EmptyState title="Nenhum registro de trabalho">Registre o que fez, os bloqueios e o próximo passo para retomar depois.</EmptyState>
+        ) : (
+          <>
+            <p className="row__meta">Último registro: <button type="button" className="linklike" onClick={() => logEditor.openEdit(projectLog[0])}>{formatDate(projectLog[0].date, { day: '2-digit', month: 'long', year: 'numeric' })}</button></p>
+            <LogSections entry={projectLog[0]} />
+          </>
+        )}
+        {projectNotes.length > 0 && (
+          <>
+            <h3 className="card__title" style={{ fontSize: 'var(--fs-md)', marginTop: 'var(--sp-3)' }}>Notas</h3>
+            <ul className="rows">{projectNotes.slice(0, 3).map((n) => <li key={n.id} className="row"><button type="button" className="linklike" onClick={() => noteEditor.openEdit(n)}>{noteHeading(n)}</button></li>)}</ul>
+          </>
+        )}
       </Card>
 
       <Card title="Tempo registrado" id="p-time" hint="Não é tempo faturável: nenhuma cobrança é gerada" action={<a href="#/tempo">Abrir Tempo</a>}>

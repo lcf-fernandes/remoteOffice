@@ -10,6 +10,8 @@ import { useEventEditor } from '../features/events/EventEditor.jsx'
 import { useProposalEditor } from '../features/proposals/ProposalEditor.jsx'
 import { useTransactionEditor } from '../features/finance/TransactionEditor.jsx'
 import { useEntryEditor } from '../features/time/EntryEditor.jsx'
+import { useNoteEditor } from '../features/notes/NoteEditor.jsx'
+import { useWorkLogEditor } from '../features/notes/WorkLogEditor.jsx'
 
 // Nenhum formulário existe ainda: a ação informa que está pendente em vez de fingir sucesso.
 export default function QuickAdd() {
@@ -23,6 +25,8 @@ export default function QuickAdd() {
   const proposalEditor = useProposalEditor()
   const txEditor = useTransactionEditor()
   const entryEditor = useEntryEditor()
+  const noteEditor = useNoteEditor()
+  const logEditor = useWorkLogEditor()
 
   useEffect(() => {
     if (!open) return
@@ -41,7 +45,7 @@ export default function QuickAdd() {
       {open && (
         <div className="menu" role="menu" style={{ top: 'calc(100% + 4px)', left: 0 }}>
           {QUICK_ACTIONS.map((a) => (
-            <button key={a.id} role="menuitem" className="menu__item" onClick={() => { setOpen(false); if (a.id === 'tarefa') taskEditor.openNew(); else if (a.id === 'cliente') clientEditor.openNew(); else if (a.id === 'projeto') projectEditor.openNew(); else if (a.id === 'evento') eventEditor.openNew(); else if (a.id === 'proposta') proposalEditor.openNew(); else if (a.id === 'receita') txEditor.openNew({ type: 'income' }); else if (a.id === 'despesa') txEditor.openNew({ type: 'expense' }); else if (a.id === 'tempo') entryEditor.openNew(); else setPending(a) }}>
+            <button key={a.id} role="menuitem" className="menu__item" onClick={() => { setOpen(false); if (a.id === 'tarefa') taskEditor.openNew(); else if (a.id === 'cliente') clientEditor.openNew(); else if (a.id === 'projeto') projectEditor.openNew(); else if (a.id === 'evento') eventEditor.openNew(); else if (a.id === 'proposta') proposalEditor.openNew(); else if (a.id === 'receita') txEditor.openNew({ type: 'income' }); else if (a.id === 'despesa') txEditor.openNew({ type: 'expense' }); else if (a.id === 'tempo') entryEditor.openNew(); else if (a.id === 'nota') noteEditor.openNew(); else if (a.id === 'registro') logEditor.openNew(); else setPending(a) }}>
               {a.label}
             </button>
           ))}

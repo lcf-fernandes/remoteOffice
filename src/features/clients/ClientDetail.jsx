@@ -15,6 +15,9 @@ import { useProjects } from '../projects/ProjectsProvider.jsx'
 import { useProjectEditor } from '../projects/ProjectEditor.jsx'
 import { PROJECT_TYPE_LABEL, projectIsLate, sortProjects } from '../../utils/projects.js'
 import { useProposals } from '../proposals/ProposalsProvider.jsx'
+import { useNotes } from '../notes/NotesProvider.jsx'
+import { useNoteEditor } from '../notes/NoteEditor.jsx'
+import { noteHeading, sortNotes } from '../../utils/notes.js'
 import { useProposalEditor } from '../proposals/ProposalEditor.jsx'
 import { sortProposals } from '../../utils/proposals.js'
 import { formatMoney } from '../../utils/format.js'
@@ -35,11 +38,14 @@ export default function ClientDetail({ id }) {
   const { projects } = useProjects()
   const projectEditor = useProjectEditor()
   const { proposals } = useProposals()
+  const notesCtx = useNotes()
+  const noteEditor = useNoteEditor()
   const proposalEditor = useProposalEditor()
   const client = byId?.[id]
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState('')
+  const clientNotes = useMemo(() => sortNotes(notesCtx.notes.filter((n) => n.clientId === id)), [notesCtx.notes, id])
   const clientProposals = useMemo(() => sortProposals(proposals.filter((p) => p.clientId === id)), [proposals, id])
   const clientProjects = useMemo(() => sortProjects(projects.filter((p) => p.clientId === id)), [projects, id])
   const linkedTasks = useMemo(() => sortTasks(tasks.filter((t) => t.clientId === id)), [tasks, id])
@@ -135,6 +141,12 @@ export default function ClientDetail({ id }) {
           </ul>
         )}
       </Card>
+      <Card title="Notas" id="c-notes" action={<Button icon={Plus} onClick={() => noteEditor.openNew({ clientId: id })}>Nova nota</Button>}>
+        {clientNotes.length === 0 ? <EmptyState title="Nenhuma nota deste cliente">Anote combinados, preferências e ideias.</EmptyState> : (
+          <ul className="rows">{clientNotes.map((n) => <li key={n.id} className="row"><button type="button" className="linklike" onClick={() => noteEditor.openEdit(n)}>{noteHeading(n)}</button></li>)}</ul>
+        )}
+      </Card>
+
       <Card title="Propostas" id="c-prop" action={<Button icon={Plus} onClick={() => proposalEditor.openNew({ clientId: id })}>Nova proposta</Button>}>
         {clientProposals.length === 0 ? (
           <EmptyState title="Nenhuma proposta deste cliente">Crie uma proposta já vinculada a ele.</EmptyState>

@@ -23,4 +23,5 @@ export const QUICK_ACTIONS = [
   { id: 'despesa', label: 'Nova despesa', commit: 15 },
   { id: 'tempo', label: 'Registro de tempo', commit: 16 },
   { id: 'nota', label: 'Nova nota', commit: 17 },
+  { id: 'registro', label: 'Registro de trabalho', commit: 17 },
 ]
