@@ -14,7 +14,8 @@ import { followUpReason } from '../../utils/proposals.js'
 import { eventErrorMessage } from '../../services/events.js'
 import { localTimeZone } from '../../utils/events.js'
 import { startOfDay } from '../../utils/agenda.js'
-import { demo } from '../../dev/fixtures.js'
+import { useTransactions } from '../finance/TransactionsProvider.jsx'
+import { overdueTransactions } from '../../utils/finance.js'
 import { greeting, formatLongDate, relativeDay, daysFromToday } from '../../utils/format.js'
 import { PRIORITY_LABEL, filterTasks, isOverdue, sortTasks } from '../../utils/tasks.js'
 import { EMPTY_PROGRESS, attentionReason, isOpenProject, progressByProject, projectIsLate, sortProjects } from '../../utils/projects.js'
@@ -22,7 +23,7 @@ import { taskErrorMessage } from '../../services/tasks.js'
 import { projectErrorMessage } from '../../services/projects.js'
 
 // Tarefas, clientes e projetos são reais (mesmos serviços das telas de cada módulo).
-// Só os pagamentos ainda usam dados de demonstração e estão marcados como tal.
+// Todos os blocos usam dados reais do Firestore.
 export default function Dashboard() {
   const { status, tasks, error, retry } = useTasks()
   const { status: pStatus, projects, error: pError, retry: pRetry } = useProjects()
@@ -40,7 +41,10 @@ export default function Dashboard() {
   const dueSoon = openProjects.filter((p) => p.dueDate && daysFromToday(p.dueDate) <= 7)
   const lateProjects = openProjects.filter(projectIsLate)
   const attention = sortProjects(projects.map((p) => ({ p, reason: attentionReason(p) })).filter((x) => x.reason).map((x) => x.p))
-  const overduePayments = demo.payments.filter((t) => t.status === 'overdue')
+  const { transactions } = useTransactions()
+  const overdueTx = overdueTransactions(transactions)
+  const overdueIncome = overdueTx.filter((t) => t.type === 'income').length
+  const overdueExpense = overdueTx.length - overdueIncome
   const projectsReady = pStatus === 'ready'
   const todayStart = startOfDay(new Date()).getTime()
   const todayEvents = ev.events.filter((e) => startOfDay(e.start).getTime() === todayStart).sort((a, b) => a.start - b.start)
@@ -54,7 +58,6 @@ export default function Dashboard() {
           <h1 className="page-title">{greeting()}, Leandro</h1>
           <p className="dash-date">{formatLongDate()}</p>
         </div>
-        <span className="demo-flag">Tarefas, clientes, projetos, agenda e propostas reais · financeiro em demonstração</span>
       </header>
 
       <dl className="stats">
@@ -63,12 +66,13 @@ export default function Dashboard() {
         <div><dt>Projetos em andamento</dt><dd>{projectsReady ? openProjects.length : '—'}</dd></div>
       </dl>
 
-      {(overdue.length > 0 || lateProjects.length > 0 || needFollowUp.length > 0 || overduePayments.length > 0) && (
+      {(overdue.length > 0 || lateProjects.length > 0 || needFollowUp.length > 0 || overdueTx.length > 0) && (
         <section aria-label="Alertas" className="alerts">
           {overdue.length > 0 && <p><strong>{overdue.length}</strong> {overdue.length === 1 ? 'tarefa atrasada' : 'tarefas atrasadas'}.</p>}
           {lateProjects.length > 0 && <p><strong>{lateProjects.length}</strong> {lateProjects.length === 1 ? 'projeto com prazo vencido' : 'projetos com prazo vencido'}.</p>}
           {needFollowUp.length > 0 && <p><strong>{needFollowUp.length}</strong> {needFollowUp.length === 1 ? 'proposta pede retorno' : 'propostas pedem retorno'} (<a href="#/comercial">ver</a>).</p>}
-          {overduePayments.length > 0 && <p><strong>{overduePayments.length}</strong> {overduePayments.length === 1 ? 'pagamento vencido (demo)' : 'pagamentos vencidos (demo)'}.</p>}
+          {overdueIncome > 0 && <p><strong>{overdueIncome}</strong> {overdueIncome === 1 ? 'recebimento vencido' : 'recebimentos vencidos'} (<a href="#/financeiro">ver</a>).</p>}
+          {overdueExpense > 0 && <p><strong>{overdueExpense}</strong> {overdueExpense === 1 ? 'conta a pagar vencida' : 'contas a pagar vencidas'} (<a href="#/financeiro">ver</a>).</p>}
         </section>
       )}
 

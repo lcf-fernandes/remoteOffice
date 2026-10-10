@@ -111,6 +111,22 @@ describe('firestore.rules', () => {
     await assertFails(setDoc(doc(alice, 'users/alice/proposals/p1/history/h1'), { ...h, to: 'accepted' })) // sem edição
     await assertFails(setDoc(doc(alice, 'users/alice/proposals/p1/history/h2'), { ...h, kind: 'outro' }))
   })
+  it('financeiro: valor positivo, moeda/tipo/status válidos; pago exige data de pagamento', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const due = Timestamp.fromDate(new Date(2026, 9, 20))
+    const tx = { description: 'Parcela 1/2', type: 'income', amount: 1800, currency: 'BRL', status: 'pending', dueDate: due, paidDate: null, category: '', clientId: null, projectId: null, notes: '' }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/transactions/t1'), tx))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/transactions/t2'), { ...tx, status: 'paid', paidDate: Timestamp.now() }))
+    await assertFails(setDoc(doc(alice, 'users/alice/transactions/t3'), { ...tx, status: 'paid', paidDate: null }))
+    await assertFails(setDoc(doc(alice, 'users/alice/transactions/t4'), { ...tx, paidDate: Timestamp.now() })) // pendente não tem pagamento
+    await assertFails(setDoc(doc(alice, 'users/alice/transactions/t5'), { ...tx, amount: 0 }))
+    await assertFails(setDoc(doc(alice, 'users/alice/transactions/t6'), { ...tx, amount: '10' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/transactions/t7'), { ...tx, currency: 'XYZ' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/transactions/t8'), { ...tx, type: 'transferencia' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/transactions/t9'), { ...tx, status: 'overdue' })) // vencido é derivado, não gravado
+    await assertFails(setDoc(doc(alice, 'users/alice/transactions/t10'), { ...tx, dueDate: null }))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/transactions/t11'), tx))
+  })
   it('nega subcoleções não listadas', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/notes/n1'), { a: 1 }))
   })

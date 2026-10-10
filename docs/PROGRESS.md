@@ -20,7 +20,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 12 | `feat: implement projects and task relationships` | ✅ código · ⏳ não testado com o Firebase real |
 | 13 | `feat: add calendar and upcoming deadlines` | ✅ código · ⏳ não testado com o Firebase real |
 | 14 | `feat: add proposal pipeline and follow-up tracking` | ✅ código · ⏳ não testado com o Firebase real |
-| 15–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
+| 15 | `feat: add income expense and payment tracking` | ✅ código · ⏳ não testado com o Firebase real |
+| 16–23 | Cronômetro, notas, preferências, templates, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -155,3 +156,21 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
   - Sem teste automatizado de interface.
 - **Como testar:** crie uma proposta (cliente obrigatório; valor em BRL e outra em USD); veja os totais separados por moeda; mude o status e confira o histórico; deixe uma proposta enviada com data de contato antiga ou próxima ação vencida e veja o aviso, o alerta no dashboard e o painel direito; altere o prazo "Sem retorno após"; marque como **Aceita** e teste as três opções (inclusive cancelar o formulário de projeto); tente excluir um cliente com propostas; exclua uma proposta.
 - **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, Comercial dá "Sem permissão").
+
+## Commit 15 — Controle financeiro básico
+
+- **O que foi feito:**
+  - Módulo **Financeiro** (`#/financeiro`): criar, listar, editar e excluir (com confirmação) receitas e despesas. Campos: descrição, tipo, valor, moeda (BRL, USD, EUR, PYG), status, vencimento, data de pagamento, categoria, cliente e projeto opcionais e observações.
+  - **Status gravado:** Prevista, Pendente, Paga/recebida e Cancelada. **"Vencida" não é gravada: é calculada** — lançamento *Pendente* cujo vencimento é anterior a hoje (no dia do vencimento ainda está no prazo). Previstas nunca vencem; pagas e canceladas saem dessa conta. A regra aparece no formulário, no rodapé da página e em "Como os totais são calculados".
+  - **Indicadores separados**, em tabela por moeda: Recebido/Pago, Pendente, Vencido e Previsto, para receitas e para despesas. **Moedas nunca são somadas nem convertidas**: cada moeda tem seu bloco.
+  - **Previsto não vira recebido:** previstos e pendentes ficam em colunas próprias; o **saldo realizado** (recebido − pago) considera só lançamentos pagos.
+  - **Filtros:** período (Este mês, Mês passado, Próximos 30 dias, Este ano, Tudo), status (inclui "Vencida"), tipo, moeda e busca. Os totais acompanham os filtros. Regra do período: pagos contam pela data do pagamento; os demais, pelo vencimento.
+  - **"Marcar como recebido/pago"** com data de pagamento (confirmação), só registra — nenhum dinheiro é movimentado.
+  - **Histórico preservado:** em vez de excluir, use o status **Cancelada** (mantida e ignorada nos totais). Excluir pede confirmação e é permanente.
+  - **Dashboard e painel direito** usam o financeiro real ("A receber e a pagar", alertas de recebimentos/contas vencidos). **Os dados de demonstração foram removidos** (`src/dev/fixtures.js` não existe mais): todo bloco do app agora lê dados reais.
+  - Excluir cliente ou projeto desvincula (não apaga) os lançamentos. "Criar → Nova receita/despesa" abre o formulário.
+  - Regras do Firestore para `transactions` (valor > 0 numérico, moeda/tipo/status válidos, pago exige data de pagamento, "vencida" rejeitada como status gravado).
+  - Testes: 116 casos de lógica (`npm test`, **executados e passando**); novo caso de regras em `npm run test:rules` (**não executado**).
+- **Não feito (de propósito):** integração bancária, processamento de pagamentos, conversão de moedas (não há fonte de câmbio definida), recorrência, anexos/comprovantes, gráficos e relatórios, lançamento automático ao aceitar uma proposta.
+- **Como testar:** crie receitas e despesas em BRL e USD (confira que os totais ficam em blocos separados); crie uma pendente com vencimento passado (deve aparecer como Vencida e no alerta do dashboard); uma Prevista com vencimento passado (não vence); marque uma como recebida e veja o saldo realizado; mude o período e os filtros; cancele um lançamento (some dos totais, continua na lista com "Todos"); exclua outro (confirmação); veja "A receber e a pagar" no painel direito.
+- **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, o Financeiro dá "Sem permissão").

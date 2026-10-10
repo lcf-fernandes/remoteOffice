@@ -38,3 +38,10 @@
 | Aceite nunca cria projeto sozinho | Três escolhas explícitas; "criar" só abre o formulário preenchido — o projeto nasce quando o usuário salva. |
 | Regra de "sem retorno": último status/contato registrado há ≥ N dias (3/7/14/30), só Enviada/Em negociação | Simples de explicar e sem depender de edições cosméticas; "Registrar contato" zera a contagem. Preferência no `localStorage` até o commit 18. |
 | Cliente com propostas não pode ser excluído | A proposta exige cliente; evita vínculo quebrado. Arquivar preserva o histórico comercial. |
+| "Vencido" é derivado (Pendente + vencimento < hoje), nunca gravado | Evita status desatualizado; a regra é única (`effectiveStatus`) e exibida na tela. Regras do Firestore rejeitam `overdue` como status gravado. |
+| Previsto ≠ Pendente | Previsto é estimativa (não é cobrança nem dinheiro); Pendente é conta confirmada. Previstos nunca vencem e ficam em coluna própria. |
+| Totais sempre por moeda, sem conversão | Não há fonte de câmbio definida; somar moedas distintas seria enganoso. |
+| Saldo realizado = recebido − pago | Só dinheiro efetivamente movimentado; previstos e pendentes não entram. |
+| Período usa data do pagamento (pagos) ou vencimento (demais) | Um critério único e explicado; cada lançamento cai em um só período. |
+| Vencimento obrigatório; cancelar em vez de excluir para preservar histórico | Todo lançamento tem data de referência; "Cancelada" mantém o registro fora dos totais. |
+| Dados de demonstração removidos (`src/dev/fixtures.js`) | Todos os módulos que alimentavam o dashboard agora existem; nada fictício aparece mais. |

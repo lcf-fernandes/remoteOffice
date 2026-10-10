@@ -2,7 +2,8 @@ import Card from '../components/Card.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import { EmptyState } from '../components/states.jsx'
 import { formatMoney, relativeDay } from '../utils/format.js'
-import { demo } from '../dev/fixtures.js'
+import { useTransactions } from '../features/finance/TransactionsProvider.jsx'
+import { effectiveStatus } from '../utils/finance.js'
 import { useProjects } from '../features/projects/ProjectsProvider.jsx'
 import { isOpenProject, sortProjects, projectIsLate } from '../utils/projects.js'
 import { useClients } from '../features/clients/ClientsProvider.jsx'
@@ -19,6 +20,8 @@ export default function RightPanel() {
   const { tasks } = useTasks()
   const ev = useEvents()
   const { status: proposalsStatus, proposals } = useProposals()
+  const { status: txStatus, transactions } = useTransactions()
+  const openTx = transactions.filter((t) => t.status === 'pending').sort((a, b) => a.dueDate - b.dueDate)
   const [followDays] = useFollowUpDays()
   const followUps = proposals.map((p) => ({ p, reason: followUpReason(p, { days: followDays }) })).filter((x) => x.reason)
   const upcoming = sortProjects(projects.filter((p) => isOpenProject(p) && p.dueDate))
@@ -66,12 +69,13 @@ export default function RightPanel() {
         </ul>
       </Card>
 
-      <Card title="Pagamentos" id="r-pagamentos" hint="Demonstração — financeiro real no commit 15">
+      <Card title="A receber e a pagar" id="r-pagamentos" hint="Lançamentos pendentes por vencimento (valores nunca somados entre moedas)" action={<a href="#/financeiro">Ver</a>}>
+        {txStatus === 'ready' && openTx.length === 0 && <p className="right__muted">Nada pendente.</p>}
         <ul className="right__list">
-          {demo.payments.map((t) => (
+          {openTx.slice(0, 5).map((t) => (
             <li key={t.id}>
-              <span>{t.description}</span>
-              <span><strong>{formatMoney(t.amount, t.currency)}</strong> <StatusBadge status={t.status} /></span>
+              <span>{t.description}<span className="right__muted"> · {t.type === 'income' ? 'A receber' : 'A pagar'}</span></span>
+              <span><strong>{formatMoney(t.amount, t.currency)}</strong> <span className={`right__muted ${effectiveStatus(t) === 'overdue' ? 'is-late' : ''}`}>{effectiveStatus(t) === 'overdue' ? 'vencida' : relativeDay(t.dueDate)}</span></span>
             </li>
           ))}
         </ul>

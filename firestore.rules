@@ -120,6 +120,24 @@ service cloud.firestore {
         && d.at is timestamp;
     }
 
+    function validTransaction() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['description', 'type', 'amount', 'currency', 'status', 'dueDate', 'paidDate',
+                               'category', 'clientId', 'projectId', 'notes', 'createdAt', 'updatedAt'])
+        && d.description is string && d.description.size() > 0 && d.description.size() <= 160
+        && d.type in ['income', 'expense']
+        && d.amount is number && d.amount > 0 && d.amount <= 1000000000000
+        && d.currency in ['BRL', 'USD', 'EUR', 'PYG']
+        && d.status in ['planned', 'pending', 'paid', 'cancelled']
+        && d.dueDate is timestamp
+        && (d.status != 'paid' || (('paidDate' in d) && d.paidDate is timestamp))
+        && (d.status == 'paid' || !('paidDate' in d) || d.paidDate == null)
+        && (!('category' in d) || (d.category is string && d.category.size() <= 60))
+        && (!('notes' in d) || (d.notes is string && d.notes.size() <= 5000))
+        && (!('clientId' in d) || d.clientId == null || d.clientId is string)
+        && (!('projectId' in d) || d.projectId == null || d.projectId is string);
+    }
+
     function validInteraction() {
       let d = request.resource.data;
       return d.keys().hasOnly(['date', 'type', 'summary', 'createdAt'])
@@ -151,6 +169,11 @@ service cloud.firestore {
           allow read, delete: if isOwner(uid);
           allow create, update: if isOwner(uid) && validJournal();
         }
+      }
+
+      match /transactions/{transactionId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validTransaction();
       }
 
       match /proposals/{proposalId} {
