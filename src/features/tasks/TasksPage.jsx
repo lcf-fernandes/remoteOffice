@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Check, Pencil, Plus, RotateCcw, Trash2 } from 'lucide-react'
+import { Check, Pencil, Play, Plus, RotateCcw, Trash2 } from 'lucide-react'
 import Button from '../../components/Button.jsx'
 import Dialog from '../../components/Dialog.jsx'
 import { Input, Select } from '../../components/Field.jsx'
@@ -9,6 +9,8 @@ import { useAuth } from '../auth/AuthProvider.jsx'
 import { useTasks } from './TasksProvider.jsx'
 import { useClients } from '../clients/ClientsProvider.jsx'
 import { useProjects } from '../projects/ProjectsProvider.jsx'
+import { useTime } from '../time/TimeProvider.jsx'
+import { startTimer, timeErrorMessage } from '../../services/time.js'
 import { useTaskEditor } from './TaskEditor.jsx'
 import { deleteTask, setTaskStatus, taskErrorMessage } from '../../services/tasks.js'
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, STATUS_OPTIONS, VIEWS, filterTasks, isOverdue, sortTasks } from '../../utils/tasks.js'
@@ -25,6 +27,7 @@ export default function TasksPage() {
   const editor = useTaskEditor()
   const { byId: clientsById } = useClients()
   const { byId: projectsById } = useProjects()
+  const time = useTime()
   const [filters, setFilters] = useState({ view: 'open', status: '', priority: '', search: '' })
   const [detailId, setDetailId] = useState(null)
   const [toDelete, setToDelete] = useState(null)
@@ -39,6 +42,12 @@ export default function TasksPage() {
     setActionError('')
     try { await setTaskStatus(user.uid, task.id, task.status === 'done' ? 'todo' : 'done') }
     catch (err) { setActionError(taskErrorMessage(err)) }
+  }
+
+  async function startTaskTimer(task) {
+    setActionError('')
+    try { await startTimer(user.uid, { description: '', taskId: task.id, projectId: task.projectId ?? null }); setDetailId(null); window.location.hash = '#/tempo' }
+    catch (err) { setActionError(timeErrorMessage(err)); setDetailId(null) }
   }
 
   async function confirmDelete() {
@@ -111,6 +120,7 @@ export default function TasksPage() {
         actions={detail && (
           <>
             <Button variant="ghost" icon={Trash2} onClick={() => { setToDelete(detail); setDetailId(null) }}>Excluir</Button>
+            <Button icon={Play} onClick={() => startTaskTimer(detail)} disabled={!!time.timer} title={time.timer ? 'Já existe um cronômetro ativo' : undefined}>Iniciar cronômetro</Button>
             <Button icon={detail.status === 'done' ? RotateCcw : Check} onClick={() => toggleDone(detail)}>{detail.status === 'done' ? 'Reabrir' : 'Concluir'}</Button>
             <Button variant="primary" icon={Pencil} onClick={() => { const t = detail; setDetailId(null); editor.openEdit(t) }}>Editar</Button>
           </>

@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { after, before, describe, it } from 'node:test'
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing'
-import { Timestamp, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore'
+import { Timestamp, deleteDoc, doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 
 let env
 const task = { title: 'Teste', description: '', status: 'todo', priority: 'medium', due: null, category: '', tags: [] }
@@ -126,6 +126,32 @@ describe('firestore.rules', () => {
     await assertFails(setDoc(doc(alice, 'users/alice/transactions/t9'), { ...tx, status: 'overdue' })) // vencido é derivado, não gravado
     await assertFails(setDoc(doc(alice, 'users/alice/transactions/t10'), { ...tx, dueDate: null }))
     await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/transactions/t11'), tx))
+  })
+  it('cronômetro: só um ativo; segundo início é negado; início é a hora do servidor', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const timer = { start: serverTimestamp(), description: '', taskId: null, projectId: null, billable: false }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/timer/current'), timer))
+    await assertFails(setDoc(doc(alice, 'users/alice/timer/current'), { ...timer, start: serverTimestamp() })) // trocar o início = novo cronômetro
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/timer/current'), { ...(await getDoc(doc(alice, 'users/alice/timer/current'))).data(), description: 'editado' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/timer/outro'), timer)) // só o ID fixo "current"
+    await assertFails(getDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/timer/current')))
+    await assertSucceeds(deleteDoc(doc(alice, 'users/alice/timer/current')))
+    await assertFails(setDoc(doc(alice, 'users/alice/timer/current'), { ...timer, start: Timestamp.fromDate(new Date(2020, 0, 1)) })) // início forjado
+  })
+  it('registros de tempo: duração coerente, máximo 24 h, fim > início; revisões imutáveis', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const start = Timestamp.fromDate(new Date(2026, 9, 10, 9, 0))
+    const end = Timestamp.fromDate(new Date(2026, 9, 10, 10, 30))
+    const entry = { description: 'Edição', taskId: null, projectId: null, start, end, durationSeconds: 5400, billable: false, source: 'manual', revisionCount: 0 }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/timeEntries/e1'), entry))
+    await assertFails(setDoc(doc(alice, 'users/alice/timeEntries/e2'), { ...entry, durationSeconds: 9999 })) // duração incoerente
+    await assertFails(setDoc(doc(alice, 'users/alice/timeEntries/e3'), { ...entry, end: start, durationSeconds: 0 })) // fim = início
+    await assertFails(setDoc(doc(alice, 'users/alice/timeEntries/e4'), { ...entry, end: Timestamp.fromDate(new Date(2026, 9, 11, 10, 0)), durationSeconds: 90000 })) // > 24 h
+    await assertFails(setDoc(doc(alice, 'users/alice/timeEntries/e5'), { ...entry, source: 'robo' }))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/timeEntries/e6'), entry))
+    const rev = { before: { description: 'x', durationSeconds: 60 }, at: Timestamp.now() }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/timeEntries/e1/revisions/r1'), rev))
+    await assertFails(setDoc(doc(alice, 'users/alice/timeEntries/e1/revisions/r1'), { ...rev, at: Timestamp.now() })) // sem edição
   })
   it('nega subcoleções não listadas', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/notes/n1'), { a: 1 }))

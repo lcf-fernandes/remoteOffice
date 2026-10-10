@@ -4,6 +4,9 @@ import { EmptyState } from '../components/states.jsx'
 import { formatMoney, relativeDay } from '../utils/format.js'
 import { useTransactions } from '../features/finance/TransactionsProvider.jsx'
 import { effectiveStatus } from '../utils/finance.js'
+import { useTime } from '../features/time/TimeProvider.jsx'
+import useNow from '../features/time/useNow.js'
+import { formatClock } from '../utils/time.js'
 import { useProjects } from '../features/projects/ProjectsProvider.jsx'
 import { isOpenProject, sortProjects, projectIsLate } from '../utils/projects.js'
 import { useClients } from '../features/clients/ClientsProvider.jsx'
@@ -18,6 +21,8 @@ export default function RightPanel() {
   const { status, projects } = useProjects()
   const { byId: clientsById } = useClients()
   const { tasks } = useTasks()
+  const time = useTime()
+  const nowTick = useNow(!!time.timer)
   const ev = useEvents()
   const { status: proposalsStatus, proposals } = useProposals()
   const { status: txStatus, transactions } = useTransactions()
@@ -81,8 +86,17 @@ export default function RightPanel() {
         </ul>
       </Card>
 
-      <Card title="Cronômetro" id="r-timer">
-        <EmptyState title="Disponível no commit 16">Registro de tempo por tarefa e projeto.</EmptyState>
+      <Card title="Cronômetro" id="r-timer" action={<a href="#/tempo">Abrir</a>}>
+        {time.status === 'loading' && <p className="right__muted">Carregando…</p>}
+        {time.status === 'error' && <p className="right__muted">Não foi possível carregar o tempo.</p>}
+        {time.status === 'ready' && !time.timer && <p className="right__muted">Nenhum cronômetro ativo. <a href="#/tempo">Iniciar</a></p>}
+        {time.status === 'ready' && time.timer && (
+          <>
+            <p className="timer__clock timer__clock--small" role="timer">{formatClock((nowTick.getTime() - time.timer.start.getTime()) / 1000)}</p>
+            <p className="right__muted">{time.timer.description || (time.timer.taskId && tasks.find((t) => t.id === time.timer.taskId)?.title) || 'Sem descrição'}</p>
+            <p className="right__muted"><a href="#/tempo">Parar e registrar</a></p>
+          </>
+        )}
       </Card>
     </div>
   )

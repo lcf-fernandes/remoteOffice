@@ -15,6 +15,9 @@ import { useProjects } from './ProjectsProvider.jsx'
 import { useProjectEditor } from './ProjectEditor.jsx'
 import { useTasks } from '../tasks/TasksProvider.jsx'
 import { useTaskEditor } from '../tasks/TaskEditor.jsx'
+import { useTime } from '../time/TimeProvider.jsx'
+import { entryProjectId, totals as timeTotals } from '../../utils/time.js'
+import { formatDuration } from '../../utils/time.js'
 import {
   addJournalEntry, addMilestone, deleteJournalEntry, deleteMilestone, deleteProject, projectErrorMessage, setMilestoneDone,
   setProjectStatus, subscribeToJournal, subscribeToMilestones,
@@ -32,11 +35,14 @@ export default function ProjectDetail({ id }) {
   const { tasks } = useTasks()
   const projectEditor = useProjectEditor()
   const taskEditor = useTaskEditor()
+  const time = useTime()
   const project = byId?.[id]
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState('')
   const linked = useMemo(() => sortTasks(tasks.filter((t) => t.projectId === id)), [tasks, id])
+  const tasksById = useMemo(() => Object.fromEntries(tasks.map((t) => [t.id, t])), [tasks])
+  const timeSum = useMemo(() => timeTotals(time.entries.filter((e) => entryProjectId(e, tasksById) === id)), [time.entries, tasksById, id])
   const progress = useMemo(() => (linked.length ? projectProgress(linked) : EMPTY_PROGRESS), [linked])
 
   if (status === 'loading') return <div className="center__inner"><LoadingState label="Carregando projeto…" /></div>
@@ -90,6 +96,10 @@ export default function ProjectDetail({ id }) {
 
       <Card title="Progresso" id="p-prog" hint={PROGRESS_RULE}>
         <ProgressBar progress={progress} label={`Progresso de ${project.name}`} />
+      </Card>
+
+      <Card title="Tempo registrado" id="p-time" hint="Não é tempo faturável: nenhuma cobrança é gerada" action={<a href="#/tempo">Abrir Tempo</a>}>
+        <p><strong>{formatDuration(timeSum.seconds)}</strong> em {timeSum.count} {timeSum.count === 1 ? 'registro' : 'registros'}{timeSum.billableSeconds ? ` · ${formatDuration(timeSum.billableSeconds)} marcados como faturáveis` : ''}</p>
       </Card>
 
       <Card title="Tarefas do projeto" id="p-tasks" action={<Button icon={Plus} onClick={() => taskEditor.openNew({ projectId: id, clientId: project.clientId ?? '' })}>Nova tarefa</Button>}>

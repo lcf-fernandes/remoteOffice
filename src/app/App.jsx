@@ -29,6 +29,9 @@ import ProposalDetail from '../features/proposals/ProposalDetail.jsx'
 import TransactionsProvider from '../features/finance/TransactionsProvider.jsx'
 import TransactionEditorProvider from '../features/finance/TransactionEditor.jsx'
 import FinancePage from '../features/finance/FinancePage.jsx'
+import TimeProvider from '../features/time/TimeProvider.jsx'
+import EntryEditorProvider from '../features/time/EntryEditor.jsx'
+import TimePage from '../features/time/TimePage.jsx'
 import { ErrorState, LoadingState } from '../components/states.jsx'
 import { authErrorMessage } from '../services/auth.js'
 
@@ -69,7 +72,7 @@ function Workspace() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage /> : <ModulePlaceholder route={route} />}
+        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage /> : route === 'tempo' ? <TimePage /> : <ModulePlaceholder route={route} />}
       </main>
 
       <aside className="col col--right" aria-label="Contexto e pendências">
@@ -92,19 +95,23 @@ function Gate() {
           <EventsProvider uid={auth.user.uid}>
             <ProposalsProvider uid={auth.user.uid}>
               <TransactionsProvider uid={auth.user.uid}>
-                <TaskEditorProvider>
-                  <ClientEditorProvider>
-                    <ProjectEditorProvider>
-                      <EventEditorProvider>
-                        <ProposalEditorProvider>
-                          <TransactionEditorProvider>
-                            <Workspace />
-                          </TransactionEditorProvider>
-                        </ProposalEditorProvider>
-                      </EventEditorProvider>
-                    </ProjectEditorProvider>
-                  </ClientEditorProvider>
-                </TaskEditorProvider>
+                <TimeProvider uid={auth.user.uid}>
+                  <TaskEditorProvider>
+                    <ClientEditorProvider>
+                      <ProjectEditorProvider>
+                        <EventEditorProvider>
+                          <ProposalEditorProvider>
+                            <TransactionEditorProvider>
+                              <EntryEditorProvider>
+                                <Workspace />
+                              </EntryEditorProvider>
+                            </TransactionEditorProvider>
+                          </ProposalEditorProvider>
+                        </EventEditorProvider>
+                      </ProjectEditorProvider>
+                    </ClientEditorProvider>
+                  </TaskEditorProvider>
+                </TimeProvider>
               </TransactionsProvider>
             </ProposalsProvider>
           </EventsProvider>

@@ -10,7 +10,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - [ ] **Criar seu usuário** em Authentication → Usuários (não existe tela de cadastro, de propósito).
 - [ ] **Criar o Firestore** em modo de produção.
 - [ ] **Testar as regras no emulador:** `npm run test:rules` (requer Java e acesso à internet para o `firebase-tools`).
-- [ ] **Republicar as regras** (`firestore.rules` mudou nos commits 10 a 15: valida tarefas, clientes, interações, projetos, marcos, diário, eventos, propostas e lançamentos financeiros; **clientes, projetos, agenda, comercial e financeiro não funcionam sem isso**). **Publicar:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
+- [ ] **Republicar as regras** (`firestore.rules` mudou nos commits 10 a 16: valida tarefas, clientes, interações, projetos, marcos, diário, eventos, propostas, lançamentos financeiros e registros de tempo; **os módulos a partir de Clientes não funcionam sem isso**). **Publicar:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
 - [x] Hospedagem: repositório conectado à Vercel (`remote-office-omega.vercel.app`).
 - [ ] **Vercel:** cadastrar as 6 variáveis `VITE_FIREBASE_*` em Settings → Environment Variables e fazer **Redeploy** — [FIREBASE.md](FIREBASE.md#publicar-na-vercel).
 - [ ] **Firebase:** autorizar o domínio da Vercel em Authentication → Domínios autorizados.
@@ -20,7 +20,6 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 | Guia | Entrega |
 |---|---|
-| 16 | Cronômetro e registro de tempo |
 | 17 | Notas e diário |
 | 18 | Contextos e preferências (inclui configurar atalhos externos e tema) |
 | 19 | Templates e lembretes |
@@ -31,7 +30,8 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 ## Limitações atuais conhecidas
 
-- Todos os blocos do dashboard e do painel direito leem dados reais; **não há mais dados de demonstração**. Exceção: o painel "Cronômetro" (commit 16) e "Notas rápidas"/"Atalhos externos" (commits 17 e 18) ainda são marcadores.
+- Todos os blocos do dashboard e do painel direito leem dados reais; **não há mais dados de demonstração**. Exceção: "Notas rápidas" e "Atalhos externos" do painel esquerdo (commits 17 e 18) ainda são marcadores.
+- Tempo: sem valor/hora nem rentabilidade, sem faturas, sem pausa/retomada (parar e iniciar outro), sem notificação de cronômetro esquecido; registros sobrepostos só geram aviso; tarefas/projetos excluídos aparecem como "(tarefa excluída)" / "(projeto excluído)" nos relatórios.
 - Financeiro: sem conversão de moedas (não há fonte de câmbio), sem recorrência, anexos/comprovantes, gráficos ou relatórios; aceitar proposta não gera lançamento (criar manualmente).
 - O botão "Criar" ainda não abre formulários; o painel "Notas rápidas", os "Atalhos externos" e o "Cronômetro" são só marcadores.
 - Bundle JS acima de 500 kB (SDK do Firebase): avaliar divisão de código no commit 22.

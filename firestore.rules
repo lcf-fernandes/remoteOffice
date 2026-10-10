@@ -138,6 +138,33 @@ service cloud.firestore {
         && (!('projectId' in d) || d.projectId == null || d.projectId is string);
     }
 
+    function validActiveTimer() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['start', 'description', 'taskId', 'projectId', 'billable'])
+        && d.start is timestamp
+        && d.description is string && d.description.size() <= 200
+        && d.billable is bool
+        && (d.taskId == null || d.taskId is string)
+        && (d.projectId == null || d.projectId is string);
+    }
+
+    function validTimeEntry() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['description', 'taskId', 'projectId', 'start', 'end', 'durationSeconds', 'billable',
+                               'source', 'revisionCount', 'createdAt', 'updatedAt'])
+        && d.start is timestamp && d.end is timestamp
+        && d.end.toMillis() > d.start.toMillis()
+        && d.end.toMillis() - d.start.toMillis() <= 86400000
+        && d.durationSeconds is int
+        && math.abs(d.durationSeconds * 1000 - (d.end.toMillis() - d.start.toMillis())) <= 1000
+        && d.description is string && d.description.size() <= 200
+        && d.billable is bool
+        && d.source in ['timer', 'manual']
+        && d.revisionCount is int && d.revisionCount >= 0
+        && (d.taskId == null || d.taskId is string)
+        && (d.projectId == null || d.projectId is string);
+    }
+
     function validInteraction() {
       let d = request.resource.data;
       return d.keys().hasOnly(['date', 'type', 'summary', 'createdAt'])
@@ -168,6 +195,31 @@ service cloud.firestore {
         match /journal/{entryId} {
           allow read, delete: if isOwner(uid);
           allow create, update: if isOwner(uid) && validJournal();
+        }
+      }
+
+      // Cronômetro ativo: UM documento de ID fixo ("current"). O início é a hora do servidor e não pode ser trocado
+      // enquanto o cronômetro existe — assim, iniciar um segundo cronômetro é negado pelo servidor.
+      match /timer/{timerId} {
+        allow read, delete: if isOwner(uid) && timerId == 'current';
+        allow create: if isOwner(uid) && timerId == 'current' && validActiveTimer()
+                      && request.resource.data.start == request.time;
+        allow update: if isOwner(uid) && timerId == 'current' && validActiveTimer()
+                      && request.resource.data.start == resource.data.start;
+      }
+
+      match /timeEntries/{entryId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validTimeEntry();
+
+        // Valores anteriores de cada ajuste: só criação (imutável).
+        match /revisions/{revisionId} {
+          allow read, delete: if isOwner(uid);
+          allow create: if isOwner(uid)
+                        && request.resource.data.keys().hasOnly(['before', 'at'])
+                        && request.resource.data.before is map
+                        && request.resource.data.at is timestamp;
+          allow update: if false;
         }
       }
 

@@ -45,3 +45,11 @@
 | Período usa data do pagamento (pagos) ou vencimento (demais) | Um critério único e explicado; cada lançamento cai em um só período. |
 | Vencimento obrigatório; cancelar em vez de excluir para preservar histórico | Todo lançamento tem data de referência; "Cancelada" mantém o registro fora dos totais. |
 | Dados de demonstração removidos (`src/dev/fixtures.js`) | Todos os módulos que alimentavam o dashboard agora existem; nada fictício aparece mais. |
+| Cronômetro ativo = documento único `timer/current`, iniciado por transação, com início = hora do servidor | Impede dois cronômetros (inclusive entre abas/aparelhos) no servidor, e a duração não depende do relógio do navegador nem de um contador em memória. |
+| Duração sempre de timestamps (fim − início), gravada em segundos e validada nas regras | Relatórios coerentes; sem divergência entre duração e horários. |
+| Registro com no máximo 24 h; fim ajustável ao parar | Protege contra cronômetro esquecido; o usuário informa o fim correto em vez de registrar dias de tempo falso. |
+| Ajuste de registro grava os valores anteriores em `revisions` (imutável) | Nada some silenciosamente; histórico básico visível. |
+| Registro conta no dia em que começou | Regra simples e previsível; registros que cruzam a meia-noite não são divididos. |
+| Categoria e projeto do relatório vêm da tarefa atual | Evita duplicar dados; mudar a categoria/projeto da tarefa atualiza os relatórios (projeto gravado no registro é usado só quando não há tarefa). |
+| "Faturável" é só uma marcação manual | O guia pede para não inferir faturamento a partir do tempo; nenhuma cobrança ou valor é gerado. |
+| Sem pausar/retomar | Simplicidade: pausar = parar e iniciar outro registro; cada registro tem início e fim claros. |

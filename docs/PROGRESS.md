@@ -21,7 +21,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 13 | `feat: add calendar and upcoming deadlines` | ✅ código · ⏳ não testado com o Firebase real |
 | 14 | `feat: add proposal pipeline and follow-up tracking` | ✅ código · ⏳ não testado com o Firebase real |
 | 15 | `feat: add income expense and payment tracking` | ✅ código · ⏳ não testado com o Firebase real |
-| 16–23 | Cronômetro, notas, preferências, templates, segurança, polimento, publicação | ⏳ |
+| 16 | `feat: add task timer and time reports` | ✅ código · ⏳ não testado com o Firebase real |
+| 17–23 | Notas, preferências, templates, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -174,3 +175,20 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 - **Não feito (de propósito):** integração bancária, processamento de pagamentos, conversão de moedas (não há fonte de câmbio definida), recorrência, anexos/comprovantes, gráficos e relatórios, lançamento automático ao aceitar uma proposta.
 - **Como testar:** crie receitas e despesas em BRL e USD (confira que os totais ficam em blocos separados); crie uma pendente com vencimento passado (deve aparecer como Vencida e no alerta do dashboard); uma Prevista com vencimento passado (não vence); marque uma como recebida e veja o saldo realizado; mude o período e os filtros; cancele um lançamento (some dos totais, continua na lista com "Todos"); exclua outro (confirmação); veja "A receber e a pagar" no painel direito.
 - **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, o Financeiro dá "Sem permissão").
+
+## Commit 16 — Cronômetro e registros de tempo
+
+- **O que foi feito:**
+  - Módulo **Tempo** (`#/tempo`): iniciar, parar/registrar e descartar um cronômetro associado a **tarefa ou projeto** (ou nenhum), com descrição opcional; registros manuais; ajuste e exclusão de registros.
+  - **Um cronômetro por vez, garantido pelo servidor:** o cronômetro ativo é um único documento de ID fixo (`timer/current`); iniciar é uma transação que falha se ele já existe, e as regras do Firestore negam trocar o início. Vale entre abas e aparelhos. Os botões de iniciar ficam desativados enquanto há um ativo.
+  - **Sobrevive ao recarregamento e a sessões interrompidas:** o início é a **hora do servidor** e o tempo exibido (HH:MM:SS) é calculado de timestamps (`agora − início`), não de um contador em memória. Cronômetro ativo há mais de 8 h mostra aviso; ao parar, o fim é editável (padrão: agora), e um registro tem no máximo 24 h.
+  - **Registro final:** início, fim, duração (em segundos, coerente com início/fim — também checado nas regras), descrição, tarefa/projeto e origem (cronômetro ou manual).
+  - **Ajustes não apagam nada silenciosamente:** cada ajuste guarda os **valores anteriores** em uma subcoleção imutável de revisões, exibida em "Histórico de ajustes"; o registro mostra "ajustado N×". Excluir pede confirmação e é permanente.
+  - **Aviso de sobreposição** (não bloqueia) ao criar/ajustar um intervalo que cruza outro registro, porque o tempo seria contado em duplicidade.
+  - **Relatórios** por dia, tarefa, projeto e categoria, nos períodos Hoje, Últimos 7 dias, Este mês, Mês passado e Tudo; a soma das linhas sempre fecha com o total (coberto por testes). Cada registro conta no dia em que **começou**. Categoria vem da tarefa; projeto é o atual da tarefa (ou o gravado, se não houver tarefa).
+  - **Registrado ≠ faturável:** o relatório mostra "Tempo registrado" e "Marcado como faturável" em colunas separadas. Faturável é uma marcação manual por registro; **nada gera cobrança nem valor**.
+  - **Integração:** "Iniciar cronômetro" no detalhe da tarefa; card "Tempo registrado" no detalhe do projeto; painel direito com o cronômetro real (relógio ao vivo); "Criar → Registro de tempo".
+  - Regras do Firestore para `timer`, `timeEntries` e `revisions`. Testes: 140 casos de lógica (`npm test`, **executados e passando**); 2 casos novos de regras em `npm run test:rules` (**não executados**).
+- **Não feito:** valor/hora e rentabilidade, geração de faturas, pausar/retomar (o guia pede "pausar/finalizar": a pausa é feita parando e iniciando outro registro), lembrete de cronômetro esquecido por notificação, exportação, gráficos.
+- **Como testar:** inicie um cronômetro com uma tarefa; recarregue a página (deve continuar contando do início real); abra o app em outra aba e tente iniciar outro (deve negar); pare e confira o registro; descarte um cronômetro iniciado por engano; crie um registro manual sobreposto (aviso); ajuste um registro e veja o histórico; mude período e tipo de relatório e confira que o total fecha; marque um registro como faturável e veja a coluna separada; veja o tempo no detalhe do projeto.
+- **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, Tempo dá "Sem permissão").
