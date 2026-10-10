@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:rules": "npx firebase-tools emulators:exec --only firestore --project leandro-desk-rules-test \"node --test tests/firestore.rules.test.js\"",
-    "test": "node --test tests/tasks.test.js tests/clients.test.js tests/projects.test.js"
+    "test": "node --test tests/tasks.test.js tests/clients.test.js tests/projects.test.js tests/agenda.test.js"
   },
   "dependencies": {
     "firebase": "^10.14.1",

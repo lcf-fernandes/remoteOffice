@@ -81,6 +81,20 @@ describe('firestore.rules', () => {
     await assertSucceeds(setDoc(doc(alice, 'users/alice/projects/p1/journal/j1'), { date: Timestamp.now(), text: 'Reunião de kickoff' }))
     await assertFails(setDoc(doc(alice, 'users/alice/projects/p1/journal/j2'), { date: Timestamp.now(), text: '' }))
   })
+  it('eventos: dono grava; início obrigatório, fim >= início, tipo e lembrete válidos', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const start = Timestamp.fromDate(new Date(2026, 9, 10, 10, 0))
+    const end = Timestamp.fromDate(new Date(2026, 9, 10, 11, 0))
+    const ev = { title: 'Reunião', type: 'meeting', allDay: false, start, end, description: '', projectId: null, reminderMinutes: 30 }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/events/e1'), ev))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/events/e2'), { ...ev, end: null, reminderMinutes: null }))
+    await assertFails(setDoc(doc(alice, 'users/alice/events/e3'), { ...ev, end: Timestamp.fromDate(new Date(2026, 9, 10, 9, 0)) }))
+    await assertFails(setDoc(doc(alice, 'users/alice/events/e4'), { ...ev, type: 'festa' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/events/e5'), { ...ev, reminderMinutes: 7 }))
+    await assertFails(setDoc(doc(alice, 'users/alice/events/e6'), { ...ev, start: 'amanhã' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/events/e7'), { ...ev, title: '' }))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/events/e8'), ev))
+  })
   it('nega subcoleções não listadas', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/notes/n1'), { a: 1 }))
   })

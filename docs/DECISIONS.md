@@ -27,3 +27,8 @@
 | Marcos e diário como subcoleções do projeto | Crescem sem limite do documento e são carregados só no detalhe. |
 | Links do projeto: só http/https | Evita esquemas perigosos (ex.: `javascript:`); abertos com `rel="noopener noreferrer"`. |
 | Projeto de cliente arquivado continua visível | O cliente arquivado continua no cadastro; o projeto mostra "(arquivado)". |
+| Datas: `Timestamp` (UTC) no Firestore, exibição no fuso do navegador | Um único critério em todo o app. Prazos e eventos de dia inteiro guardam a meia-noite local; mudar de fuso pode deslocar o dia exibido (preferência de fuso: commit 18). |
+| Evento de marco como tipo de evento (não subcoleção do projeto) | Mantém a agenda simples, sem consultas entre coleções; marcos dentro do projeto continuam só no detalhe dele. |
+| Agenda = eventos + prazos de tarefas + prazos de projetos, calculada no cliente | Fonte única de cada dado (sem cópias); a origem é sempre mostrada. |
+| Lembrete salvo, sem envio | Notificações reais exigem infraestrutura que ainda não existe; a interface não promete envio. |
+| Calendário mensal próprio (sem biblioteca) | Grade simples e acessível; evita dependência pesada. |

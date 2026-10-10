@@ -48,16 +48,18 @@ export const createProject = (uid, values) => addDoc(projectsCol(uid), { ...payl
 export const updateProject = (uid, id, values) => updateDoc(projectDoc(uid, id), payload(values))
 export const setProjectStatus = (uid, id, status) => updateDoc(projectDoc(uid, id), { status, updatedAt: serverTimestamp() })
 
-// Exclusão permanente: apaga marcos e diário e desvincula as tarefas (que continuam existindo).
+// Exclusão permanente: apaga marcos e diário e desvincula tarefas e eventos (que continuam existindo).
 export async function deleteProject(uid, id) {
-  const [ms, js, ts] = await Promise.all([
+  const [ms, js, ts, evs] = await Promise.all([
     getDocs(sub(uid, id, 'milestones')),
     getDocs(sub(uid, id, 'journal')),
     getDocs(query(collection(db, 'users', uid, 'tasks'), where('projectId', '==', id))),
+    getDocs(query(collection(db, 'users', uid, 'events'), where('projectId', '==', id))),
   ])
-  if (ms.size + js.size + ts.size > 480) throw Object.assign(new Error('too-many'), { code: 'too-many' })
+  if (ms.size + js.size + ts.size + evs.size > 480) throw Object.assign(new Error('too-many'), { code: 'too-many' })
   const batch = writeBatch(db)
   ts.forEach((t) => batch.update(t.ref, { projectId: null, updatedAt: serverTimestamp() }))
+  evs.forEach((e) => batch.update(e.ref, { projectId: null, updatedAt: serverTimestamp() }))
   ms.forEach((m) => batch.delete(m.ref))
   js.forEach((j) => batch.delete(j.ref))
   batch.delete(projectDoc(uid, id))

@@ -18,7 +18,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 10 | `feat: implement task management CRUD` | ✅ código · ⏳ não testado com o Firebase real |
 | 11 | `feat: implement client management and interaction history` | ✅ código · ⏳ não testado com o Firebase real |
 | 12 | `feat: implement projects and task relationships` | ✅ código · ⏳ não testado com o Firebase real |
-| 13–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
+| 13 | `feat: add calendar and upcoming deadlines` | ✅ código · ⏳ não testado com o Firebase real |
+| 14–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -110,3 +111,24 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
   - Sem teste automatizado de interface.
 - **Como testar:** crie um projeto sem cliente e outro com cliente; mude o status pelo Kanban e confira que a lista reflete o mesmo status; crie tarefas pelo detalhe do projeto e conclua algumas (o progresso deve acompanhar, ignorando canceladas); adicione marcos e diário; arquive um cliente e confirme que os projetos dele continuam legíveis; defina prazos vencidos/próximos e confira o dashboard; exclua um projeto e confirme que as tarefas ficam sem vínculo.
 - **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, Projetos dão "Sem permissão").
+
+## Commit 13 — Agenda, prazos e próximas entregas
+
+- **O que foi feito:**
+  - Módulo **Agenda** (`#/agenda`): criar, editar e excluir (com confirmação) **eventos** de três tipos — Reunião, Compromisso e Marco de entrega. Campos: título, início, fim opcional, "dia inteiro", descrição, projeto opcional e lembrete.
+  - **Lista cronológica** agrupada por dia (Hoje, 7 dias, 30 dias, Prazos vencidos) e **visão de mês** (grade simples, com o dia selecionado listado abaixo e atalho "Evento neste dia"). Filtro por origem: tudo, eventos, prazos de tarefas, prazos de projetos.
+  - A agenda **junta três origens e as identifica**: Evento, Prazo de tarefa e Prazo de projeto, diferenciados por rótulo de texto, ícone, estilo da borda e, no calendário, por **forma** do marcador (● ■ ◆) — não dependem só de cor. Clicar abre o evento, a tarefa ou o projeto.
+  - **Dashboard:** "Linha do dia" agora usa os eventos reais de hoje (os de dia inteiro aparecem em lista). **Painel direito:** "Próximas entregas" mostra prazos de tarefas e projetos e marcos de entrega (30 dias + vencidos), com a origem de cada um.
+  - O botão "Criar → Novo evento" abre o formulário real; excluir um projeto desvincula (não apaga) os eventos dele.
+  - Regras do Firestore para `events` (início obrigatório, fim ≥ início, tipo e lembrete válidos).
+  - Testes: 69 casos de lógica (`npm test`, **executados e passando**); novo caso de regras em `npm run test:rules` (**não executado**).
+- **Fuso horário (como funciona):** instantes são guardados como `Timestamp` (UTC) no Firestore e exibidos no fuso do navegador; a tela mostra qual fuso está em uso. Eventos de dia inteiro e prazos guardam a meia-noite local do dia escolhido. Detalhes em [DECISIONS.md](DECISIONS.md).
+- **Lembretes:** o campo existe e é salvo, mas **o app não envia nenhuma notificação** (isso exige infraestrutura própria — ver [PENDING.md](PENDING.md)). A tela avisa isso no formulário e no topo da Agenda.
+- **Não feito:**
+  - Notificações de lembrete (e-mail/push).
+  - Marcos criados dentro do projeto (commit 12) não aparecem na agenda; para vê-los aqui, crie um evento do tipo "Marco de entrega".
+  - Eventos de vários dias aparecem só no dia de início.
+  - Eventos recorrentes, convites e integração com calendários externos.
+  - Sem teste automatizado de interface.
+- **Como testar:** crie uma reunião com horário, um compromisso de dia inteiro e um marco; confira a hora exibida; alterne Lista/Mês e os períodos; filtre por origem; clique em um prazo de tarefa e de projeto (abre a tarefa/o projeto); edite e exclua um evento; confira a "Linha do dia" e as "Próximas entregas"; teste fim antes do início (erro no campo).
+- **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, a Agenda dá "Sem permissão").

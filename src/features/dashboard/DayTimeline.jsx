@@ -8,7 +8,7 @@ const pct = (d) => {
 }
 const hm = (d) => formatDate(d, { hour: '2-digit', minute: '2-digit' })
 
-export default function DayTimeline({ events }) {
+export default function DayTimeline({ events, allDay = [] }) {
   const now = new Date()
   const showNow = now.getHours() >= START && now.getHours() < END
   return (
@@ -25,6 +25,9 @@ export default function DayTimeline({ events }) {
         {showNow && <span className="timeline__now" style={{ left: `${pct(now)}%` }} />}
       </div>
       <ul className="timeline__list">
+        {allDay.map((e) => (
+          <li key={e.id}><span className="timeline__time">Dia inteiro</span> {e.title}</li>
+        ))}
         {events.map((e) => (
           <li key={e.id}><span className="timeline__time">{hm(e.start)}–{hm(e.end)}</span> {e.title}</li>
         ))}

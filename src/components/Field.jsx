@@ -34,3 +34,13 @@ export function Textarea({ label, error, ...props }) {
     </div>
   )
 }
+
+export function Checkbox({ label, ...props }) {
+  const id = useId()
+  return (
+    <div className="field field--check">
+      <input id={id} type="checkbox" {...props} />
+      <label htmlFor={id}>{label}</label>
+    </div>
+  )
+}

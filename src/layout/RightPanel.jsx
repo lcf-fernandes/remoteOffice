@@ -6,11 +6,19 @@ import { demo } from '../dev/fixtures.js'
 import { useProjects } from '../features/projects/ProjectsProvider.jsx'
 import { isOpenProject, sortProjects, projectIsLate } from '../utils/projects.js'
 import { useClients } from '../features/clients/ClientsProvider.jsx'
+import { useTasks } from '../features/tasks/TasksProvider.jsx'
+import { useEvents } from '../features/events/EventsProvider.jsx'
+import { KIND_LABEL, buildAgendaItems, addDays, startOfDay } from '../utils/agenda.js'
 
 export default function RightPanel() {
   const { status, projects } = useProjects()
   const { byId: clientsById } = useClients()
+  const { tasks } = useTasks()
+  const ev = useEvents()
   const upcoming = sortProjects(projects.filter((p) => isOpenProject(p) && p.dueDate))
+  const limit = addDays(startOfDay(new Date()), 29)
+  const deliveries = buildAgendaItems({ events: ev.events.filter((e) => e.type === 'milestone'), tasks, projects })
+    .filter((i) => startOfDay(i.start) <= limit).slice(0, 6)
   const focus = upcoming[0] ?? null
   return (
     <div className="right">
@@ -26,11 +34,17 @@ export default function RightPanel() {
         )}
       </Card>
 
-      <Card title="Próximas entregas" id="r-entregas">
-        {status === 'ready' && upcoming.length === 0 && <p className="right__muted">Nenhuma entrega com prazo definido.</p>}
+      <Card title="Próximas entregas" id="r-entregas" hint="Prazos de tarefas e projetos e marcos (próximos 30 dias e vencidos)">
+        {deliveries.length === 0 && status === 'ready' && <p className="right__muted">Nenhuma entrega com prazo.</p>}
         <ul className="right__list">
-          {upcoming.slice(0, 5).map((p) => (
-            <li key={p.id}><a href={`#/projetos/${p.id}`}>{p.name}</a><span className={`right__muted ${projectIsLate(p) ? 'is-late' : ''}`}>{relativeDay(p.dueDate)}</span></li>
+          {deliveries.map((i) => (
+            <li key={i.key}>
+              <span>
+                {i.kind === 'project' ? <a href={`#/projetos/${i.ref.id}`}>{i.title}</a> : i.title}
+                <span className="right__muted"> · {i.kind === 'event' ? 'Marco' : KIND_LABEL[i.kind]}</span>
+              </span>
+              <span className={`right__muted ${startOfDay(i.start) < startOfDay(new Date()) ? 'is-late' : ''}`}>{relativeDay(i.start)}</span>
+            </li>
           ))}
         </ul>
       </Card>

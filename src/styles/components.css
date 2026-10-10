@@ -112,3 +112,31 @@
 .check { display: flex; align-items: flex-start; gap: var(--sp-3); cursor: pointer; }
 .check input { margin-top: 4px; }
 @media (max-width: 599px) { .filters__row--2 { grid-template-columns: 1fr; } .plist__row { flex-direction: column; } }
+
+/* Commit 13 — agenda */
+.field--check { display: flex; align-items: center; gap: var(--sp-2); }
+.field--check input { width: 18px; height: 18px; }
+.agenda__day { text-transform: capitalize; }
+.alist { display: grid; gap: var(--sp-2); }
+.aitem { display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); border-left: 4px solid var(--c-border-strong); border-radius: var(--r-sm); background: var(--c-surface-2); }
+.aitem--event { border-left-color: var(--c-accent); }
+.aitem--task { border-left-color: var(--c-ok); border-left-style: dashed; }
+.aitem--project { border-left-color: var(--c-warn); border-left-style: double; border-left-width: 6px; }
+.aitem__icon { margin-top: 3px; flex: none; color: var(--c-ink-2); }
+.aitem__main { min-width: 0; }
+.cal__head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
+.cal__title { flex: 1; text-align: center; font-size: var(--fs-lg); text-transform: capitalize; }
+.cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.cal__dow { text-align: center; font-size: var(--fs-xs); color: var(--c-ink-3); padding: var(--sp-1) 0; }
+.cal__day { min-height: 64px; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: var(--sp-1); padding: var(--sp-1) var(--sp-2); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-sm); cursor: pointer; text-align: left; }
+.cal__day:hover { background: var(--c-surface-2); }
+.cal__day[aria-pressed='true'] { border-color: var(--c-accent); box-shadow: inset 0 0 0 1px var(--c-accent); }
+.cal__day.is-out { color: var(--c-ink-3); background: var(--c-surface-2); }
+.cal__day.is-today .cal__num { background: var(--c-accent); color: #fff; border-radius: 999px; padding: 0 6px; }
+.cal__num { font-size: var(--fs-sm); font-weight: 600; }
+.cal__marks { display: flex; flex-wrap: wrap; gap: 2px; }
+.mark { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; font-size: 11px; font-weight: 600; color: #fff; }
+.mark--event { background: var(--c-accent); border-radius: 999px; }
+.mark--task { background: var(--c-ok); border-radius: 2px; }
+.mark--project { background: var(--c-warn); border-radius: 2px; transform: rotate(0deg); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); min-width: 22px; }
+@media (max-width: 599px) { .cal__day { min-height: 52px; padding: 2px 4px; } }
