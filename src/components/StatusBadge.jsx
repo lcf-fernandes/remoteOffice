@@ -1,5 +1,7 @@
 // Códigos internos em inglês, rótulos em português (guia, seção 2).
 const MAP = {
+  // cliente
+  lead: ['Lead', 'info'], inactive: ['Inativo', 'neutral'],
   // tarefa
   backlog: ['Backlog', 'neutral'], todo: ['A fazer', 'info'], in_progress: ['Em andamento', 'info'],
   waiting: ['Aguardando', 'warn'], done: ['Concluída', 'ok'], cancelled: ['Cancelada', 'neutral'],

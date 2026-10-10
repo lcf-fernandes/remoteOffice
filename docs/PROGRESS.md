@@ -16,7 +16,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 08 | `feat: configure Firebase client services` | ✅ código · ✅ projeto Firebase criado (`remote-office-e73ae`) · ⏳ configuração local e serviços (ver PENDING.md) |
 | 09 | `feat: add secure authentication and private workspace` | ✅ código · ⏳ regras não publicadas, não testadas no emulador |
 | 10 | `feat: implement task management CRUD` | ✅ código · ⏳ não testado com o Firebase real |
-| 11–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
+| 11 | `feat: implement client management and interaction history` | ✅ código · ⏳ não testado com o Firebase real |
+| 12–23 | Demais módulos, dashboard real, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -65,3 +66,22 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
   - Nenhum teste de interface automatizado.
 - **Como testar (com Firebase configurado e regras publicadas):** crie uma tarefa; recarregue a página (ela deve continuar); edite; conclua e reabra; filtre por visão, status, prioridade e busca; exclua (confirmação); confira o dashboard e "Hoje". Tente salvar sem título (erro no campo). Em outra conta, as tarefas não aparecem.
 - **Atenção:** republique `firestore.rules` no console (a versão anterior permitia qualquer escrita em subcoleções do próprio usuário).
+
+## Commit 11 — Clientes e histórico de interações
+
+- **O que foi feito:**
+  - Módulo **Clientes** (`#/clientes`): criar, listar, editar, arquivar/reativar e excluir. Campos: nome (obrigatório), empresa, e-mail, telefone, origem, status (Lead/Ativo/Inativo/Arquivado), observações, próxima ação e data.
+  - Visões (Em andamento, Leads, Ativos, Inativos, Arquivados, Todos) e busca por nome, empresa, e-mail, telefone, origem, observações e próxima ação. Próxima ação vencida aparece em vermelho.
+  - **Detalhe do cliente** (`#/clientes/{id}`): contato, próxima ação, **histórico de interações** (data, tipo, resumo; registrar e excluir), **tarefas vinculadas reais** com atalho "Nova tarefa" já vinculada ao cliente.
+  - **Tarefas ganharam o campo "Cliente"** (seletor no formulário; o nome aparece na lista e no detalhe da tarefa; clientes arquivados não aparecem como opção, exceto o já vinculado).
+  - **Política de remoção:** *Arquivar* é o caminho normal (reversível). *Excluir* é permanente: apaga o cliente e suas interações e **desvincula** as tarefas (elas continuam existindo). Exige confirmação.
+  - O botão "Criar → Novo cliente" abre o formulário real. Rotas com parâmetro (`#/clientes/{id}`).
+  - Regras do Firestore para `clients` e `clients/{id}/interactions` com validação; `clientId` validado em tarefas.
+  - Testes de lógica: 27 casos no total (`npm test`, **executados e passando**). Novos casos de regras em `npm run test:rules` (**não executados**).
+- **Não feito:**
+  - Seções "Projetos" e "Propostas" do detalhe mostram aviso de que chegam nos commits 12 e 14 (não há dados falsos).
+  - Excluir uma interação não pede confirmação (ação de baixo risco; pode ser revisto no commit 22).
+  - Exclusão de cliente tem limite de ~480 registros relacionados (um único lote do Firestore); acima disso o app orienta a arquivar.
+  - Sem teste automatizado de interface.
+- **Como testar:** crie clientes (com e-mail/telefone inválidos para ver as mensagens); busque e filtre; abra o detalhe; registre interações; crie uma tarefa vinculada pelo detalhe e outra pelo módulo Tarefas escolhendo o cliente; arquive e reative; exclua um cliente com tarefas e confira que elas permanecem sem vínculo; confirme que o recarregamento mantém tudo.
+- **Atenção:** republique `firestore.rules` no console (novas coleções só funcionam depois disso — sem a regra publicada, clientes dão "Sem permissão").

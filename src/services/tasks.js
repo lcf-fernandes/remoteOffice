@@ -16,8 +16,8 @@ function fromDoc(snap) {
     due: toDate(x.due),
     category: x.category ?? '',
     tags: Array.isArray(x.tags) ? x.tags : [],
-    clientId: x.clientId ?? null, // vínculos ainda sem interface (commits 11 e 12)
-    projectId: x.projectId ?? null,
+    clientId: x.clientId ?? null,
+    projectId: x.projectId ?? null, // seletor de projeto entra no commit 12
     completedAt: toDate(x.completedAt),
     createdAt: toDate(x.createdAt),
     updatedAt: toDate(x.updatedAt),
@@ -38,13 +38,14 @@ function payload(v) {
     due: v.due ? Timestamp.fromDate(v.due) : null,
     category: v.category.trim(),
     tags: v.tags,
+    clientId: v.clientId || null,
     completedAt: v.status === 'done' ? serverTimestamp() : null,
     updatedAt: serverTimestamp(),
   }
 }
 
 export const createTask = (uid, values) =>
-  addDoc(tasksCol(uid), { ...payload(values), clientId: null, projectId: null, createdAt: serverTimestamp() })
+  addDoc(tasksCol(uid), { ...payload(values), projectId: null, createdAt: serverTimestamp() })
 
 export const updateTask = (uid, id, values) => updateDoc(doc(db, 'users', uid, 'tasks', id), payload(values))
 

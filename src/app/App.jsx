@@ -11,11 +11,15 @@ import LoginPage from '../features/auth/LoginPage.jsx'
 import TasksProvider from '../features/tasks/TasksProvider.jsx'
 import TaskEditorProvider from '../features/tasks/TaskEditor.jsx'
 import TasksPage from '../features/tasks/TasksPage.jsx'
+import ClientsProvider from '../features/clients/ClientsProvider.jsx'
+import ClientEditorProvider from '../features/clients/ClientEditor.jsx'
+import ClientsPage from '../features/clients/ClientsPage.jsx'
+import ClientDetail from '../features/clients/ClientDetail.jsx'
 import { ErrorState, LoadingState } from '../components/states.jsx'
 import { authErrorMessage } from '../services/auth.js'
 
 function useHashRoute() {
-  const read = () => window.location.hash.replace(/^#\/?/, '') || 'dashboard'
+  const read = () => window.location.hash.replace(/^#\/?/, '') || 'dashboard' // ex.: 'clientes/abc123'
   const [route, setRoute] = useState(read)
   useEffect(() => {
     const on = () => setRoute(read())
@@ -26,7 +30,7 @@ function useHashRoute() {
 }
 
 function Workspace() {
-  const route = useHashRoute()
+  const [route, param] = useHashRoute().split('/')
   const [drawer, setDrawer] = useState(false)
 
   useEffect(() => {
@@ -51,7 +55,7 @@ function Workspace() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : <ModulePlaceholder route={route} />}
+        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : <ModulePlaceholder route={route} />}
       </main>
 
       <aside className="col col--right" aria-label="Contexto e pendências">
@@ -69,9 +73,13 @@ function Gate() {
   if (auth.status === 'signedOut') return <LoginPage />
   return (
     <TasksProvider uid={auth.user.uid}>
-      <TaskEditorProvider>
-        <Workspace />
-      </TaskEditorProvider>
+      <ClientsProvider uid={auth.user.uid}>
+        <TaskEditorProvider>
+          <ClientEditorProvider>
+            <Workspace />
+          </ClientEditorProvider>
+        </TaskEditorProvider>
+      </ClientsProvider>
     </TasksProvider>
   )
 }

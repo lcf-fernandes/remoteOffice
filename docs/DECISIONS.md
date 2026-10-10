@@ -17,3 +17,7 @@
 | Prazo de tarefa gravado como `Timestamp` (meia-noite local) | Ordenação correta; exibição em pt-BR. |
 | Regras por coleção, sem curinga em `users/{uid}/**` | Cada coleção valida seus campos; coleções novas só funcionam depois de ganharem regra. |
 | Filtros e busca no navegador | Simples e suficiente para uso pessoal; evita índices compostos no Firestore. |
+| Clientes: arquivar é o padrão, excluir é permanente e em cascata controlada | Evita perda acidental; excluir apaga interações e só desvincula as tarefas (nunca as apaga). |
+| Interações como subcoleção `clients/{id}/interactions` | Histórico pertence ao cliente; carregado só quando o detalhe é aberto. |
+| Tarefa guarda só `clientId`; nome vem do provider de clientes | Sem duplicar dados; renomear o cliente reflete em todas as telas. |
+| Rota com parâmetro no hash (`#/clientes/{id}`) | Detalhe com URL própria sem adicionar biblioteca de rotas. |

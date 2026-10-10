@@ -7,6 +7,7 @@ import StatusBadge from '../../components/StatusBadge.jsx'
 import { EmptyState, ErrorState, LoadingState } from '../../components/states.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useTasks } from './TasksProvider.jsx'
+import { useClients } from '../clients/ClientsProvider.jsx'
 import { useTaskEditor } from './TaskEditor.jsx'
 import { deleteTask, setTaskStatus, taskErrorMessage } from '../../services/tasks.js'
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, STATUS_OPTIONS, VIEWS, filterTasks, isOverdue, sortTasks } from '../../utils/tasks.js'
@@ -21,6 +22,7 @@ export default function TasksPage() {
   const { user } = useAuth()
   const { status, tasks, error, retry } = useTasks()
   const editor = useTaskEditor()
+  const { byId: clientsById } = useClients()
   const [filters, setFilters] = useState({ view: 'open', status: '', priority: '', search: '' })
   const [detailId, setDetailId] = useState(null)
   const [toDelete, setToDelete] = useState(null)
@@ -48,7 +50,7 @@ export default function TasksPage() {
     <div className="center__inner">
       <header className="dash-head">
         <h1 className="page-title">Tarefas</h1>
-        <Button variant="primary" icon={Plus} onClick={editor.openNew}>Nova tarefa</Button>
+        <Button variant="primary" icon={Plus} onClick={() => editor.openNew()}>Nova tarefa</Button>
       </header>
 
       <div className="filters">
@@ -72,7 +74,7 @@ export default function TasksPage() {
       {status === 'error' && <ErrorState title="Não foi possível carregar as tarefas" onRetry={retry}>{taskErrorMessage(error)}</ErrorState>}
       {status === 'ready' && visible.length === 0 && (
         tasks.length === 0
-          ? <EmptyState title="Nenhuma tarefa ainda" action={<Button variant="primary" icon={Plus} onClick={editor.openNew}>Criar a primeira tarefa</Button>}>Anote o que precisa fazer e acompanhe aqui.</EmptyState>
+          ? <EmptyState title="Nenhuma tarefa ainda" action={<Button variant="primary" icon={Plus} onClick={() => editor.openNew()}>Criar a primeira tarefa</Button>}>Anote o que precisa fazer e acompanhe aqui.</EmptyState>
           : <EmptyState title="Nenhuma tarefa encontrada">Ajuste a visão, a busca ou os filtros.</EmptyState>
       )}
 
@@ -87,6 +89,7 @@ export default function TasksPage() {
                 <span className={`row__title ${t.status === 'done' ? 'is-struck' : ''}`}>{t.title}</span>
                 <span className="row__meta">
                   {t.due ? <span className={isOverdue(t) ? 'is-late' : ''}>prazo {formatDate(t.due)} ({relativeDay(t.due)})</span> : 'sem prazo'}
+                  {t.clientId && clientsById[t.clientId] ? ` · ${clientsById[t.clientId].name}` : ''}
                   {t.category ? ` · ${t.category}` : ''}
                   {t.tags.length ? ` · ${t.tags.map((x) => `#${x}`).join(' ')}` : ''}
                 </span>
@@ -115,6 +118,7 @@ export default function TasksPage() {
             <div><dt>Status</dt><dd><StatusBadge status={detail.status} /></dd></div>
             <div><dt>Prioridade</dt><dd><PriorityBadge priority={detail.priority} /></dd></div>
             <div><dt>Prazo</dt><dd>{detail.due ? `${formatDate(detail.due, { day: '2-digit', month: 'long', year: 'numeric' })} (${relativeDay(detail.due)})` : 'Sem prazo'}</dd></div>
+            <div><dt>Cliente</dt><dd>{detail.clientId && clientsById[detail.clientId] ? <a href={`#/clientes/${detail.clientId}`} onClick={() => setDetailId(null)}>{clientsById[detail.clientId].name}</a> : '—'}</dd></div>
             <div><dt>Categoria</dt><dd>{detail.category || '—'}</dd></div>
             <div><dt>Tags</dt><dd>{detail.tags.length ? detail.tags.join(', ') : '—'}</dd></div>
             <div className="detail__wide"><dt>Descrição</dt><dd className="detail__text">{detail.description || '—'}</dd></div>

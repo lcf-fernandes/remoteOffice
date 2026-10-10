@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import { after, before, describe, it } from 'node:test'
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing'
-import { deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore'
+import { Timestamp, deleteDoc, doc, getDoc, setDoc } from 'firebase/firestore'
 
 let env
 const task = { title: 'Teste', description: '', status: 'todo', priority: 'medium', due: null, category: '', tags: [] }
@@ -47,6 +47,25 @@ describe('firestore.rules', () => {
     await assertFails(setDoc(doc(alice, 'users/alice/tasks/x1'), { ...task, status: 'qualquer' }))
     await assertFails(setDoc(doc(alice, 'users/alice/tasks/x2'), { ...task, title: '' }))
     await assertFails(setDoc(doc(alice, 'users/alice/tasks/x3'), { ...task, role: 'admin' }))
+  })
+  it('clientes: dono grava e lê; outros não; dados inválidos são negados', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const client = { name: 'Ana', company: '', email: '', phone: '', source: '', status: 'lead', notes: '', nextAction: '', nextActionDate: null }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/clients/c1'), client))
+    await assertSucceeds(getDoc(doc(alice, 'users/alice/clients/c1')))
+    await assertFails(getDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/clients/c1')))
+    await assertFails(setDoc(doc(alice, 'users/alice/clients/c2'), { ...client, name: '' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/clients/c3'), { ...client, status: 'vip' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/clients/c4'), { ...client, role: 'admin' }))
+  })
+  it('interações: validação de tipo, resumo e data', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const ok = { date: Timestamp.now(), type: 'call', summary: 'Conversamos sobre o escopo' }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/clients/c1/interactions/i1'), ok))
+    await assertFails(setDoc(doc(alice, 'users/alice/clients/c1/interactions/i2'), { ...ok, type: 'telepatia' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/clients/c1/interactions/i3'), { ...ok, summary: '' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/clients/c1/interactions/i4'), { ...ok, date: 'ontem' }))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/clients/c1/interactions/i5'), ok))
   })
   it('nega subcoleções não listadas', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/notes/n1'), { a: 1 }))
