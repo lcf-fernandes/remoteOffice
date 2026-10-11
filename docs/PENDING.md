@@ -10,7 +10,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - [ ] **Criar seu usuário** em Authentication → Usuários (não existe tela de cadastro, de propósito).
 - [ ] **Criar o Firestore** em modo de produção.
 - [ ] **Testar as regras no emulador:** `npm run test:rules` (requer Java e acesso à internet para o `firebase-tools`).
-- [ ] **Republicar as regras** (`firestore.rules` mudou nos commits 10 a 19: valida tarefas, clientes, interações, projetos, marcos, diário, eventos, propostas, lançamentos financeiros, registros de tempo, notas, registros de trabalho, preferências e modelos de projeto; **os módulos a partir de Clientes não funcionam sem isso**). **Publicar:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
+- [ ] **Republicar as regras** (`firestore.rules` mudou nos commits 10 a 20: valida tarefas, clientes, interações, projetos, marcos, diário, eventos, propostas, lançamentos financeiros, registros de tempo, notas, registros de trabalho, preferências e modelos de projeto; **os módulos a partir de Clientes não funcionam sem isso**). **Publicar:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
 - [x] Hospedagem: repositório conectado à Vercel (`remote-office-omega.vercel.app`).
 - [ ] **Vercel:** cadastrar as 6 variáveis `VITE_FIREBASE_*` em Settings → Environment Variables e fazer **Redeploy** — [FIREBASE.md](FIREBASE.md#publicar-na-vercel).
 - [ ] **Firebase:** autorizar o domínio da Vercel em Authentication → Domínios autorizados.
@@ -20,7 +20,6 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 | Guia | Entrega |
 |---|---|
-| 20 | Dashboard: revisão final e indicadores consolidados (todos os blocos já leem dados reais) |
 | 21 | Segurança e casos extremos |
 | 22 | Polimento, acessibilidade e performance |
 | 23 | Documentação final e publicação |
@@ -38,7 +37,9 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - **Notificações de lembrete não existem:** o lembrete do evento só fica salvo. Exigem infraestrutura própria (ex.: Cloud Functions + e-mail/push, que pedem plano Blaze do Firebase) — avaliar depois do MVP.
 - Marcos de projeto não aparecem na agenda (só eventos do tipo "Marco de entrega"); eventos de vários dias aparecem no dia de início; sem eventos recorrentes.
 - Fuso horário fixo no do navegador (sem preferência de fuso; fora da lista do guia). Datas de dia inteiro e prazos guardam a meia-noite local.
-- Modelos: sem "salvar projeto como modelo", subtarefas, dependências ou tarefas recorrentes. Alertas: não podem ser dispensados/adiados individualmente (somem ao resolver a condição) e não há alertas de eventos da agenda nem notificações por e-mail/push.
+- Dashboard: o painel direito e o dashboard ainda mostram listas parecidas (mesmos dados e mesmas regras, sem inconsistência); sem gráficos nem métricas de tendência.
+- Seu nome na saudação precisa ser preenchido em Configurações → Perfil (não há mais nome fixo no código).
+- Modelos: sem "salvar projeto como modelo", subtarefas, dependências ou tarefas recorrentes. Alertas: não podem ser dispensados/adiados individualmente (somem ao resolver a condição) e não há alertas de eventos da agenda nem notificações por e-mail/push. "Projeto aguardando cliente" não tem limite de dias (o app não registra desde quando o status foi definido).
 - Preferências: sem reordenação manual de blocos, sem contextos personalizados; o contexto afeta o dashboard e as ações rápidas (não filtra as telas de Tarefas/Projetos). O formato de data ISO não altera títulos com dia da semana nem horários.
 - **Tema escuro, responsividade e contraste ainda não foram conferidos visualmente** (sem navegador no ambiente de desenvolvimento).
 - Kanban de projetos sem arrastar e soltar (muda o status pelo seletor do cartão).

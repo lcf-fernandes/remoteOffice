@@ -35,6 +35,32 @@ describe('critérios de cada alerta', () => {
   it('todos os tipos têm regra documentada', () => { assert.deepEqual(ALERT_TYPES.map((a) => a.id), ALERT_TYPE_IDS); assert.ok(ALERT_TYPES.every((a) => a.rule.length > 10 && a.label)) })
 })
 
+describe('motivo, ação e link para o registro correto', () => {
+  it('cada alerta tem motivo, ação e link do próprio registro', () => {
+    const data = {
+      tasks: [task({ id: 'T1', due: at(-1) })], projects: [project({ id: 'P1', dueDate: at(-1) })], proposals: [proposal({ id: 'R1', lastActivityAt: at(-10) })], transactions: [tx({ id: 'X1', dueDate: at(-1) })],
+    }
+    const a = run(data)
+    const hrefs = Object.fromEntries(a.map((x) => [x.type, x.href]))
+    assert.deepEqual(hrefs, { task_overdue: '#/tarefas/T1', project_overdue: '#/projetos/P1', follow_up: '#/comercial/R1', payment_overdue: '#/financeiro/X1' })
+    for (const x of a) { assert.ok(x.detail.length > 5, 'motivo'); assert.ok(x.action.length > 5, 'ação'); assert.ok(x.label && x.title) }
+  })
+  it('todos os tipos declaram uma ação', () => assert.ok(ALERT_TYPES.every((t) => t.action && t.action.length > 5)))
+})
+
+describe('projeto aguardando cliente (bloqueado)', () => {
+  it('gera alerta quando está aguardando e não há prazo próximo', () => {
+    const a = run({ projects: [project({ id: 'B', status: 'waiting_client', dueDate: at(30) }), project({ id: 'C', status: 'waiting_client', dueDate: null })] })
+    assert.deepEqual(a.map((x) => x.type), ['project_blocked', 'project_blocked'])
+  })
+  it('o prazo tem prioridade: o mesmo projeto não aparece duas vezes', () => {
+    assert.deepEqual(types(run({ projects: [project({ id: 'D', status: 'waiting_client', dueDate: at(-3) })] })), ['project_overdue'])
+    assert.deepEqual(types(run({ projects: [project({ id: 'E', status: 'waiting_client', dueDate: at(1) })] })), ['project_due_soon'])
+  })
+  it('desligar o alerta de prazo NÃO faz o de bloqueio aparecer no lugar', () => assert.deepEqual(run({ projects: [project({ status: 'waiting_client', dueDate: at(-3) })] }, { disabled: ['project_overdue'] }), []))
+  it('só projetos em andamento; ativo normal não é bloqueado', () => assert.deepEqual(run({ projects: [project({ status: 'active', dueDate: at(30) }), project({ status: 'archived' })] }), []))
+})
+
 describe('sem alertas duplicados e estáveis', () => {
   const data = { tasks: [task({ id: 'T', due: at(-1) }), task({ id: 'T', due: at(-1) })], projects: [project({ id: 'P', dueDate: at(1) })] }
   it('mesma condição/entidade = um único alerta (chave estável)', () => { const a = run(data); assert.equal(a.length, 2); assert.equal(new Set(a.map((x) => x.key)).size, 2); assert.ok(a.some((x) => x.key === 'task_overdue:T')) })

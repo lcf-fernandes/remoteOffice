@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthProvider.jsx'
-import { preferencesErrorMessage, subscribeToPreferences, updatePreferences } from '../../services/preferences.js'
+import { preferencesErrorMessage, subscribeToPreferences, updateDisplayName, updatePreferences } from '../../services/preferences.js'
 import { resolvePreferences, resolveTheme } from '../../utils/preferences.js'
 import { setDateStyle } from '../../utils/format.js'
 
@@ -10,12 +10,12 @@ export const usePreferences = () => useContext(PreferencesContext)
 // Preferências ao vivo (por usuário, na conta). Aplica o tema e o estilo de data para todo o app.
 export default function PreferencesProvider({ children }) {
   const { user } = useAuth()
-  const [state, setState] = useState({ status: 'loading', raw: {}, error: null })
+  const [state, setState] = useState({ status: 'loading', raw: {}, displayName: '', error: null })
   const [systemDark, setSystemDark] = useState(() => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : false))
 
   useEffect(() => {
     setState((s) => ({ ...s, status: 'loading' }))
-    return subscribeToPreferences(user.uid, (raw) => setState({ status: 'ready', raw, error: null }), (error) => setState({ status: 'error', raw: {}, error }))
+    return subscribeToPreferences(user.uid, (raw, displayName) => setState({ status: 'ready', raw, displayName, error: null }), (error) => setState({ status: 'error', raw: {}, displayName: '', error }))
   }, [user.uid])
 
   useEffect(() => {
@@ -40,6 +40,10 @@ export default function PreferencesProvider({ children }) {
     try { await updatePreferences(user.uid, patch) } catch (err) { throw new Error(preferencesErrorMessage(err)) }
   }, [user.uid])
 
-  const value = useMemo(() => ({ status: state.status, error: state.error, prefs, update }), [state.status, state.error, prefs, update])
+  const updateName = useCallback(async (name) => {
+    try { await updateDisplayName(user.uid, name) } catch (err) { throw new Error(preferencesErrorMessage(err)) }
+  }, [user.uid])
+
+  const value = useMemo(() => ({ status: state.status, error: state.error, prefs, displayName: state.displayName, update, updateName }), [state.status, state.error, state.displayName, prefs, update, updateName])
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>
 }

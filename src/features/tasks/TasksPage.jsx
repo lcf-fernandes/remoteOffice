@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Check, Pencil, Play, Plus, RotateCcw, Trash2 } from 'lucide-react'
 import Button from '../../components/Button.jsx'
 import Dialog from '../../components/Dialog.jsx'
@@ -21,7 +21,7 @@ export function PriorityBadge({ priority }) {
   return <span className={`badge badge--${tone}`}>{PRIORITY_LABEL[priority] ?? priority}</span>
 }
 
-export default function TasksPage() {
+export default function TasksPage({ openId = null }) {
   const { user } = useAuth()
   const { status, tasks, error, retry } = useTasks()
   const editor = useTaskEditor()
@@ -33,6 +33,14 @@ export default function TasksPage() {
   const [toDelete, setToDelete] = useState(null)
   const [actionError, setActionError] = useState('')
   const [deleting, setDeleting] = useState(false)
+  const [missing, setMissing] = useState(false)
+
+  // Link direto (#/tarefas/{id}, usado pelos alertas): abre a tarefa e limpa o endereço.
+  useEffect(() => {
+    if (!openId || status !== 'ready') return
+    if (tasks.some((t) => t.id === openId)) { setDetailId(openId); setMissing(false) } else setMissing(true)
+    window.location.replace('#/tarefas')
+  }, [openId, status, tasks])
 
   const visible = useMemo(() => sortTasks(filterTasks(tasks, filters)), [tasks, filters])
   const detail = tasks.find((t) => t.id === detailId) ?? null
@@ -79,6 +87,7 @@ export default function TasksPage() {
         </div>
       </div>
 
+      {missing && <ErrorState title="Tarefa não encontrada">Ela pode ter sido excluída ou concluída em outro aparelho.</ErrorState>}
       {actionError && <ErrorState title="Não foi possível concluir a ação">{actionError}</ErrorState>}
 
       {status === 'loading' && <LoadingState label="Carregando tarefas…" />}

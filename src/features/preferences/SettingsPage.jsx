@@ -13,7 +13,8 @@ import { ALERT_TYPES, DUE_SOON_OPTIONS } from '../../utils/alerts.js'
 import { formatDate } from '../../utils/format.js'
 
 export default function SettingsPage() {
-  const { status, error, prefs, update } = usePreferences()
+  const { status, error, prefs, displayName, update, updateName } = usePreferences()
+  const [nameDraft, setNameDraft] = useState(null)
   const [message, setMessage] = useState('')
   const [saveError, setSaveError] = useState('')
   const [link, setLink] = useState({ label: '', url: '' })
@@ -42,6 +43,13 @@ export default function SettingsPage() {
     const disabled = on ? prefs.disabledAlerts.filter((a) => a !== id) : [...new Set([...prefs.disabledAlerts, id])]
     save({ disabledAlerts: disabled })
   }
+  async function saveName(e) {
+    e.preventDefault()
+    const name = (nameDraft ?? displayName).trim()
+    if (name.length > 60) return setSaveError('O nome deve ter no máximo 60 caracteres.')
+    setSaveError(''); setMessage('')
+    try { await updateName(name); setNameDraft(null); setMessage('Nome salvo.') } catch (err) { setSaveError(err.message) }
+  }
   const removeLink = (url) => save({ externalLinks: prefs.externalLinks.filter((l) => l.url !== url) }, 'Atalho removido.')
 
   return (
@@ -56,6 +64,13 @@ export default function SettingsPage() {
       {status === 'error' && <ErrorState title="Não foi possível carregar as preferências">Estão sendo usados os valores padrão. {error?.code === 'permission-denied' ? 'Confira se as regras do Firestore foram publicadas (docs/FIREBASE.md).' : ''}</ErrorState>}
       {saveError && <ErrorState title="Não foi possível salvar">{saveError}</ErrorState>}
       {message && <p className="login__info" role="status">{message}</p>}
+
+      <Card title="Perfil" id="s-profile" hint="Usado na saudação do dashboard. Em branco, a saudação aparece sem nome.">
+        <form className="form" onSubmit={saveName} noValidate>
+          <Input label="Seu nome" value={nameDraft ?? displayName} onChange={(e) => setNameDraft(e.target.value)} />
+          <div><Button type="submit" disabled={nameDraft === null || nameDraft.trim() === displayName}>Salvar nome</Button></div>
+        </form>
+      </Card>
 
       <Card title="Contexto de trabalho" id="s-ctx" hint="Reorganiza o dashboard e as ações rápidas sem duplicar dados">
         <ContextSwitcher />

@@ -174,6 +174,8 @@ describe('firestore.rules', () => {
     await assertSucceeds(setDoc(doc(alice, 'users/alice'), profile))
     const withPrefs = (preferences) => ({ ...profile, preferences })
     await assertSucceeds(setDoc(doc(alice, 'users/alice'), withPrefs({ ...profile.preferences, theme: 'dark', dateStyle: 'iso', weekStart: 'mon', context: 'editing', hiddenBlocks: ['video'], externalLinks: [{ label: 'GitHub', url: 'https://github.com' }], followUpDays: 14 })))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), { ...withPrefs(profile.preferences), displayName: 'Leandro' }))
+    await assertFails(setDoc(doc(alice, 'users/alice'), { ...withPrefs(profile.preferences), displayName: 'x'.repeat(61) }))
     await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ theme: 'neon' })))
     await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ currency: 'XYZ' })))
     await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ context: 'lazer' })))

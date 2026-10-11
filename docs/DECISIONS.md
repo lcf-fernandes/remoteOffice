@@ -75,3 +75,10 @@
 | Alertas configuráveis só por limite de antecedência e liga/desliga por tipo | "Regras configuráveis quando possível" sem complicar a interface; critérios ficam visíveis em Configurações. |
 | Sem dispensar/adiar alertas | Exigiria guardar estado por alerta e tratar quando reaparecem; a condição resolvida já remove o alerta. |
 | Progresso derivado é a única "automação de dados"; sugestão (não ação) ao chegar em 100% | Evita mudar status sozinho; segue "automatizar somente atualizações derivadas seguras". |
+| Alertas sempre levam ao registro específico (`#/tarefas/{id}`, `#/financeiro/{id}`, projeto e proposta) e dizem a ação que resolve | O guia exige alertas com motivo e ação; links diretos abrem o item e limpam o endereço (sem reabrir ao recarregar). Item inexistente mostra aviso. |
+| Projeto aguardando cliente = alerta próprio, subordinado ao de prazo | Um projeto nunca gera dois alertas; o prazo é mais urgente. Sem limite de dias porque não há data de mudança de status gravada (usar `updatedAt` seria enganoso). |
+| Indicadores e alertas compartilham os mesmos cálculos e o mesmo `now` | Evita números diferentes para a mesma coisa; testes comparam um com o outro. |
+| Estado de carga explícito: "—" ao carregar, "0" só quando é zero, aviso quando uma fonte falha | O guia pede para não mostrar zeros como se fossem erros de carregamento nem "tudo em dia" sem ter carregado. |
+| Guia "Comece por aqui" só com tudo carregado e todos os módulos vazios | Estado vazio útil sem cartões vazios repetidos; some assim que existe qualquer registro. |
+| Sem nome fixo no código; nome vem do perfil | Nada de dado pessoal "de exemplo" misturado ao real. |
+| Teste que varre `src/` por fixtures/demonstração | Transforma o critério "não restam dados de exemplo" em verificação automática. |

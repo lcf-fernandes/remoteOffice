@@ -6,6 +6,14 @@ import StatusBadge from '../../components/StatusBadge.jsx'
 import { EmptyState, ErrorState, LoadingState } from '../../components/states.jsx'
 import DayTimeline from './DayTimeline.jsx'
 import AlertsPanel from './AlertsPanel.jsx'
+import WelcomeCard from './WelcomeCard.jsx'
+import { dashboardStats, isWorkspaceEmpty, sourcesState } from '../../utils/dashboard.js'
+import { useTime } from '../time/TimeProvider.jsx'
+import { useTemplates } from '../templates/TemplatesProvider.jsx'
+import { useTemplateWizard } from '../templates/TemplateWizard.jsx'
+import { useTaskEditor } from '../tasks/TaskEditor.jsx'
+import { useClientEditor } from '../clients/ClientEditor.jsx'
+import { useEventEditor } from '../events/EventEditor.jsx'
 import { buildAlerts } from '../../utils/alerts.js'
 import ContextSwitcher from '../preferences/ContextSwitcher.jsx'
 import { usePreferences } from '../preferences/PreferencesProvider.jsx'
@@ -26,8 +34,8 @@ import { localTimeZone } from '../../utils/events.js'
 import { startOfDay } from '../../utils/agenda.js'
 import { effectiveStatus } from '../../utils/finance.js'
 import { greeting, formatLongDate, formatDate, formatMoney, relativeDay, daysFromToday } from '../../utils/format.js'
-import { PRIORITY_LABEL, filterTasks, sortTasks } from '../../utils/tasks.js'
-import { EMPTY_PROGRESS, attentionReason, isOpenProject, linkLabel, progressByProject, projectIsLate, sortProjects } from '../../utils/projects.js'
+import { PRIORITY_LABEL, sortTasks } from '../../utils/tasks.js'
+import { EMPTY_PROGRESS, attentionReason, linkLabel, progressByProject, projectIsLate, sortProjects } from '../../utils/projects.js'
 import { CONTEXTS, contextTasks, layoutFor, projectsOfType, repoLinks, videoQueue } from '../../utils/contexts.js'
 import { BLOCK_IDS } from '../../utils/preferences.js'
 import { taskErrorMessage } from '../../services/tasks.js'
@@ -36,22 +44,26 @@ import { projectErrorMessage } from '../../services/projects.js'
 // Todos os blocos leem os mesmos dados reais das telas de cada módulo. O CONTEXTO só escolhe quais blocos ficam
 // em destaque, em que ordem, e filtra tarefas/projetos: nada é copiado nem criado.
 export default function Dashboard() {
-  const { prefs } = usePreferences()
+  const { prefs, displayName } = usePreferences()
   const { status, tasks, error, retry } = useTasks()
   const { status: pStatus, projects, byId: projectsById, error: pError, retry: pRetry } = useProjects()
-  const { clients, byId: clientsById } = useClients()
+  const { status: clientsStatus, clients, byId: clientsById } = useClients()
   const ev = useEvents()
   const notesCtx = useNotes()
   const logEditor = useWorkLogEditor()
-  const { proposals } = useProposals()
+  const { status: proposalsStatus, proposals } = useProposals()
   const [followDays] = useFollowUpDays()
-  const { transactions } = useTransactions()
+  const { status: txStatus, transactions } = useTransactions()
+  const time = useTime()
+  const templates = useTemplates()
+  const wizard = useTemplateWizard()
+  const taskEditor = useTaskEditor()
+  const clientEditor = useClientEditor()
+  const eventEditor = useEventEditor()
 
   const ctxId = prefs.context
-  const open = filterTasks(tasks, { view: 'open' })
   const progress = useMemo(() => progressByProject(tasks), [tasks])
-  const openProjects = projects.filter(isOpenProject)
-  const dueSoon = openProjects.filter((p) => p.dueDate && daysFromToday(p.dueDate) <= 7)
+  const stats = dashboardStats({ tasks, projects })
   const attention = sortProjects(projects.filter((p) => attentionReason(p)))
   const followUps = proposals.map((p) => ({ p, reason: followUpReason(p, { days: followDays }) })).filter((x) => x.reason)
   const alerts = useMemo(
@@ -59,6 +71,12 @@ export default function Dashboard() {
     [tasks, projects, proposals, transactions, prefs.alertDueSoonDays, prefs.disabledAlerts, followDays]
   )
   const projectsReady = pStatus === 'ready'
+  const alertSources = sourcesState({ tasks: status, projects: pStatus, proposals: proposalsStatus, transactions: txStatus })
+  const allReady = [status, pStatus, clientsStatus, ev.status, proposalsStatus, txStatus, notesCtx.status, time.status].every((s) => s === 'ready')
+  const empty = allReady && isWorkspaceEmpty({
+    tasks: tasks.length, projects: projects.length, clients: clients.length, events: ev.events.length, proposals: proposals.length,
+    transactions: transactions.length, notes: notesCtx.notes.length, workLog: notesCtx.workLog.length, time: time.entries.length, templates: templates.mine.length,
+  })
   const lastLog = sortWorkLog(notesCtx.workLog)[0] ?? null
   const todayStart = startOfDay(new Date()).getTime()
   const todayEvents = ev.events.filter((e) => startOfDay(e.start).getTime() === todayStart).sort((a, b) => a.start - b.start)
@@ -248,24 +266,31 @@ export default function Dashboard() {
     <div className="center__inner">
       <header className="dash-head">
         <div>
-          <h1 className="page-title">{greeting()}, Leandro</h1>
+          <h1 className="page-title">{displayName ? `${greeting()}, ${displayName}` : greeting()}</h1>
           <p className="dash-date">{formatLongDate()}</p>
         </div>
       </header>
 
-      <ContextSwitcher />
+      {!empty && <ContextSwitcher />}
 
-      <dl className="stats">
-        <div><dt>Tarefas abertas</dt><dd>{status === 'ready' ? open.length : '—'}</dd></div>
-        <div><dt>Projetos com entrega em 7 dias</dt><dd>{projectsReady ? dueSoon.length : '—'}</dd></div>
-        <div><dt>Projetos em andamento</dt><dd>{projectsReady ? openProjects.length : '—'}</dd></div>
-      </dl>
+      {!empty && (
+        <dl className="stats stats--4">
+          <div><dt>Tarefas abertas</dt><dd>{status === 'ready' ? stats.openTasks : '—'}</dd></div>
+          <div><dt>Tarefas atrasadas</dt><dd className={status === 'ready' && stats.overdueTasks ? 'is-late' : ''}>{status === 'ready' ? stats.overdueTasks : '—'}</dd></div>
+          <div><dt>Projetos em andamento</dt><dd>{projectsReady ? stats.activeProjects : '—'}</dd></div>
+          <div><dt>Entregas em até 7 dias</dt><dd>{projectsReady ? stats.projectsDueIn7Days : '—'}</dd></div>
+        </dl>
+      )}
 
-      <AlertsPanel alerts={alerts} />
+      {empty ? (
+        <WelcomeCard onClient={() => clientEditor.openNew()} onProject={() => wizard.open()} onTask={() => taskEditor.openNew()} onEvent={() => eventEditor.openNew()} />
+      ) : (
+        <AlertsPanel alerts={alerts} state={alertSources} disabled={prefs.disabledAlerts} />
+      )}
 
-      {primary.map((id) => <div key={id} className="block block--primary">{blocks[id]}</div>)}
+      {!empty && primary.map((id) => <div key={id} className="block block--primary">{blocks[id]}</div>)}
 
-      {secondary.length > 0 && (
+      {!empty && secondary.length > 0 && (
         <details className="more-blocks">
           <summary>Outros blocos ({secondary.length})</summary>
           <div className="more-blocks__body">{secondary.map((id) => <div key={id} className="block">{blocks[id]}</div>)}</div>

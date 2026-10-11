@@ -207,3 +207,15 @@ details > summary.card__title { cursor: pointer; }
 .alert--danger svg { color: var(--c-danger); }
 .alert--warn svg { color: var(--c-warn); }
 .alert__detail { color: var(--c-ink-2); }
+
+/* Commit 20 — central de alertas, indicadores e boas-vindas */
+.stats.stats--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (min-width: 600px) and (max-width: 899px) { .stats.stats--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.alerts--ok { background: var(--c-ok-soft); color: var(--c-ok); }
+.alerts__ok, .alerts__note { display: flex; align-items: flex-start; gap: var(--sp-2); font-size: var(--fs-sm); margin: 0; }
+.alerts__note { color: var(--c-ink-2); }
+.alert__action { font-size: var(--fs-xs); font-weight: 600; }
+.welcome { display: grid; gap: var(--sp-3); padding: 0; list-style: none; counter-reset: step; }
+.welcome li { counter-increment: step; display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; padding: var(--sp-3); border: 1px solid var(--c-border); border-radius: var(--r-md); background: var(--c-surface-2); }
+.welcome li::before { content: counter(step); flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c-accent); color: #fff; font-size: var(--fs-xs); font-weight: 700; }
+.welcome li > span { flex: 1; min-width: 180px; }

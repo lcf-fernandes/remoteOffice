@@ -82,7 +82,7 @@ function Workspace() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage /> : route === 'tempo' ? <TimePage /> : route === 'notas' ? <NotesPage /> : route === 'configuracoes' ? <SettingsPage /> : route === 'modelos' ? <TemplatesPage /> : <ModulePlaceholder route={route} />}
+        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage openId={param || null} /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage openId={param || null} /> : route === 'tempo' ? <TimePage /> : route === 'notas' ? <NotesPage /> : route === 'configuracoes' ? <SettingsPage /> : route === 'modelos' ? <TemplatesPage /> : <ModulePlaceholder route={route} />}
       </main>
 
       <aside className="col col--right" aria-label="Contexto e pendências">

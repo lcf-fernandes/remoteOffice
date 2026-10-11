@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Check, Plus } from 'lucide-react'
 import Button from '../../components/Button.jsx'
 import Dialog from '../../components/Dialog.jsx'
@@ -32,7 +32,7 @@ export function TxStatusBadge({ tx, now }) {
 
 const money = (v, cur) => (v ? formatMoney(v, cur) : '—')
 
-export default function FinancePage() {
+export default function FinancePage({ openId = null }) {
   const { user } = useAuth()
   const { status, transactions, error, retry } = useTransactions()
   const { byId: clientsById } = useClients()
@@ -44,6 +44,15 @@ export default function FinancePage() {
   const [paying, setPaying] = useState(false)
   const [payError, setPayError] = useState('')
   const now = new Date()
+  const [missing, setMissing] = useState(false)
+
+  // Link direto (#/financeiro/{id}, usado pelos alertas): abre o lançamento e limpa o endereço.
+  useEffect(() => {
+    if (!openId || status !== 'ready') return
+    const tx = transactions.find((t) => t.id === openId)
+    if (tx) { editor.openEdit(tx); setMissing(false) } else setMissing(true)
+    window.location.replace('#/financeiro')
+  }, [openId, status, transactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const visible = useMemo(() => sortTransactions(filterTransactions(transactions, filters)), [transactions, filters])
   const summary = useMemo(() => summarize(visible), [visible])
@@ -85,6 +94,7 @@ export default function FinancePage() {
         </div>
       </div>
 
+      {missing && <ErrorState title="Lançamento não encontrado">Ele pode ter sido excluído em outro aparelho.</ErrorState>}
       {status === 'loading' && <LoadingState label="Carregando lançamentos…" />}
       {status === 'error' && <ErrorState title="Não foi possível carregar o financeiro" onRetry={retry}>{transactionErrorMessage(error)}</ErrorState>}
 

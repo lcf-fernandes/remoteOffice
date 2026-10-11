@@ -3,7 +3,12 @@ import { doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { db } from './firebase.js'
 
 export const subscribeToPreferences = (uid, onData, onError) =>
-  onSnapshot(doc(db, 'users', uid), (snap) => onData(snap.exists() ? snap.data().preferences ?? {} : {}), onError)
+  onSnapshot(doc(db, 'users', uid), (snap) => {
+    const data = snap.exists() ? snap.data() : {}
+    onData(data.preferences ?? {}, typeof data.displayName === 'string' ? data.displayName : '')
+  }, onError)
+
+export const updateDisplayName = (uid, name) => updateDoc(doc(db, 'users', uid), { displayName: name.trim(), updatedAt: serverTimestamp() })
 
 // Atualização parcial por caminho (preferences.<chave>): não sobrescreve as demais preferências.
 export function updatePreferences(uid, patch) {
