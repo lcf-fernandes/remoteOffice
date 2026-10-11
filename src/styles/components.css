@@ -194,3 +194,16 @@ details > summary.card__title { cursor: pointer; }
 .left__ext { color: var(--c-rail-ink); font-size: var(--fs-sm); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
 .left__ext:hover { text-decoration: underline; }
 .left a.left__link2 { color: var(--c-rail-ink); }
+
+/* Commit 19 — modelos e alertas */
+.wizard__list, .tpl__tasks { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: var(--sp-2); }
+.tpl__row { display: grid; gap: var(--sp-2); padding: var(--sp-3); border: 1px solid var(--c-border); border-radius: var(--r-md); background: var(--c-surface-2); }
+.tpl__preview { display: grid; gap: var(--sp-1); padding-left: var(--sp-5); margin-top: var(--sp-2); list-style: decimal; font-size: var(--fs-sm); }
+.alerts--list { display: grid; gap: var(--sp-2); background: var(--c-danger-soft); }
+.alerts--list ul { display: grid; gap: var(--sp-1); }
+.alerts__title { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 700; color: var(--c-danger); }
+.alert { display: flex; align-items: flex-start; gap: var(--sp-2); font-size: var(--fs-sm); color: var(--c-ink); }
+.alert svg { margin-top: 3px; flex: none; }
+.alert--danger svg { color: var(--c-danger); }
+.alert--warn svg { color: var(--c-warn); }
+.alert__detail { color: var(--c-ink-2); }

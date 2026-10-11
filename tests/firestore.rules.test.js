@@ -179,8 +179,26 @@ describe('firestore.rules', () => {
     await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ context: 'lazer' })))
     await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ followUpDays: 5 })))
     await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ externalLinks: Array(11).fill({ label: 'x', url: 'https://a.co' }) })))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), withPrefs({ ...profile.preferences, alertDueSoonDays: 3, disabledAlerts: ['follow_up'] })))
+    await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ alertDueSoonDays: 5 })))
+    await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ disabledAlerts: Array(11).fill('follow_up') })))
     await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ isAdmin: true }))) // chave desconhecida
     await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice'), profile))
+  })
+  it('modelos: tipo e tamanho da lista; criação em lote de projeto + tarefas respeita as regras', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const tpl = { name: 'Vídeo', description: '', projectType: 'editing', tasks: [{ title: 'Briefing', description: '', priority: 'high', offsetDays: 2, category: '' }] }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/templates/t1'), tpl))
+    await assertFails(setDoc(doc(alice, 'users/alice/templates/t2'), { ...tpl, tasks: [] }))
+    await assertFails(setDoc(doc(alice, 'users/alice/templates/t3'), { ...tpl, tasks: Array(31).fill(tpl.tasks[0]) }))
+    await assertFails(setDoc(doc(alice, 'users/alice/templates/t4'), { ...tpl, projectType: 'outro' }))
+    await assertFails(setDoc(doc(alice, 'users/alice/templates/t5'), { ...tpl, name: '' }))
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice/templates/t6'), tpl))
+    // a criação a partir de modelo grava um projeto e tarefas no formato que as regras já exigem
+    const project = { name: 'Vídeo X', description: '', clientId: null, type: 'editing', status: 'planning', priority: 'medium', startDate: null, dueDate: null, links: [] }
+    const task = { title: 'Briefing', description: '', status: 'todo', priority: 'high', due: null, category: '', tags: [], clientId: null, projectId: 'p-x', completedAt: null }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/projects/p-x'), project))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/tasks/tt1'), task))
   })
   it('nega subcoleções não listadas', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/segredos/n1'), { a: 1 }))

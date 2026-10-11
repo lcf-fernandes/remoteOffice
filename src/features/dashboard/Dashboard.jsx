@@ -5,6 +5,8 @@ import ProgressBar from '../../components/ProgressBar.jsx'
 import StatusBadge from '../../components/StatusBadge.jsx'
 import { EmptyState, ErrorState, LoadingState } from '../../components/states.jsx'
 import DayTimeline from './DayTimeline.jsx'
+import AlertsPanel from './AlertsPanel.jsx'
+import { buildAlerts } from '../../utils/alerts.js'
 import ContextSwitcher from '../preferences/ContextSwitcher.jsx'
 import { usePreferences } from '../preferences/PreferencesProvider.jsx'
 import { useTasks } from '../tasks/TasksProvider.jsx'
@@ -22,9 +24,9 @@ import { followUpReason } from '../../utils/proposals.js'
 import { eventErrorMessage } from '../../services/events.js'
 import { localTimeZone } from '../../utils/events.js'
 import { startOfDay } from '../../utils/agenda.js'
-import { effectiveStatus, overdueTransactions } from '../../utils/finance.js'
+import { effectiveStatus } from '../../utils/finance.js'
 import { greeting, formatLongDate, formatDate, formatMoney, relativeDay, daysFromToday } from '../../utils/format.js'
-import { PRIORITY_LABEL, filterTasks, isOverdue, sortTasks } from '../../utils/tasks.js'
+import { PRIORITY_LABEL, filterTasks, sortTasks } from '../../utils/tasks.js'
 import { EMPTY_PROGRESS, attentionReason, isOpenProject, linkLabel, progressByProject, projectIsLate, sortProjects } from '../../utils/projects.js'
 import { CONTEXTS, contextTasks, layoutFor, projectsOfType, repoLinks, videoQueue } from '../../utils/contexts.js'
 import { BLOCK_IDS } from '../../utils/preferences.js'
@@ -47,16 +49,15 @@ export default function Dashboard() {
 
   const ctxId = prefs.context
   const open = filterTasks(tasks, { view: 'open' })
-  const overdue = open.filter(isOverdue)
   const progress = useMemo(() => progressByProject(tasks), [tasks])
   const openProjects = projects.filter(isOpenProject)
   const dueSoon = openProjects.filter((p) => p.dueDate && daysFromToday(p.dueDate) <= 7)
-  const lateProjects = openProjects.filter(projectIsLate)
   const attention = sortProjects(projects.filter((p) => attentionReason(p)))
   const followUps = proposals.map((p) => ({ p, reason: followUpReason(p, { days: followDays }) })).filter((x) => x.reason)
-  const overdueTx = overdueTransactions(transactions)
-  const overdueIncome = overdueTx.filter((t) => t.type === 'income').length
-  const overdueExpense = overdueTx.length - overdueIncome
+  const alerts = useMemo(
+    () => buildAlerts({ tasks, projects, proposals, transactions, settings: { dueSoonDays: prefs.alertDueSoonDays, followUpDays: followDays, disabled: prefs.disabledAlerts } }),
+    [tasks, projects, proposals, transactions, prefs.alertDueSoonDays, prefs.disabledAlerts, followDays]
+  )
   const projectsReady = pStatus === 'ready'
   const lastLog = sortWorkLog(notesCtx.workLog)[0] ?? null
   const todayStart = startOfDay(new Date()).getTime()
@@ -260,15 +261,7 @@ export default function Dashboard() {
         <div><dt>Projetos em andamento</dt><dd>{projectsReady ? openProjects.length : '—'}</dd></div>
       </dl>
 
-      {(overdue.length > 0 || lateProjects.length > 0 || followUps.length > 0 || overdueTx.length > 0) && (
-        <section aria-label="Alertas" className="alerts">
-          {overdue.length > 0 && <p><strong>{overdue.length}</strong> {overdue.length === 1 ? 'tarefa atrasada' : 'tarefas atrasadas'}.</p>}
-          {lateProjects.length > 0 && <p><strong>{lateProjects.length}</strong> {lateProjects.length === 1 ? 'projeto com prazo vencido' : 'projetos com prazo vencido'}.</p>}
-          {followUps.length > 0 && <p><strong>{followUps.length}</strong> {followUps.length === 1 ? 'proposta pede retorno' : 'propostas pedem retorno'} (<a href="#/comercial">ver</a>).</p>}
-          {overdueIncome > 0 && <p><strong>{overdueIncome}</strong> {overdueIncome === 1 ? 'recebimento vencido' : 'recebimentos vencidos'} (<a href="#/financeiro">ver</a>).</p>}
-          {overdueExpense > 0 && <p><strong>{overdueExpense}</strong> {overdueExpense === 1 ? 'conta a pagar vencida' : 'contas a pagar vencidas'} (<a href="#/financeiro">ver</a>).</p>}
-        </section>
-      )}
+      <AlertsPanel alerts={alerts} />
 
       {primary.map((id) => <div key={id} className="block block--primary">{blocks[id]}</div>)}
 

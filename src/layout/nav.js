@@ -1,10 +1,11 @@
-import { Timer, LayoutDashboard, CheckSquare, Users, FolderKanban, CalendarDays, Handshake, Wallet, StickyNote, Settings } from 'lucide-react'
+import { LayoutTemplate, Timer, LayoutDashboard, CheckSquare, Users, FolderKanban, CalendarDays, Handshake, Wallet, StickyNote, Settings } from 'lucide-react'
 
 export const NAV = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'tarefas', label: 'Tarefas', icon: CheckSquare, commit: 10 },
   { id: 'clientes', label: 'Clientes', icon: Users, commit: 11 },
   { id: 'projetos', label: 'Projetos', icon: FolderKanban, commit: 12 },
+  { id: 'modelos', label: 'Modelos', icon: LayoutTemplate, commit: 19 },
   { id: 'agenda', label: 'Agenda', icon: CalendarDays, commit: 13 },
   { id: 'comercial', label: 'Comercial', icon: Handshake, commit: 14 },
   { id: 'financeiro', label: 'Financeiro', icon: Wallet, commit: 15 },

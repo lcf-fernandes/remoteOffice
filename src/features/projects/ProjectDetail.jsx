@@ -106,6 +106,9 @@ export default function ProjectDetail({ id }) {
 
       <Card title="Progresso" id="p-prog" hint={PROGRESS_RULE}>
         <ProgressBar progress={progress} label={`Progresso de ${project.name}`} />
+        {progress.percent === 100 && ['planning', 'active', 'waiting_client', 'review'].includes(project.status) && (
+          <p className="card__hint" role="status">Todas as tarefas estão concluídas. Se o projeto terminou, mude o status para <strong>Concluído</strong> (isto não é feito automaticamente).</p>
+        )}
       </Card>
 
       <Card title="Retomar de onde parou" id="p-resume" hint="Último registro de trabalho e notas deste projeto"

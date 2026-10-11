@@ -38,6 +38,10 @@ import WorkLogEditorProvider from '../features/notes/WorkLogEditor.jsx'
 import NotesPage from '../features/notes/NotesPage.jsx'
 import PreferencesProvider, { usePreferences } from '../features/preferences/PreferencesProvider.jsx'
 import SettingsPage from '../features/preferences/SettingsPage.jsx'
+import TemplatesProvider from '../features/templates/TemplatesProvider.jsx'
+import TemplateEditorProvider from '../features/templates/TemplateEditor.jsx'
+import TemplateWizardProvider from '../features/templates/TemplateWizard.jsx'
+import TemplatesPage from '../features/templates/TemplatesPage.jsx'
 import { ErrorState, LoadingState } from '../components/states.jsx'
 import { authErrorMessage } from '../services/auth.js'
 
@@ -78,7 +82,7 @@ function Workspace() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage /> : route === 'tempo' ? <TimePage /> : route === 'notas' ? <NotesPage /> : route === 'configuracoes' ? <SettingsPage /> : <ModulePlaceholder route={route} />}
+        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage /> : route === 'tempo' ? <TimePage /> : route === 'notas' ? <NotesPage /> : route === 'configuracoes' ? <SettingsPage /> : route === 'modelos' ? <TemplatesPage /> : <ModulePlaceholder route={route} />}
       </main>
 
       <aside className="col col--right" aria-label="Contexto e pendências">
@@ -102,6 +106,7 @@ function Gate() {
   if (auth.status === 'signedOut') return <LoginPage />
   return (
     <PreferencesProvider>
+    <TemplatesProvider uid={auth.user.uid}>
     <TasksProvider uid={auth.user.uid}>
       <ClientsProvider uid={auth.user.uid}>
         <ProjectsProvider uid={auth.user.uid}>
@@ -119,7 +124,11 @@ function Gate() {
                                 <EntryEditorProvider>
                                   <NoteEditorProvider>
                                     <WorkLogEditorProvider>
-                                      <KeyedWorkspace />
+                                      <TemplateEditorProvider>
+                                        <TemplateWizardProvider>
+                                          <KeyedWorkspace />
+                                        </TemplateWizardProvider>
+                                      </TemplateEditorProvider>
                                     </WorkLogEditorProvider>
                                   </NoteEditorProvider>
                                 </EntryEditorProvider>
@@ -137,6 +146,7 @@ function Gate() {
         </ProjectsProvider>
       </ClientsProvider>
     </TasksProvider>
+    </TemplatesProvider>
     </PreferencesProvider>
   )
 }

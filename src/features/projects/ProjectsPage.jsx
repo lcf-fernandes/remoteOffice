@@ -8,6 +8,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/states.js
 import { PriorityBadge } from '../tasks/TasksPage.jsx'
 import { useProjects } from './ProjectsProvider.jsx'
 import { useProjectEditor } from './ProjectEditor.jsx'
+import { useTemplateWizard } from '../templates/TemplateWizard.jsx'
 import { useClients } from '../clients/ClientsProvider.jsx'
 import { useTasks } from '../tasks/TasksProvider.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
@@ -29,6 +30,7 @@ export default function ProjectsPage() {
   const { byId: clientsById } = useClients()
   const { tasks } = useTasks()
   const editor = useProjectEditor()
+  const wizard = useTemplateWizard()
   const [layout, setLayout] = useState('list')
   const [filters, setFilters] = useState({ view: 'open', search: '', type: '' })
   const [actionError, setActionError] = useState('')
@@ -62,7 +64,10 @@ export default function ProjectsPage() {
     <div className="center__inner center__inner--wide">
       <header className="dash-head">
         <h1 className="page-title">Projetos</h1>
-        <Button variant="primary" icon={Plus} onClick={() => editor.openNew()}>Novo projeto</Button>
+        <div className="actions">
+          <Button variant="primary" icon={Plus} onClick={() => editor.openNew()}>Novo projeto</Button>
+          <Button onClick={() => wizard.open()}>A partir de modelo</Button>
+        </div>
       </header>
 
       <div className="filters">

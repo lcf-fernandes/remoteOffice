@@ -14,7 +14,8 @@ service cloud.firestore {
     // as regras limitam só o tamanho das listas.
     function validPreferences(p) {
       return p is map
-        && p.keys().hasOnly(['locale', 'currency', 'theme', 'dateStyle', 'weekStart', 'context', 'hiddenBlocks', 'externalLinks', 'followUpDays'])
+        && p.keys().hasOnly(['locale', 'currency', 'theme', 'dateStyle', 'weekStart', 'context', 'hiddenBlocks', 'externalLinks', 'followUpDays',
+                           'alertDueSoonDays', 'disabledAlerts'])
         && (!('locale' in p) || p.locale is string)
         && (!('currency' in p) || p.currency in ['BRL', 'USD', 'EUR', 'PYG'])
         && (!('theme' in p) || p.theme in ['system', 'light', 'dark'])
@@ -23,7 +24,9 @@ service cloud.firestore {
         && (!('context' in p) || p.context in ['today', 'development', 'editing', 'commercial'])
         && (!('hiddenBlocks' in p) || (p.hiddenBlocks is list && p.hiddenBlocks.size() <= 10))
         && (!('externalLinks' in p) || (p.externalLinks is list && p.externalLinks.size() <= 10))
-        && (!('followUpDays' in p) || p.followUpDays in [3, 7, 14, 30]);
+        && (!('followUpDays' in p) || p.followUpDays in [3, 7, 14, 30])
+        && (!('alertDueSoonDays' in p) || p.alertDueSoonDays in [1, 2, 3, 7])
+        && (!('disabledAlerts' in p) || (p.disabledAlerts is list && p.disabledAlerts.size() <= 10));
     }
 
     function validProfile() {
@@ -205,6 +208,16 @@ service cloud.firestore {
         && (d.taskId == null || d.taskId is string);
     }
 
+    // Modelo de projeto: lista de tarefas sugeridas (os itens são validados no cliente; aqui, tipo e tamanho).
+    function validTemplate() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['name', 'description', 'projectType', 'tasks', 'createdAt', 'updatedAt'])
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 80
+        && d.description is string && d.description.size() <= 500
+        && d.projectType in ['development', 'editing', 'social_media', 'internal', 'other']
+        && d.tasks is list && d.tasks.size() >= 1 && d.tasks.size() <= 30;
+    }
+
     function validInteraction() {
       let d = request.resource.data;
       return d.keys().hasOnly(['date', 'type', 'summary', 'createdAt'])
@@ -261,6 +274,11 @@ service cloud.firestore {
                         && request.resource.data.at is timestamp;
           allow update: if false;
         }
+      }
+
+      match /templates/{templateId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validTemplate();
       }
 
       match /notes/{noteId} {

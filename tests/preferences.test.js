@@ -21,6 +21,11 @@ describe('resolvePreferences (padrões sensatos e valores inválidos)', () => {
     const p = resolvePreferences({ externalLinks: [{ label: 'GitHub', url: 'https://github.com' }, { label: 'x', url: 'javascript:alert(1)' }, { label: 5, url: 'https://a.co' }, null] })
     assert.deepEqual(p.externalLinks, [{ label: 'GitHub', url: 'https://github.com' }])
   })
+  it('alertas: limite de prazo e tipos desligados (inválidos descartados)', () => {
+    assert.equal(resolvePreferences({}).alertDueSoonDays, 2); assert.deepEqual(resolvePreferences({}).disabledAlerts, [])
+    assert.equal(resolvePreferences({ alertDueSoonDays: 7 }).alertDueSoonDays, 7); assert.equal(resolvePreferences({ alertDueSoonDays: 5 }).alertDueSoonDays, 2)
+    assert.deepEqual(resolvePreferences({ disabledAlerts: ['follow_up', 'follow_up', 'xyz', 'task_overdue'] }).disabledAlerts, ['follow_up', 'task_overdue'])
+  })
   it('follow-up: só 3/7/14/30; ausente = null', () => { assert.equal(resolvePreferences({ followUpDays: 14 }).followUpDays, 14); assert.equal(resolvePreferences({}).followUpDays, null) })
 })
 

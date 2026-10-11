@@ -67,3 +67,11 @@
 | Atalhos externos: só links `http(s)` (máx. 10), nova aba, `noopener noreferrer`, sem integração | Atende "links configuráveis" sem criar integrações não configuradas. Itens das listas são validados no cliente (as regras limitam o tamanho). |
 | Prazo de follow-up migrado do `localStorage` para a conta | Mesmo valor em todos os aparelhos; o valor antigo é usado até o usuário escolher um novo. |
 | Sem preferência de fuso horário | Fora da lista do guia; exigiria passar o fuso a todos os formatadores e às regras de "dia" (prazos, relatórios). |
+| Modelo = só uma lista de tarefas sugeridas; o assistente mostra o plano exato e só grava após confirmação | O guia exige que modelos criem apenas o que o usuário confirmou. O plano é uma função pura (`buildProjectPlan`) usada para exibir e para gravar, então o que aparece é o que é criado. |
+| Projeto + tarefas criados em um único `writeBatch` | Atomicidade: ou tudo é gravado ou nada; sem projeto "pela metade". Botão bloqueado durante o envio evita duplicar. |
+| Prazo da tarefa do modelo = início do projeto + deslocamento em dias | Simples e previsível; sem início, sem prazo (nunca inventa datas). |
+| Modelos padrão no código (somente leitura) + modelos próprios no Firestore | Funcionam sem conexão; nada do usuário se mistura com os padrão; "duplicar" cria uma cópia editável. |
+| Alertas derivados a cada renderização, com chave `tipo:id` | Sem estado a sincronizar: não se multiplicam, não ficam desatualizados e somem ao resolver a condição. Um item nunca gera dois alertas (atrasado e prazo próximo são exclusivos). |
+| Alertas configuráveis só por limite de antecedência e liga/desliga por tipo | "Regras configuráveis quando possível" sem complicar a interface; critérios ficam visíveis em Configurações. |
+| Sem dispensar/adiar alertas | Exigiria guardar estado por alerta e tratar quando reaparecem; a condição resolvida já remove o alerta. |
+| Progresso derivado é a única "automação de dados"; sugestão (não ação) ao chegar em 100% | Evita mudar status sozinho; segue "automatizar somente atualizações derivadas seguras". |

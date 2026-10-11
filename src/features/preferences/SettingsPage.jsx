@@ -9,6 +9,7 @@ import ContextSwitcher from './ContextSwitcher.jsx'
 import { CURRENCY_OPTIONS, FOLLOW_UP_DAY_OPTIONS } from '../../utils/proposals.js'
 import { DASHBOARD_BLOCKS, DATE_STYLE_OPTIONS, MAX_EXTERNAL_LINKS, THEME_OPTIONS, WEEK_START_OPTIONS, validateExternalLink } from '../../utils/preferences.js'
 import { localTimeZone } from '../../utils/events.js'
+import { ALERT_TYPES, DUE_SOON_OPTIONS } from '../../utils/alerts.js'
 import { formatDate } from '../../utils/format.js'
 
 export default function SettingsPage() {
@@ -36,6 +37,10 @@ export default function SettingsPage() {
     if (Object.keys(found).length) return
     await save({ externalLinks: [...prefs.externalLinks, { label: link.label.trim(), url: link.url.trim() }] }, 'Atalho adicionado.')
     setLink({ label: '', url: '' })
+  }
+  function toggleAlert(id, on) {
+    const disabled = on ? prefs.disabledAlerts.filter((a) => a !== id) : [...new Set([...prefs.disabledAlerts, id])]
+    save({ disabledAlerts: disabled })
   }
   const removeLink = (url) => save({ externalLinks: prefs.externalLinks.filter((l) => l.url !== url) }, 'Atalho removido.')
 
@@ -81,6 +86,18 @@ export default function SettingsPage() {
 
       <Card title="Propostas" id="s-prop">
         <Select label="Considerar “sem retorno” após" value={String(prefs.followUpDays ?? 7)} onChange={(e) => save({ followUpDays: Number(e.target.value) })} options={FOLLOW_UP_DAY_OPTIONS.map((n) => ({ value: String(n), label: `${n} dias` }))} />
+      </Card>
+
+      <Card title="Alertas internos" id="s-alerts" hint="Avisos visuais no dashboard. São calculados na hora a partir dos seus dados: não enviam mensagens nem fazem nada sozinhos.">
+        <div className="form">
+          <Select label="Avisar de prazos com antecedência de" value={String(prefs.alertDueSoonDays)} onChange={(e) => save({ alertDueSoonDays: Number(e.target.value) })} options={DUE_SOON_OPTIONS.map((n) => ({ value: String(n), label: n === 1 ? '1 dia (hoje e amanhã)' : `${n} dias` }))} />
+          {ALERT_TYPES.map((a) => (
+            <div key={a.id}>
+              <Checkbox label={a.label} checked={!prefs.disabledAlerts.includes(a.id)} onChange={(e) => toggleAlert(a.id, e.target.checked)} />
+              <p className="card__hint">{a.rule}</p>
+            </div>
+          ))}
+        </div>
       </Card>
 
       <Card title="Atalhos externos" id="s-links" hint={`Até ${MAX_EXTERNAL_LINKS}. São apenas links que abrem em nova aba; o app não se conecta a esses serviços.`}>

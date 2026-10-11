@@ -1,3 +1,5 @@
+import { ALERT_TYPE_IDS, DEFAULT_DUE_SOON_DAYS, DUE_SOON_OPTIONS } from './alerts.js'
+
 // Commit 18 — preferências do usuário (tema, moeda, formato de data, início da semana, contexto, blocos, atalhos).
 // Guardadas em users/{uid}.preferences. Valores ausentes ou inválidos caem no padrão, nunca quebram a interface.
 export const THEME_OPTIONS = [
@@ -59,6 +61,8 @@ export const DEFAULT_PREFS = {
   hiddenBlocks: [],
   externalLinks: [],
   followUpDays: null, // null = ainda não definido na conta
+  alertDueSoonDays: DEFAULT_DUE_SOON_DAYS, // alertas de prazo próximo (commit 19)
+  disabledAlerts: [], // tipos de alerta desligados
 }
 
 const oneOf = (value, allowed, fallback) => (allowed.includes(value) ? value : fallback)
@@ -76,6 +80,8 @@ export function resolvePreferences(raw) {
       ? r.externalLinks.filter((l) => l && typeof l.label === 'string' && typeof l.url === 'string' && isValidExternalUrl(l.url)).slice(0, MAX_EXTERNAL_LINKS).map((l) => ({ label: l.label, url: l.url }))
       : [],
     followUpDays: FOLLOW_UP_VALUES.includes(r.followUpDays) ? r.followUpDays : null,
+    alertDueSoonDays: oneOf(r.alertDueSoonDays, DUE_SOON_OPTIONS, DEFAULT_PREFS.alertDueSoonDays),
+    disabledAlerts: Array.isArray(r.disabledAlerts) ? [...new Set(r.disabledAlerts.filter((a) => ALERT_TYPE_IDS.includes(a)))] : [],
   }
 }
 
