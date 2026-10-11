@@ -10,7 +10,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - [ ] **Criar seu usuário** em Authentication → Usuários (não existe tela de cadastro, de propósito).
 - [ ] **Criar o Firestore** em modo de produção.
 - [ ] **Testar as regras no emulador:** `npm run test:rules` (requer Java e acesso à internet para o `firebase-tools`).
-- [ ] **Republicar as regras** (`firestore.rules` mudou nos commits 10 a 17: valida tarefas, clientes, interações, projetos, marcos, diário, eventos, propostas, lançamentos financeiros, registros de tempo, notas e registros de trabalho; **os módulos a partir de Clientes não funcionam sem isso**). **Publicar:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
+- [ ] **Republicar as regras** (`firestore.rules` mudou nos commits 10 a 18: valida tarefas, clientes, interações, projetos, marcos, diário, eventos, propostas, lançamentos financeiros, registros de tempo, notas, registros de trabalho e preferências; **os módulos a partir de Clientes não funcionam sem isso**). **Publicar:** `npx firebase-tools deploy --only firestore:rules --project <id-do-projeto>` (só depois do teste).
 - [x] Hospedagem: repositório conectado à Vercel (`remote-office-omega.vercel.app`).
 - [ ] **Vercel:** cadastrar as 6 variáveis `VITE_FIREBASE_*` em Settings → Environment Variables e fazer **Redeploy** — [FIREBASE.md](FIREBASE.md#publicar-na-vercel).
 - [ ] **Firebase:** autorizar o domínio da Vercel em Authentication → Domínios autorizados.
@@ -20,7 +20,6 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 | Guia | Entrega |
 |---|---|
-| 18 | Contextos e preferências (inclui configurar atalhos externos e tema) |
 | 19 | Templates e lembretes |
 | 20 | Dashboard: revisão final e indicadores consolidados (todos os blocos já leem dados reais) |
 | 21 | Segurança e casos extremos |
@@ -29,20 +28,22 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 ## Limitações atuais conhecidas
 
-- Todos os blocos do dashboard e do painel direito leem dados reais; **não há mais dados de demonstração**. Exceção: "Atalhos externos" do painel esquerdo (commit 18) ainda é um marcador.
+- Todos os blocos do dashboard e dos painéis laterais leem dados reais; **não há mais dados de demonstração nem marcadores** na interface.
 - Notas: sem rascunho automático (aviso de alterações não salvas no lugar), sem IA de resumo, sem formatação rica/anexos; busca não inclui nomes de itens vinculados.
 - Tempo: sem valor/hora nem rentabilidade, sem faturas, sem pausa/retomada (parar e iniciar outro), sem notificação de cronômetro esquecido; registros sobrepostos só geram aviso; tarefas/projetos excluídos aparecem como "(tarefa excluída)" / "(projeto excluído)" nos relatórios.
 - Financeiro: sem conversão de moedas (não há fonte de câmbio), sem recorrência, anexos/comprovantes, gráficos ou relatórios; aceitar proposta não gera lançamento (criar manualmente).
-- O botão "Criar" abre formulários reais para tarefa, cliente, projeto, evento, proposta, receita, despesa, registro de tempo, nota e registro de trabalho; todas as ações já abrem formulários reais. "Atalhos externos" do painel esquerdo ainda é um marcador (commit 18).
+- O botão "Criar" abre formulários reais para todas as suas ações (tarefa, cliente, projeto, evento, proposta, receita, despesa, registro de tempo, nota e registro de trabalho), na ordem do contexto escolhido.
 - Bundle JS acima de 500 kB (SDK do Firebase): avaliar divisão de código no commit 22.
-- Sem testes automatizados de interface. Há testes de lógica de tarefas (`npm test`) e de regras (`npm run test:rules`, ainda não executados).
-- Comercial: sem envio de proposta/e-mail, sem anexos/PDF; o prazo de follow-up fica no navegador (vai para a conta no commit 18).
+- Sem testes automatizados de interface. Há testes da lógica pura de tarefas, clientes, projetos, agenda, propostas, financeiro, tempo e notas (`npm test`, 159 casos, executados e passando) e das regras do Firestore (`npm run test:rules`, **ainda não executados**: exigem o emulador).
+- Comercial: sem envio de proposta/e-mail, sem anexos/PDF; o prazo de follow-up agora fica na conta (Configurações).
 - **Notificações de lembrete não existem:** o lembrete do evento só fica salvo. Exigem infraestrutura própria (ex.: Cloud Functions + e-mail/push, que pedem plano Blaze do Firebase) — avaliar depois do MVP.
 - Marcos de projeto não aparecem na agenda (só eventos do tipo "Marco de entrega"); eventos de vários dias aparecem no dia de início; sem eventos recorrentes.
-- Fuso horário fixo no do navegador; preferência de fuso fica para o commit 18.
+- Fuso horário fixo no do navegador (sem preferência de fuso; fora da lista do guia). Datas de dia inteiro e prazos guardam a meia-noite local.
+- Preferências: sem reordenação manual de blocos, sem contextos personalizados; o contexto afeta o dashboard e as ações rápidas (não filtra as telas de Tarefas/Projetos). O formato de data ISO não altera títulos com dia da semana nem horários.
+- **Tema escuro, responsividade e contraste ainda não foram conferidos visualmente** (sem navegador no ambiente de desenvolvimento).
 - Kanban de projetos sem arrastar e soltar (muda o status pelo seletor do cartão).
-- Excluir marco, registro de diário e interação não pede confirmação.
-- Excluir interação não pede confirmação; excluir cliente é limitado a ~480 registros relacionados.
+- Excluir marco do projeto, registro do diário do projeto e interação de cliente não pede confirmação (as demais exclusões pedem).
+- Excluir cliente ou projeto é limitado a ~480 registros relacionados de uma vez (acima disso, o app orienta a arquivar).
 - Busca de tarefas e clientes é feita no navegador (adequada para uso pessoal); revisar se o volume crescer muito.
 - Sem lint/formatador configurado.
 - Commits intermediários 02–07 podem não compilar isoladamente (ver nota em [PROGRESS.md](PROGRESS.md)).

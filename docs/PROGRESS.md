@@ -23,7 +23,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 15 | `feat: add income expense and payment tracking` | ✅ código · ⏳ não testado com o Firebase real |
 | 16 | `feat: add task timer and time reports` | ✅ código · ⏳ não testado com o Firebase real |
 | 17 | `feat: add notes and work journal` | ✅ código · ⏳ não testado com o Firebase real |
-| 18–23 | Preferências, templates, dashboard final, segurança, polimento, publicação | ⏳ |
+| 18 | `feat: add work contexts and user preferences` | ✅ código · ⏳ não testado com o Firebase real nem visualmente |
+| 19–23 | Templates, dashboard final, segurança, polimento, publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -210,3 +211,27 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 - **Não feito:** resumo por IA (o guia pede para não implementar ainda), formatação rica/Markdown, anexos, busca que inclui nomes de clientes/projetos vinculados, vincular uma nota a uma proposta/evento.
 - **Como testar:** salve uma nota pela lateral e outra pelo formulário (com tags e vínculos); recarregue a página (devem persistir); busque por texto, por tag e por datas; abra o vínculo de cliente, projeto e tarefa; digite numa nota e tente cancelar/pressionar Esc/recarregar (deve avisar); crie um registro de trabalho (tente salvar com os três campos vazios: erro); veja "Retomar de onde parou" no projeto e "Retomar" no dashboard; exclua um projeto e confirme que as notas dele ficam sem vínculo.
 - **Atenção:** republique `firestore.rules` no console antes de testar (sem isso, Notas dá "Sem permissão").
+
+## Commit 18 — Contextos de trabalho e preferências
+
+- **O que foi feito:**
+  - **Seletor de contexto** (Hoje, Desenvolvimento, Edição, Comercial) no topo do dashboard e na lateral esquerda; a escolha é **salva na conta**. **O contexto só reorganiza e filtra a apresentação: nenhum registro é criado, copiado ou duplicado** (as listas mostram os mesmos objetos dos módulos).
+    - **Hoje:** prioridades gerais (agenda, tarefas, projetos que pedem atenção, propostas, retomada).
+    - **Desenvolvimento:** "Projetos técnicos" (projetos do tipo Desenvolvimento em andamento, com **links de repositório** — GitHub, GitLab, Bitbucket, Codeberg, Azure DevOps, SourceHut) e tarefas desses projetos.
+    - **Edição:** "Fila de vídeos" (projetos do tipo Edição por fase: produção, revisão e aguardando cliente, com data de **entrega**) e tarefas desses projetos.
+    - **Comercial:** propostas para retomar, a receber/a pagar, próximas ações de clientes, agenda e tarefas.
+    - Os blocos que não são prioridade no contexto ficam recolhidos em "Outros blocos" (nada some). As **ações rápidas** do botão "Criar" também aparecem na ordem do contexto.
+  - **Página Configurações** (`#/configuracoes`), tudo salvo por usuário em `users/{uid}.preferences` e aplicado ao vivo:
+    - **Tema:** Claro, Escuro ou Seguir o sistema (novo tema escuro).
+    - **Moeda padrão:** vem pré-selecionada em propostas e lançamentos (pode ser trocada em cada um).
+    - **Formato de data:** Brasileiro ou numérico ISO (2026-10-05). Vale para datas sem dia da semana nem hora; títulos com dia da semana e horários continuam textuais.
+    - **Início da semana** (domingo ou segunda) no calendário da Agenda.
+    - **Blocos do dashboard:** ocultar/mostrar cada um (reordenar é decisão do contexto, para não complicar a interface).
+    - **Atalhos externos configuráveis** (até 10; só `http(s)`; sem duplicados), exibidos na lateral e abertos em nova aba com `rel="noopener noreferrer"`. **Não há integração com nenhum serviço externo**: são apenas links.
+    - **Prazo de "sem retorno" das propostas** agora na conta (migrado do `localStorage`: o valor antigo é usado até você escolher um novo).
+  - **Valores padrão sensatos e tolerância a dados inválidos:** preferência ausente ou desconhecida cai no padrão, sem quebrar a tela. Contas antigas (com `locale/currency/theme`) continuam válidas.
+  - Regras do Firestore validam as preferências (chaves permitidas e valores válidos; listas limitadas a 10). Testes: 182 casos de lógica (`npm test`, **executados e passando**); 1 caso novo de regras em `npm run test:rules` (**não executado**).
+- **Não feito:** preferência de **fuso horário** (não consta na lista do guia; os horários seguem o fuso do navegador), reordenar blocos manualmente, contextos personalizados, aplicar o contexto como filtro nas telas de Tarefas/Projetos (só no dashboard e nas ações rápidas), integrações externas.
+- **Verificação:** o build e os testes de lógica passaram. **O tema escuro, a responsividade e o contraste não foram conferidos visualmente** (sem navegador no ambiente) — olhe com atenção ao testar.
+- **Como testar:** troque entre os quatro contextos (dashboard e lateral) e confira que o conteúdo muda sem criar registros; crie projetos dos tipos Desenvolvimento (com link do GitHub) e Edição para ver os blocos específicos; em Configurações, troque tema, moeda, formato de data e início da semana; adicione e remova um atalho externo e veja na lateral; faça logout/login (ou abra em outro aparelho) e confirme que tudo persiste; teste no celular.
+- **Atenção:** republique `firestore.rules` no console para ativar a validação das preferências (as regras antigas continuam aceitando as preferências, só não as validam).

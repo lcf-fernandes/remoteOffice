@@ -3,6 +3,7 @@ import Button from '../../components/Button.jsx'
 import Dialog from '../../components/Dialog.jsx'
 import { Input, Select, Textarea } from '../../components/Field.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
+import { usePreferences } from '../preferences/PreferencesProvider.jsx'
 import { useClients } from '../clients/ClientsProvider.jsx'
 import { createProposal, proposalErrorMessage, updateProposal } from '../../services/proposals.js'
 import { sortClients } from '../../utils/clients.js'
@@ -34,9 +35,10 @@ export default function ProposalEditorProvider({ children }) {
 }
 
 function ProposalFormDialog({ open, proposal, initial, onClose }) {
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
+  const { prefs } = usePreferences()
   const { clients } = useClients()
-  const defaultCurrency = CURRENCY_OPTIONS.some((o) => o.value === profile?.preferences?.currency) ? profile.preferences.currency : 'BRL'
+  const defaultCurrency = prefs.currency
   const [values, setValues] = useState(proposal ? fromProposal(proposal) : { ...blank(defaultCurrency), ...(initial ?? {}) })
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)

@@ -1,6 +1,9 @@
 import { NAV } from './nav.js'
 import QuickAdd from './QuickAdd.jsx'
 import QuickNote from './QuickNote.jsx'
+import ContextSwitcher from '../features/preferences/ContextSwitcher.jsx'
+import { usePreferences } from '../features/preferences/PreferencesProvider.jsx'
+import { ExternalLink } from 'lucide-react'
 import StatusBadge from '../components/StatusBadge.jsx'
 import { formatLongDate } from '../utils/format.js'
 import Button from '../components/Button.jsx'
@@ -12,6 +15,7 @@ import { isDueToday, sortTasks } from '../utils/tasks.js'
 
 export default function LeftPanel({ route, onNavigate }) {
   const auth = useAuth()
+  const { prefs } = usePreferences()
   const { status, tasks } = useTasks()
   const today = sortTasks(tasks.filter(isDueToday))
   return (
@@ -25,6 +29,7 @@ export default function LeftPanel({ route, onNavigate }) {
       </div>
 
       <QuickAdd />
+      <ContextSwitcher variant="select" />
 
       <nav aria-label="Principal" className="left__nav">
         <ul>
@@ -57,7 +62,15 @@ export default function LeftPanel({ route, onNavigate }) {
 
       <section aria-labelledby="l-atalhos" className="left__section">
         <h2 id="l-atalhos" className="left__h">Atalhos externos</h2>
-        <p className="left__muted">Nenhum atalho configurado. Você poderá adicionar GitHub, Firebase, e-mail e outras ferramentas em Configurações.</p>
+        {prefs.externalLinks.length === 0 ? (
+          <p className="left__muted">Nenhum atalho configurado. Adicione GitHub, Firebase e outras ferramentas em <a className="left__link2" href="#/configuracoes">Configurações</a>.</p>
+        ) : (
+          <ul className="left__tasks">
+            {prefs.externalLinks.map((l) => (
+              <li key={l.url}><a className="left__ext" href={l.url} target="_blank" rel="noopener noreferrer">{l.label} <ExternalLink size={12} aria-hidden="true" /></a></li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {auth?.user && (

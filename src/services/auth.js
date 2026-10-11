@@ -8,7 +8,7 @@ import {
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db } from './firebase.js'
 
-export const DEFAULT_PREFERENCES = { locale: 'pt-BR', currency: 'BRL', theme: 'light' }
+export const DEFAULT_PREFERENCES = { locale: 'pt-BR', currency: 'BRL', theme: 'system' }
 
 export function subscribeToAuth(callback, onError) {
   return onAuthStateChanged(auth, callback, onError)

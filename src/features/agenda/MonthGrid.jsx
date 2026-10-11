@@ -7,7 +7,8 @@ const title = (d) => new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'nu
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`
 
 // Marcadores com formas diferentes (não só cor): ● evento · ■ prazo de tarefa · ◆ prazo de projeto.
-export default function MonthGrid({ month, byDay, selected, onSelect, onMonth }) {
+export default function MonthGrid({ month, byDay, selected, onSelect, onMonth, weekStart = 0 }) {
+  const headers = [...WEEKDAYS.slice(weekStart), ...WEEKDAYS.slice(0, weekStart)]
   const today = dayKey(new Date())
   return (
     <div className="cal">
@@ -18,8 +19,8 @@ export default function MonthGrid({ month, byDay, selected, onSelect, onMonth })
         <Button onClick={() => { const n = new Date(); onMonth(new Date(n.getFullYear(), n.getMonth(), 1)); onSelect(dayKey(n)) }}>Hoje</Button>
       </div>
       <div className="cal__grid" role="grid" aria-label={title(month)}>
-        {WEEKDAYS.map(([s, full], i) => <div key={i} className="cal__dow" role="columnheader"><span aria-hidden="true">{s}</span><span className="sr-only">{full}</span></div>)}
-        {monthWeeks(month).flat().map((d) => {
+        {headers.map(([s, full], i) => <div key={i} className="cal__dow" role="columnheader"><span aria-hidden="true">{s}</span><span className="sr-only">{full}</span></div>)}
+        {monthWeeks(month, weekStart).flat().map((d) => {
           const key = dayKey(d)
           const items = byDay[key] ?? []
           const c = { event: 0, task: 0, project: 0 }

@@ -1,14 +1,11 @@
 import { EmptyState } from '../../components/states.jsx'
-import { NAV } from '../../layout/nav.js'
 
-export default function ModulePlaceholder({ route }) {
-  const item = NAV.find((n) => n.id === route)
+// Todos os módulos do menu já existem; esta tela aparece apenas para endereços desconhecidos (#/algo-que-nao-existe).
+export default function ModulePlaceholder() {
   return (
     <div className="center__inner">
-      <h1 className="page-title">{item?.label ?? 'Página não encontrada'}</h1>
-      <EmptyState title="A implementar">
-        {item?.commit ? `Este módulo será construído no commit ${item.commit} do guia.` : 'Escolha uma seção no menu.'}
-      </EmptyState>
+      <h1 className="page-title">Página não encontrada</h1>
+      <EmptyState title="Este endereço não existe" action={<a href="#/dashboard">Ir para o Dashboard</a>}>Use o menu à esquerda para escolher uma seção.</EmptyState>
     </div>
   )
 }

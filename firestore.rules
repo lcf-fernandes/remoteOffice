@@ -10,12 +10,28 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == uid;
     }
 
+    // Preferências do usuário (users/{uid}.preferences). Os itens das listas (atalhos) são validados no cliente:
+    // as regras limitam só o tamanho das listas.
+    function validPreferences(p) {
+      return p is map
+        && p.keys().hasOnly(['locale', 'currency', 'theme', 'dateStyle', 'weekStart', 'context', 'hiddenBlocks', 'externalLinks', 'followUpDays'])
+        && (!('locale' in p) || p.locale is string)
+        && (!('currency' in p) || p.currency in ['BRL', 'USD', 'EUR', 'PYG'])
+        && (!('theme' in p) || p.theme in ['system', 'light', 'dark'])
+        && (!('dateStyle' in p) || p.dateStyle in ['br', 'iso'])
+        && (!('weekStart' in p) || p.weekStart in ['sun', 'mon'])
+        && (!('context' in p) || p.context in ['today', 'development', 'editing', 'commercial'])
+        && (!('hiddenBlocks' in p) || (p.hiddenBlocks is list && p.hiddenBlocks.size() <= 10))
+        && (!('externalLinks' in p) || (p.externalLinks is list && p.externalLinks.size() <= 10))
+        && (!('followUpDays' in p) || p.followUpDays in [3, 7, 14, 30]);
+    }
+
     function validProfile() {
       let d = request.resource.data;
       return d.keys().hasOnly(['email', 'displayName', 'preferences', 'createdAt', 'updatedAt'])
         && d.email is string
         && d.displayName is string
-        && d.preferences is map;
+        && validPreferences(d.preferences);
     }
 
     function validTask() {

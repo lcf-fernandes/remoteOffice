@@ -36,6 +36,8 @@ import NotesProvider from '../features/notes/NotesProvider.jsx'
 import NoteEditorProvider from '../features/notes/NoteEditor.jsx'
 import WorkLogEditorProvider from '../features/notes/WorkLogEditor.jsx'
 import NotesPage from '../features/notes/NotesPage.jsx'
+import PreferencesProvider, { usePreferences } from '../features/preferences/PreferencesProvider.jsx'
+import SettingsPage from '../features/preferences/SettingsPage.jsx'
 import { ErrorState, LoadingState } from '../components/states.jsx'
 import { authErrorMessage } from '../services/auth.js'
 
@@ -76,7 +78,7 @@ function Workspace() {
       </aside>
 
       <main id="conteudo" className="col col--center" tabIndex={-1}>
-        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage /> : route === 'tempo' ? <TimePage /> : route === 'notas' ? <NotesPage /> : <ModulePlaceholder route={route} />}
+        {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage /> : route === 'tempo' ? <TimePage /> : route === 'notas' ? <NotesPage /> : route === 'configuracoes' ? <SettingsPage /> : <ModulePlaceholder route={route} />}
       </main>
 
       <aside className="col col--right" aria-label="Contexto e pendências">
@@ -86,6 +88,12 @@ function Workspace() {
   )
 }
 
+// O estilo de data é um ajuste global: ao mudar, as telas são remontadas para reformatar todas as datas.
+function KeyedWorkspace() {
+  const { prefs } = usePreferences()
+  return <Workspace key={prefs.dateStyle} />
+}
+
 function Gate() {
   const auth = useAuth()
   if (auth.status === 'unconfigured') return <main className="login"><div className="login__card"><FirebaseNotice /></div></main>
@@ -93,6 +101,7 @@ function Gate() {
   if (auth.status === 'error') return <main className="login"><div className="login__card"><ErrorState title="Não foi possível carregar sua conta">{authErrorMessage(auth.error)}</ErrorState></div></main>
   if (auth.status === 'signedOut') return <LoginPage />
   return (
+    <PreferencesProvider>
     <TasksProvider uid={auth.user.uid}>
       <ClientsProvider uid={auth.user.uid}>
         <ProjectsProvider uid={auth.user.uid}>
@@ -110,7 +119,7 @@ function Gate() {
                                 <EntryEditorProvider>
                                   <NoteEditorProvider>
                                     <WorkLogEditorProvider>
-                                      <Workspace />
+                                      <KeyedWorkspace />
                                     </WorkLogEditorProvider>
                                   </NoteEditorProvider>
                                 </EntryEditorProvider>
@@ -128,6 +137,7 @@ function Gate() {
         </ProjectsProvider>
       </ClientsProvider>
     </TasksProvider>
+    </PreferencesProvider>
   )
 }
 

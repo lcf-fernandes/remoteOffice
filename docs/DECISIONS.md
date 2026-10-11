@@ -58,3 +58,12 @@
 | Notas em texto puro | Evita HTML/Markdown interpretado (risco de injeção) e mantém a busca simples. |
 | Vínculos de nota/registro: cliente, projeto e tarefa, todos opcionais e independentes | Cliente/projeto são desvinculados ao excluir o item; tarefa excluída aparece como "(tarefa excluída)". |
 | Filtro de datas: criação (notas) e data do registro (registro de trabalho) | Critério único e explicado na tela. |
+| Preferências em `users/{uid}.preferences`, lidas ao vivo (`onSnapshot`) e atualizadas por caminho (`preferences.<chave>`) | Persistem por usuário e entre aparelhos; atualizar uma chave não sobrescreve as outras; mudanças aparecem na hora. |
+| Preferência ausente/inválida cai no padrão (`resolvePreferences`) | A interface nunca quebra por dado antigo ou corrompido; contas antigas continuam válidas. |
+| Contexto = apenas apresentação (blocos em destaque, ordem, filtro de tarefas/projetos, ordem das ações rápidas) | O guia exige não duplicar registros: as listas usam os mesmos objetos dos módulos. Blocos fora do destaque ficam recolhidos, nunca escondidos. |
+| Ocultar blocos sim, reordenar não | O guia aceita ocultar/reordenar "se não complicar"; a ordem fica a cargo do contexto. |
+| Tema por `data-theme` no `<html>` com "sistema" resolvido por `prefers-color-scheme` | Padrão novo é "sistema"; contas antigas com `theme: "light"` continuam claras. Cores via tokens (incluindo `--c-link` e marcadores) para manter contraste no escuro. |
+| Formato de data global (`setDateStyle`) com remontagem das telas ao mudar | Evita alterar centenas de chamadas; só afeta datas sem dia da semana/hora. |
+| Atalhos externos: só links `http(s)` (máx. 10), nova aba, `noopener noreferrer`, sem integração | Atende "links configuráveis" sem criar integrações não configuradas. Itens das listas são validados no cliente (as regras limitam o tamanho). |
+| Prazo de follow-up migrado do `localStorage` para a conta | Mesmo valor em todos os aparelhos; o valor antigo é usado até o usuário escolher um novo. |
+| Sem preferência de fuso horário | Fora da lista do guia; exigiria passar o fuso a todos os formatadores e às regras de "dia" (prazos, relatórios). |

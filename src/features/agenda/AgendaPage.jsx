@@ -6,6 +6,8 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/states.js
 import MonthGrid from './MonthGrid.jsx'
 import { useEvents } from '../events/EventsProvider.jsx'
 import { useEventEditor } from '../events/EventEditor.jsx'
+import { usePreferences } from '../preferences/PreferencesProvider.jsx'
+import { weekStartDay } from '../../utils/preferences.js'
 import { useTasks } from '../tasks/TasksProvider.jsx'
 import { useTaskEditor } from '../tasks/TaskEditor.jsx'
 import { useProjects } from '../projects/ProjectsProvider.jsx'
@@ -37,6 +39,7 @@ export default function AgendaPage() {
   const { tasks } = useTasks()
   const { projects } = useProjects()
   const eventEditor = useEventEditor()
+  const { prefs } = usePreferences()
   const taskEditor = useTaskEditor()
   const [mode, setMode] = useState('list')
   const [range, setRange] = useState('week')
@@ -103,7 +106,7 @@ export default function AgendaPage() {
 
       {ev.status === 'ready' && mode === 'month' && (
         <>
-          <MonthGrid month={month} byDay={byDay} selected={selected} onSelect={setSelected} onMonth={setMonth} />
+          <MonthGrid weekStart={weekStartDay(prefs.weekStart)} month={month} byDay={byDay} selected={selected} onSelect={setSelected} onMonth={setMonth} />
           <section className="card" aria-label="Itens do dia selecionado">
             <div className="card__head">
               <h2 className="card__title agenda__day">{dayHeading(day(selected))}</h2>

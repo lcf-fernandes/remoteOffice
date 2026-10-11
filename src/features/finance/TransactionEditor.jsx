@@ -4,6 +4,7 @@ import Button from '../../components/Button.jsx'
 import Dialog from '../../components/Dialog.jsx'
 import { Input, Select, Textarea } from '../../components/Field.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
+import { usePreferences } from '../preferences/PreferencesProvider.jsx'
 import { useClients } from '../clients/ClientsProvider.jsx'
 import { useProjects } from '../projects/ProjectsProvider.jsx'
 import { createTransaction, deleteTransaction, transactionErrorMessage, updateTransaction } from '../../services/transactions.js'
@@ -37,10 +38,11 @@ export default function TransactionEditorProvider({ children }) {
 }
 
 function TransactionFormDialog({ open, tx, initial, onClose }) {
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
+  const { prefs } = usePreferences()
   const { clients } = useClients()
   const { projects } = useProjects()
-  const defaultCurrency = CURRENCY_OPTIONS.some((o) => o.value === profile?.preferences?.currency) ? profile.preferences.currency : 'BRL'
+  const defaultCurrency = prefs.currency
   const [values, setValues] = useState(tx ? fromTx(tx) : { ...blank(defaultCurrency), ...(initial ?? {}) })
   const [errors, setErrors] = useState({})
   const [saving, setSaving] = useState(false)

@@ -1,8 +1,19 @@
 // Datas e valores formatados pela região configurada (padrão pt-BR).
 export const DEFAULT_LOCALE = 'pt-BR'
 
+// Estilo de data escolhido nas preferências ('br' | 'iso'). Aplica-se às datas sem dia da semana nem hora;
+// títulos com dia da semana e horários continuam textuais. Definido pelo PreferencesProvider.
+let dateStyle = 'br'
+export const setDateStyle = (style) => { dateStyle = style === 'iso' ? 'iso' : 'br' }
+export const getDateStyle = () => dateStyle
+
 export function formatDate(date, opts = { day: '2-digit', month: 'short' }, locale = DEFAULT_LOCALE) {
-  return new Intl.DateTimeFormat(locale, opts).format(new Date(date))
+  const d = new Date(date)
+  if (dateStyle === 'iso' && !opts.weekday && !opts.hour && !opts.minute) {
+    const p = (n) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+  }
+  return new Intl.DateTimeFormat(locale, opts).format(d)
 }
 
 export function formatLongDate(date = new Date(), locale = DEFAULT_LOCALE) {

@@ -17,6 +17,12 @@
   --c-accent: #1d5f8a;
   --c-accent-hover: #174d71;
   --c-accent-soft: #e1eef6;
+  --c-link: #1d5f8a;
+  --c-on-solid: #ffffff;
+  --mark-event: #1d5f8a;
+  --mark-task: #1f7a4d;
+  --mark-project: #8a5a00;
+  --on-mark: #ffffff;
 
   --c-ok: #1f7a4d;
   --c-ok-soft: #e0f2e9;
@@ -50,4 +56,44 @@
   --r-lg: 12px;
   --shadow-pop: 0 8px 24px rgba(23, 32, 43, 0.16);
   --focus-ring: 0 0 0 3px rgba(29, 95, 138, 0.45);
+}
+
+/* Commit 18 — tema escuro (aplicado por data-theme="dark" no <html>; "sistema" resolve para claro ou escuro). */
+:root[data-theme='dark'] {
+  --c-bg: #0e151d;
+  --c-surface: #16202b;
+  --c-surface-2: #1b2734;
+  --c-border: #2a3a4c;
+  --c-border-strong: #41566e;
+  --c-ink: #e8eef5;
+  --c-ink-2: #b6c2d0;
+  --c-ink-3: #8f9db0;
+
+  --c-rail: #0a1017;
+  --c-rail-2: #152130;
+  --c-rail-ink: #e6ecf2;
+  --c-rail-ink-2: #98a6b6;
+
+  --c-accent: #2b79b0;
+  --c-accent-hover: #3a8cc6;
+  --c-accent-soft: #1a3347;
+  --c-link: #7fbfee;
+
+  --c-ok: #4cc38a;
+  --c-ok-soft: #14301f;
+  --c-warn: #f0b84a;
+  --c-warn-soft: #3a2f12;
+  --c-danger: #ff8a80;
+  --c-danger-soft: #3b1b19;
+  --c-info: #7fbfee;
+  --c-info-soft: #1a3347;
+  --c-neutral-soft: #223245;
+
+  --mark-event: #7fbfee;
+  --mark-task: #4cc38a;
+  --mark-project: #f0b84a;
+  --on-mark: #0b1620;
+
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --focus-ring: 0 0 0 3px rgba(127, 191, 238, 0.6);
 }

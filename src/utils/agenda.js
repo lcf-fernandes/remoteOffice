@@ -67,14 +67,14 @@ export function itemsByDay(items) {
   return map
 }
 
-// Semanas (domingo a sábado) que cobrem o mês de `ref`.
-export function monthWeeks(ref) {
+// Semanas completas que cobrem o mês de `ref`. weekStartDay: 0 = domingo, 1 = segunda-feira.
+export function monthWeeks(ref, weekStartDay = 0) {
   const first = new Date(ref.getFullYear(), ref.getMonth(), 1)
-  const start = addDays(first, -first.getDay())
+  const start = addDays(first, -((first.getDay() - weekStartDay + 7) % 7))
   const last = new Date(ref.getFullYear(), ref.getMonth() + 1, 0)
   const weeks = []
-  for (let d = start; d <= last || d.getDay() !== 0; d = addDays(d, 1)) {
-    if (d.getDay() === 0) weeks.push([])
+  for (let d = start; d <= last || d.getDay() !== weekStartDay; d = addDays(d, 1)) {
+    if (d.getDay() === weekStartDay) weeks.push([])
     weeks[weeks.length - 1].push(d)
   }
   return weeks

@@ -168,6 +168,20 @@ describe('firestore.rules', () => {
     await assertFails(setDoc(doc(alice, 'users/alice/workLog/l3'), { ...log, date: 'hoje' }))
     await assertFails(setDoc(doc(alice, 'users/alice/workLog/l4'), { ...log, done: 'x'.repeat(5001) }))
   })
+  it('preferências: valores válidos, partes inválidas negadas, só o próprio usuário', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const profile = { email: 'a@x.com', displayName: '', preferences: { locale: 'pt-BR', currency: 'BRL', theme: 'system' } }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), profile))
+    const withPrefs = (preferences) => ({ ...profile, preferences })
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), withPrefs({ ...profile.preferences, theme: 'dark', dateStyle: 'iso', weekStart: 'mon', context: 'editing', hiddenBlocks: ['video'], externalLinks: [{ label: 'GitHub', url: 'https://github.com' }], followUpDays: 14 })))
+    await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ theme: 'neon' })))
+    await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ currency: 'XYZ' })))
+    await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ context: 'lazer' })))
+    await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ followUpDays: 5 })))
+    await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ externalLinks: Array(11).fill({ label: 'x', url: 'https://a.co' }) })))
+    await assertFails(setDoc(doc(alice, 'users/alice'), withPrefs({ isAdmin: true }))) // chave desconhecida
+    await assertFails(setDoc(doc(env.authenticatedContext('bob').firestore(), 'users/alice'), profile))
+  })
   it('nega subcoleções não listadas', async () => {
     await assertFails(setDoc(doc(env.authenticatedContext('alice').firestore(), 'users/alice/segredos/n1'), { a: 1 }))
   })

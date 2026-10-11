@@ -3,6 +3,8 @@ import { Plus } from 'lucide-react'
 import Button from '../components/Button.jsx'
 import Dialog from '../components/Dialog.jsx'
 import { QUICK_ACTIONS } from './nav.js'
+import { usePreferences } from '../features/preferences/PreferencesProvider.jsx'
+import { orderQuickActions } from '../utils/contexts.js'
 import { useTaskEditor } from '../features/tasks/TaskEditor.jsx'
 import { useClientEditor } from '../features/clients/ClientEditor.jsx'
 import { useProjectEditor } from '../features/projects/ProjectEditor.jsx'
@@ -22,6 +24,7 @@ export default function QuickAdd() {
   const clientEditor = useClientEditor()
   const projectEditor = useProjectEditor()
   const eventEditor = useEventEditor()
+  const { prefs } = usePreferences()
   const proposalEditor = useProposalEditor()
   const txEditor = useTransactionEditor()
   const entryEditor = useEntryEditor()
@@ -44,7 +47,7 @@ export default function QuickAdd() {
       </Button>
       {open && (
         <div className="menu" role="menu" style={{ top: 'calc(100% + 4px)', left: 0 }}>
-          {QUICK_ACTIONS.map((a) => (
+          {orderQuickActions(QUICK_ACTIONS, prefs.context).map((a) => (
             <button key={a.id} role="menuitem" className="menu__item" onClick={() => { setOpen(false); if (a.id === 'tarefa') taskEditor.openNew(); else if (a.id === 'cliente') clientEditor.openNew(); else if (a.id === 'projeto') projectEditor.openNew(); else if (a.id === 'evento') eventEditor.openNew(); else if (a.id === 'proposta') proposalEditor.openNew(); else if (a.id === 'receita') txEditor.openNew({ type: 'income' }); else if (a.id === 'despesa') txEditor.openNew({ type: 'expense' }); else if (a.id === 'tempo') entryEditor.openNew(); else if (a.id === 'nota') noteEditor.openNew(); else if (a.id === 'registro') logEditor.openNew(); else setPending(a) }}>
               {a.label}
             </button>

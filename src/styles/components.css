@@ -63,7 +63,7 @@
 .task-list { display: grid; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); }
 .task { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--c-border); }
 .task:first-child { border-top: 0; }
-.task__check { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid var(--c-border-strong); border-radius: 50%; background: var(--c-surface); color: #fff; cursor: pointer; }
+.task__check { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid var(--c-border-strong); border-radius: 50%; background: var(--c-surface); color: var(--on-mark); cursor: pointer; }
 .task__check:hover { border-color: var(--c-accent); }
 .task__check.is-done { background: var(--c-ok); border-color: var(--c-ok); }
 .task__main { flex: 1; min-width: 0; display: grid; gap: 2px; text-align: left; background: none; border: 0; padding: 0; cursor: pointer; }
@@ -86,7 +86,7 @@
 .actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .client__link { text-decoration: none; color: inherit; }
 .client__link:hover .row__title { text-decoration: underline; }
-.linklike { background: none; border: 0; padding: 0; font-weight: 600; color: var(--c-accent); cursor: pointer; text-align: left; overflow-wrap: anywhere; }
+.linklike { background: none; border: 0; padding: 0; font-weight: 600; color: var(--c-link); cursor: pointer; text-align: left; overflow-wrap: anywhere; }
 .linklike:hover { text-decoration: underline; }
 .interaction-form { padding-bottom: var(--sp-4); margin-bottom: var(--sp-3); border-bottom: 1px solid var(--c-border); }
 
@@ -99,7 +99,7 @@
 .plist__row:first-child { border-top: 0; }
 .plist__main { flex: 1; min-width: 0; }
 .pcard__title { font-weight: 600; color: var(--c-ink); text-decoration: none; overflow-wrap: anywhere; }
-.pcard__title:hover { text-decoration: underline; color: var(--c-accent); }
+.pcard__title:hover { text-decoration: underline; color: var(--c-link); }
 .progress-wrap { margin-top: var(--sp-2); max-width: 420px; }
 .kanban { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: var(--sp-3); overflow-x: auto; padding-bottom: var(--sp-2); align-items: start; }
 .kanban__col { background: var(--c-surface-2); border: 1px solid var(--c-border); border-radius: var(--r-lg); padding: var(--sp-3); display: grid; gap: var(--sp-3); min-width: 0; }
@@ -135,10 +135,10 @@
 .cal__day.is-today .cal__num { background: var(--c-accent); color: #fff; border-radius: 999px; padding: 0 6px; }
 .cal__num { font-size: var(--fs-sm); font-weight: 600; }
 .cal__marks { display: flex; flex-wrap: wrap; gap: 2px; }
-.mark { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; font-size: 11px; font-weight: 600; color: #fff; }
-.mark--event { background: var(--c-accent); border-radius: 999px; }
-.mark--task { background: var(--c-ok); border-radius: 2px; }
-.mark--project { background: var(--c-warn); border-radius: 2px; transform: rotate(0deg); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); min-width: 22px; }
+.mark { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 4px; font-size: 11px; font-weight: 600; color: var(--on-mark); }
+.mark--event { background: var(--mark-event); border-radius: 999px; }
+.mark--task { background: var(--mark-task); border-radius: 2px; }
+.mark--project { background: var(--mark-project); border-radius: 2px; transform: rotate(0deg); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); min-width: 22px; }
 @media (max-width: 599px) { .cal__day { min-height: 52px; padding: 2px 4px; } }
 
 /* Commit 14 — propostas */
@@ -181,3 +181,16 @@ details > summary.card__title { cursor: pointer; }
 .left__note .btn--secondary { background: transparent; color: var(--c-rail-ink); border-color: var(--c-rail-2); }
 .left__err { font-size: var(--fs-xs); color: #ffb4ab; }
 .left__link2 { font-size: var(--fs-xs); color: var(--c-rail-ink-2); }
+
+/* Commit 18 — contextos, blocos e atalhos */
+.block--primary > .card { border-left: 4px solid var(--c-accent); }
+.more-blocks { background: var(--c-surface-2); border: 1px dashed var(--c-border-strong); border-radius: var(--r-lg); padding: var(--sp-3) var(--sp-4); }
+.more-blocks > summary { cursor: pointer; font-weight: 600; font-size: var(--fs-sm); color: var(--c-ink-2); }
+.more-blocks__body { display: grid; gap: var(--sp-4); margin-top: var(--sp-3); }
+.phase { margin-top: var(--sp-3); }
+.phase__title { font-family: var(--font-body); font-size: var(--fs-sm); font-weight: 600; margin-bottom: var(--sp-2); }
+.ctx-select .field__label { color: var(--c-rail-ink-2); font-size: var(--fs-xs); }
+.ctx-select .select { background: var(--c-rail-2); color: var(--c-rail-ink); border-color: #2c3d50; min-height: 34px; }
+.left__ext { color: var(--c-rail-ink); font-size: var(--fs-sm); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+.left__ext:hover { text-decoration: underline; }
+.left a.left__link2 { color: var(--c-rail-ink); }

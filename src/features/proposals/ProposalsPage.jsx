@@ -22,6 +22,7 @@ export default function ProposalsPage() {
   const { byId: clientsById } = useClients()
   const editor = useProposalEditor()
   const [days, setDays] = useFollowUpDays()
+  const [daysError, setDaysError] = useState('')
   const [filters, setFilters] = useState({ view: 'open', search: '' })
   const visible = useMemo(() => sortProposals(filterProposals(proposals, filters, clientsById)), [proposals, filters, clientsById])
   const totals = useMemo(() => pipelineTotals(proposals), [proposals])
@@ -48,9 +49,10 @@ export default function ProposalsPage() {
         </div>
         <div className="filters__row filters__row--2">
           <Input label="Buscar" type="search" placeholder="Título, resumo, cliente ou próxima ação" value={filters.search} onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))} />
-          <Select label="Sem retorno após" value={String(days)} onChange={(e) => setDays(Number(e.target.value))} options={FOLLOW_UP_DAY_OPTIONS.map((n) => ({ value: String(n), label: `${n} dias` }))} />
+          <Select label="Sem retorno após" value={String(days)} onChange={(e) => { setDaysError(''); setDays(Number(e.target.value)).catch((err) => setDaysError(err.message)) }} options={FOLLOW_UP_DAY_OPTIONS.map((n) => ({ value: String(n), label: `${n} dias` }))} />
         </div>
-        <p className="card__hint">{followUpRuleText(days)} Esta configuração fica salva neste navegador.</p>
+        <p className="card__hint">{followUpRuleText(days)} Esta configuração fica salva na sua conta.</p>
+        {daysError && <p className="field__error" role="alert">{daysError}</p>}
       </div>
 
       {status === 'loading' && <LoadingState label="Carregando propostas…" />}
