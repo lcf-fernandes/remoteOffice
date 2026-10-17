@@ -43,7 +43,7 @@ export default function LeftPanel({ route, onNavigate }) {
         </ul>
       </nav>
 
-      <section aria-labelledby="l-hoje" className="left__section">
+      <div className="left__section">
         <h2 id="l-hoje" className="left__h">Hoje</h2>
         {status === 'loading' && <p className="left__muted">Carregando…</p>}
         {status === 'error' && <p className="left__muted">Não foi possível carregar as tarefas.</p>}
@@ -53,14 +53,14 @@ export default function LeftPanel({ route, onNavigate }) {
             <li key={t.id}><span>{t.title}</span><StatusBadge status={t.status} /></li>
           ))}
         </ul>
-      </section>
+      </div>
 
-      <section aria-labelledby="l-notas" className="left__section">
+      <div className="left__section">
         <h2 id="l-notas" className="left__h">Notas rápidas</h2>
         <QuickNote />
-      </section>
+      </div>
 
-      <section aria-labelledby="l-atalhos" className="left__section">
+      <div className="left__section">
         <h2 id="l-atalhos" className="left__h">Atalhos externos</h2>
         {prefs.externalLinks.length === 0 ? (
           <p className="left__muted">Nenhum atalho configurado. Adicione GitHub, Firebase e outras ferramentas em <a className="left__link2" href="#/configuracoes">Configurações</a>.</p>
@@ -71,7 +71,7 @@ export default function LeftPanel({ route, onNavigate }) {
             ))}
           </ul>
         )}
-      </section>
+      </div>
 
       {auth?.user && (
         <div className="left__user">

@@ -9,6 +9,7 @@ body {
   line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  overflow-wrap: anywhere; /* textos longos sem espaço (nomes, e-mails, URLs) quebram em vez de empurrar o layout */
 }
 h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.15; letter-spacing: -0.01em; }
 p { margin: 0; }
@@ -23,3 +24,6 @@ a { color: var(--c-link); }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+/* Filhos de linhas flex/grid precisam poder encolher abaixo do conteúdo (senão um texto longo estica a página). */
+.row > *, .task > *, .plist__row > *, .plist__main, .alert > span, .pcard > *, .check > span, .welcome li > * { min-width: 0; }

@@ -4,6 +4,7 @@ import {
   addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, serverTimestamp, Timestamp, updateDoc, where, writeBatch,
 } from 'firebase/firestore'
 import { db } from './firebase.js'
+import { isValidUrl } from '../utils/projects.js'
 
 const projectsCol = (uid) => collection(db, 'users', uid, 'projects')
 const projectDoc = (uid, id) => doc(db, 'users', uid, 'projects', id)
@@ -22,7 +23,7 @@ function fromDoc(snap) {
     priority: x.priority ?? 'medium',
     startDate: toDate(x.startDate),
     dueDate: toDate(x.dueDate),
-    links: Array.isArray(x.links) ? x.links : [],
+    links: Array.isArray(x.links) ? x.links.filter((l) => typeof l === 'string' && isValidUrl(l)) : [], // só http/https, mesmo que o banco tenha outra coisa
     createdAt: toDate(x.createdAt),
     updatedAt: toDate(x.updatedAt),
   }

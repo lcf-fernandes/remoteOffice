@@ -55,6 +55,19 @@ describe('dinheiro', () => {
     assert.deepEqual(t, { BRL: 150, USD: 20 })
   })
   it('arredonda conforme a moeda (BRL 2 casas, PYG 0)', () => { assert.equal(roundMoney(10.126, 'BRL'), 10.13); assert.equal(roundMoney(15000.4, 'PYG'), 15000) })
+  it('arredonda pelo valor decimal digitado (sem erro de ponto flutuante)', () => {
+    for (const [typed, want] of [['1.005', 1.01], ['1.255', 1.26], ['2.675', 2.68], ['8.345', 8.35], ['0.615', 0.62], ['1234.567', 1234.57], ['4200.5', 4200.5], ['0.1', 0.1], ['0.285', 0.29], ['1.115', 1.12]]) {
+      assert.equal(roundMoney(Number(typed), 'BRL'), want, typed)
+    }
+  })
+  it('arredondamento: negativos, zero, enormes e moeda sem centavos', () => {
+    assert.equal(roundMoney(-1.005, 'BRL'), -1.01); assert.equal(roundMoney(0, 'BRL'), 0); assert.equal(roundMoney(999999999999.99, 'BRL'), 999999999999.99)
+    assert.equal(roundMoney(15000.5, 'PYG'), 15001); assert.equal(roundMoney(14999.4, 'PYG'), 14999); assert.equal(roundMoney(0.0000001, 'BRL'), 0)
+  })
+  it('somar centavos não acumula erro: 0,1 + 0,2 = 0,3 e 100 parcelas de 0,10 = 10,00', () => {
+    assert.equal(roundMoney(0.1 + 0.2, 'BRL'), 0.3)
+    assert.equal(roundMoney(Array.from({ length: 100 }, () => 0.1).reduce((a, b) => a + b, 0), 'BRL'), 10)
+  })
   it('valor guardado é número e formatado só na exibição', () => {
     assert.equal(typeof roundMoney(4200, 'BRL'), 'number')
     assert.match(formatMoney(4200, 'BRL'), /4\.200,00/)

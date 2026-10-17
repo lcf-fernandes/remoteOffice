@@ -34,6 +34,22 @@ export async function loadOrCreateProfile(user) {
   return { id: user.uid, ...profile, createdAt: null, updatedAt: null }
 }
 
+// Falha ao carregar/criar o perfil da conta (Firestore) depois do login: diz a causa provável.
+export function accountErrorMessage(error) {
+  switch (error?.code) {
+    case 'permission-denied':
+      return 'Sem permissão para acessar sua conta. Confira se as regras do Firestore foram publicadas (docs/FIREBASE.md).'
+    case 'unavailable':
+    case 'deadline-exceeded':
+    case 'failed-precondition':
+      return 'Sem conexão com o servidor. Verifique sua internet e recarregue a página.'
+    case 'unauthenticated':
+      return 'Sua sessão expirou. Saia e entre novamente.'
+    default:
+      return 'Não foi possível carregar os dados da conta. Recarregue a página e tente novamente.'
+  }
+}
+
 // Mensagens em português para os erros de login mais comuns.
 export function authErrorMessage(error) {
   switch (error?.code) {

@@ -29,7 +29,7 @@
 .input:focus-visible, .select:focus-visible { border-color: var(--c-accent); }
 .field__error { font-size: var(--fs-xs); color: var(--c-danger); }
 
-.badge { display: inline-flex; align-items: center; padding: 1px var(--sp-2); border-radius: 999px; font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; }
+.badge { flex: none; min-width: max-content; display: inline-flex; align-items: center; padding: 1px var(--sp-2); border-radius: 999px; font-size: var(--fs-xs); font-weight: 600; white-space: nowrap; }
 .badge--neutral { background: var(--c-neutral-soft); color: var(--c-ink-2); }
 .badge--info { background: var(--c-info-soft); color: var(--c-info); }
 .badge--ok { background: var(--c-ok-soft); color: var(--c-ok); }
@@ -116,7 +116,7 @@
 /* Commit 13 — agenda */
 .field--check { display: flex; align-items: center; gap: var(--sp-2); }
 .field--check input { width: 18px; height: 18px; }
-.agenda__day { text-transform: capitalize; }
+.agenda__day::first-letter { text-transform: uppercase; }
 .alist { display: grid; gap: var(--sp-2); }
 .aitem { display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); border-left: 4px solid var(--c-border-strong); border-radius: var(--r-sm); background: var(--c-surface-2); }
 .aitem--event { border-left-color: var(--c-accent); }
@@ -125,7 +125,8 @@
 .aitem__icon { margin-top: 3px; flex: none; color: var(--c-ink-2); }
 .aitem__main { min-width: 0; }
 .cal__head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
-.cal__title { flex: 1; text-align: center; font-size: var(--fs-lg); text-transform: capitalize; }
+.cal__title { flex: 1; text-align: center; font-size: var(--fs-lg); }
+.cal__title::first-letter { text-transform: uppercase; }
 .cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
 .cal__dow { text-align: center; font-size: var(--fs-xs); color: var(--c-ink-3); padding: var(--sp-1) 0; }
 .cal__day { min-height: 64px; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: var(--sp-1); padding: var(--sp-1) var(--sp-2); background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-sm); cursor: pointer; text-align: left; }
@@ -210,7 +211,8 @@ details > summary.card__title { cursor: pointer; }
 
 /* Commit 20 — central de alertas, indicadores e boas-vindas */
 .stats.stats--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-@media (min-width: 600px) and (max-width: 899px) { .stats.stats--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 899px) { .stats.stats--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 599px) { .stats.stats--4 > div { display: block; } }
 .alerts--ok { background: var(--c-ok-soft); color: var(--c-ok); }
 .alerts__ok, .alerts__note { display: flex; align-items: flex-start; gap: var(--sp-2); font-size: var(--fs-sm); margin: 0; }
 .alerts__note { color: var(--c-ink-2); }

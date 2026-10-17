@@ -20,7 +20,6 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 | Guia | Entrega |
 |---|---|
-| 21 | Segurança e casos extremos |
 | 22 | Polimento, acessibilidade e performance |
 | 23 | Documentação final e publicação |
 
@@ -32,7 +31,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - Financeiro: sem conversão de moedas (não há fonte de câmbio), sem recorrência, anexos/comprovantes, gráficos ou relatórios; aceitar proposta não gera lançamento (criar manualmente).
 - O botão "Criar" abre formulários reais para todas as suas ações (tarefa, cliente, projeto, evento, proposta, receita, despesa, registro de tempo, nota e registro de trabalho), na ordem do contexto escolhido.
 - Bundle JS acima de 500 kB (SDK do Firebase): avaliar divisão de código no commit 22.
-- Sem testes automatizados de interface. Há testes da lógica pura de tarefas, clientes, projetos, agenda, propostas, financeiro, tempo e notas (`npm test`, 159 casos, executados e passando) e das regras do Firestore (`npm run test:rules`, **ainda não executados**: exigem o emulador).
+- Testes: lógica pura, interface (jsdom + Firebase simulado), layout/acessibilidade (Chromium) e análise estática de regras — veja [TESTING.md](TESTING.md). **Nunca executados:** as regras do Firestore (`npm run test:rules`) e o app contra o **Firebase real**.
 - Comercial: sem envio de proposta/e-mail, sem anexos/PDF; o prazo de follow-up agora fica na conta (Configurações).
 - **Notificações de lembrete não existem:** o lembrete do evento só fica salvo. Exigem infraestrutura própria (ex.: Cloud Functions + e-mail/push, que pedem plano Blaze do Firebase) — avaliar depois do MVP.
 - Marcos de projeto não aparecem na agenda (só eventos do tipo "Marco de entrega"); eventos de vários dias aparecem no dia de início; sem eventos recorrentes.
@@ -41,7 +40,8 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - Seu nome na saudação precisa ser preenchido em Configurações → Perfil (não há mais nome fixo no código).
 - Modelos: sem "salvar projeto como modelo", subtarefas, dependências ou tarefas recorrentes. Alertas: não podem ser dispensados/adiados individualmente (somem ao resolver a condição) e não há alertas de eventos da agenda nem notificações por e-mail/push. "Projeto aguardando cliente" não tem limite de dias (o app não registra desde quando o status foi definido).
 - Preferências: sem reordenação manual de blocos, sem contextos personalizados; o contexto afeta o dashboard e as ações rápidas (não filtra as telas de Tarefas/Projetos). O formato de data ISO não altera títulos com dia da semana nem horários.
-- **Tema escuro, responsividade e contraste ainda não foram conferidos visualmente** (sem navegador no ambiente de desenvolvimento).
+- Layout, tema escuro e contraste foram verificados em **Chromium** (6 larguras; axe-core sem violações). **Não testados:** Firefox, Safari/iOS, toque e teclado virtual reais, leitor de tela.
+- **Riscos conhecidos (commit 21):** (1) regras do Firestore sem execução em emulador; (2) app nunca exercitado contra o Firebase real (login, índices, modo offline, cotas); (3) a lista de Tarefas renderiza todos os itens (≈ 9.000 elementos com 1.200 tarefas; 0,9 s) — considere paginar/virtualizar se passar de alguns milhares; (4) sem limite de tamanho do histórico/diário por documento além dos limites de campo; (5) 11 avisos do `npm audit` em dependências de servidor do `firebase` que não entram no bundle do navegador (ver PROGRESS); (6) o texto de valores monetários próximos de 1 trilhão aperta a coluna ao lado em telas de 360 px (legível, sem estouro).
 - Kanban de projetos sem arrastar e soltar (muda o status pelo seletor do cartão).
 - Excluir marco do projeto, registro do diário do projeto e interação de cliente não pede confirmação (as demais exclusões pedem).
 - Excluir cliente ou projeto é limitado a ~480 registros relacionados de uma vez (acima disso, o app orienta a arquivar).

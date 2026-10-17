@@ -36,7 +36,7 @@ export default function RightPanel() {
   const focus = upcoming[0] ?? null
   return (
     <div className="right">
-      <Card title="Em foco" id="r-foco" hint="Projeto em andamento com o prazo mais próximo">
+      <Card as="div" title="Em foco" id="r-foco" hint="Projeto em andamento com o prazo mais próximo">
         {status === 'loading' && <p className="right__muted">Carregando…</p>}
         {status === 'ready' && !focus && <p className="right__muted">Nenhum projeto em andamento com prazo.</p>}
         {focus && (
@@ -48,7 +48,7 @@ export default function RightPanel() {
         )}
       </Card>
 
-      <Card title="Próximas entregas" id="r-entregas" hint="Prazos de tarefas e projetos e marcos (próximos 30 dias e vencidos)">
+      <Card as="div" title="Próximas entregas" id="r-entregas" hint="Prazos de tarefas e projetos e marcos (próximos 30 dias e vencidos)">
         {deliveries.length === 0 && status === 'ready' && <p className="right__muted">Nenhuma entrega com prazo.</p>}
         <ul className="right__list">
           {deliveries.map((i) => (
@@ -63,7 +63,7 @@ export default function RightPanel() {
         </ul>
       </Card>
 
-      <Card title="Propostas para retomar" id="r-propostas" hint="Próxima ação, validade vencida ou sem retorno" action={<a href="#/comercial">Ver</a>}>
+      <Card as="div" title="Propostas para retomar" id="r-propostas" hint="Próxima ação, validade vencida ou sem retorno" action={<a href="#/comercial">Ver</a>}>
         {proposalsStatus === 'ready' && followUps.length === 0 && <p className="right__muted">Nenhuma proposta pedindo retorno.</p>}
         <ul className="right__list">
           {followUps.slice(0, 5).map(({ p, reason }) => (
@@ -74,7 +74,7 @@ export default function RightPanel() {
         </ul>
       </Card>
 
-      <Card title="A receber e a pagar" id="r-pagamentos" hint="Lançamentos pendentes por vencimento (valores nunca somados entre moedas)" action={<a href="#/financeiro">Ver</a>}>
+      <Card as="div" title="A receber e a pagar" id="r-pagamentos" hint="Lançamentos pendentes por vencimento (valores nunca somados entre moedas)" action={<a href="#/financeiro">Ver</a>}>
         {txStatus === 'ready' && openTx.length === 0 && <p className="right__muted">Nada pendente.</p>}
         <ul className="right__list">
           {openTx.slice(0, 5).map((t) => (
@@ -86,7 +86,7 @@ export default function RightPanel() {
         </ul>
       </Card>
 
-      <Card title="Cronômetro" id="r-timer" action={<a href="#/tempo">Abrir</a>}>
+      <Card as="div" title="Cronômetro" id="r-timer" action={<a href="#/tempo">Abrir</a>}>
         {time.status === 'loading' && <p className="right__muted">Carregando…</p>}
         {time.status === 'error' && <p className="right__muted">Não foi possível carregar o tempo.</p>}
         {time.status === 'ready' && !time.timer && <p className="right__muted">Nenhum cronômetro ativo. <a href="#/tempo">Iniciar</a></p>}

@@ -18,10 +18,11 @@ npm run test:rules  # testes das regras do Firestore (emulador; requer Java)
 
 - [`docs/PROGRESS.md`](docs/PROGRESS.md) — o que foi feito em cada commit e como testar
 - [`docs/PENDING.md`](docs/PENDING.md) — o que ainda falta (inclui criar e configurar o Firebase)
+- [`docs/TESTING.md`](docs/TESTING.md) — testes: como rodar e o que não cobrem
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — decisões técnicas
 - [`docs/FIREBASE.md`](docs/FIREBASE.md) — configuração do Firebase
 
-## Estado atual (guia: commits 02–20)
+## Estado atual (guia: commits 02–21)
 
 - Base Vite + React + JavaScript, `.env.example` sem segredos.
 - Tokens de design em `src/styles/tokens.css`.
@@ -46,9 +47,13 @@ npm run test:rules  # testes das regras do Firestore (emulador; requer Java)
 
 Configuração em `src/services/firebase.js` (variáveis `VITE_FIREBASE_*`). Passo a passo e avisos de segurança em [`docs/FIREBASE.md`](docs/FIREBASE.md).
 
+## Testes
+
+`npm test` (lógica + análise estática), `npm run test:ui` (interface), `npm run test:tz` (7 fusos), `npm run test:layout` e `npm run test:a11y` (Chromium) e `npm run test:rules` (emulador do Firestore, **ainda não executado**). O que cada um cobre — e não cobre — está em [`docs/TESTING.md`](docs/TESTING.md).
+
 ## Próximos commits
 
-21–23 Segurança e casos extremos, polimento e publicação. Lista completa em `docs/PENDING.md`.
+22–23 Polimento e acessibilidade, publicação. Lista completa em `docs/PENDING.md`.
 
 ## Segurança
 

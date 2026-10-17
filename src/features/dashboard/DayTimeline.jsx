@@ -15,7 +15,7 @@ export default function DayTimeline({ events, allDay = [] }) {
     <div>
       <div className="timeline" aria-hidden="true">
         {Array.from({ length: END - START + 1 }, (_, i) => (
-          <span key={i} className="timeline__tick" style={{ left: `${(i / (END - START)) * 100}%` }}>
+          <span key={i} className="timeline__tick" style={{ left: `${(i / (END - START)) * 100}%`, ...(i === END - START ? { transform: 'translateX(-100%)', paddingRight: 4 } : {}) }}>
             {i % 2 === 0 ? String(START + i).padStart(2, '0') : ''}
           </span>
         ))}

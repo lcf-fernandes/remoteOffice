@@ -7,7 +7,7 @@
   --c-border-strong: #b9c3ce;
   --c-ink: #17202b;
   --c-ink-2: #4a5666;
-  --c-ink-3: #6b7787;
+  --c-ink-3: #5f6b7a; /* contraste ≥ 4,5:1 em todos os fundos claros (verificado com axe-core) */
 
   --c-rail: #16212e;
   --c-rail-2: #1f2d3d;

@@ -68,3 +68,6 @@ export function validateInteraction(v) {
   else if (summary.length > 2000) e.summary = 'O resumo deve ter no máximo 2000 caracteres.'
   return e
 }
+
+// Link de e-mail só para endereços simples (sem ?, &, # ou espaços que poderiam injetar cabeçalhos como bcc/subject).
+export const safeMailto = (email) => (/^[^\s@?&#<>"']+@[^\s@?&#<>"']+\.[^\s@?&#<>"']+$/.test(email ?? '') ? `mailto:${email}` : null)

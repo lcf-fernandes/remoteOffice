@@ -43,7 +43,7 @@ import TemplateEditorProvider from '../features/templates/TemplateEditor.jsx'
 import TemplateWizardProvider from '../features/templates/TemplateWizard.jsx'
 import TemplatesPage from '../features/templates/TemplatesPage.jsx'
 import { ErrorState, LoadingState } from '../components/states.jsx'
-import { authErrorMessage } from '../services/auth.js'
+import { accountErrorMessage } from '../services/auth.js'
 
 function useHashRoute() {
   const read = () => window.location.hash.replace(/^#\/?/, '') || 'dashboard' // ex.: 'clientes/abc123'
@@ -102,7 +102,7 @@ function Gate() {
   const auth = useAuth()
   if (auth.status === 'unconfigured') return <main className="login"><div className="login__card"><FirebaseNotice /></div></main>
   if (auth.status === 'loading') return <main className="login"><LoadingState label="Verificando sessão…" /></main>
-  if (auth.status === 'error') return <main className="login"><div className="login__card"><ErrorState title="Não foi possível carregar sua conta">{authErrorMessage(auth.error)}</ErrorState></div></main>
+  if (auth.status === 'error') return <main className="login"><div className="login__card"><ErrorState title="Não foi possível carregar sua conta">{accountErrorMessage(auth.error)}</ErrorState></div></main>
   if (auth.status === 'signedOut') return <LoginPage />
   return (
     <PreferencesProvider>

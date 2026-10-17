@@ -35,13 +35,13 @@ export default function ProposalsPage() {
         <Button variant="primary" icon={Plus} onClick={() => editor.openNew()}>Nova proposta</Button>
       </header>
 
-      <div className="stats stats--2">
+      <dl className="stats stats--2">
         <div><dt>Aguardando resposta</dt><dd>{proposals.filter((p) => ['sent', 'negotiation'].includes(p.status)).length}</dd></div>
         <div>
           <dt>Valor aguardando resposta</dt>
           <dd className="stats__money">{totalEntries.length ? totalEntries.map(([cur, v]) => <span key={cur}>{formatMoney(v, cur)}</span>) : '—'}</dd>
         </div>
-      </div>
+      </dl>
 
       <div className="filters">
         <div className="chips" role="group" aria-label="Status">

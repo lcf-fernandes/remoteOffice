@@ -85,7 +85,14 @@ export function pipelineTotals(proposals) {
 
 // ---- Dinheiro: sempre número + código da moeda (nunca texto formatado) ----------------------
 export const currencyDigits = (currency) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).resolvedOptions().maximumFractionDigits
-export const roundMoney = (amount, currency) => { const f = 10 ** currencyDigits(currency); return Math.round(amount * f) / f }
+// Arredonda para as casas da moeda pelo valor DECIMAL digitado (1.005 → 1.01), e não pelo binário (1.005 * 100 = 100.4999…).
+export function roundMoney(amount, currency) {
+  const d = currencyDigits(currency)
+  const abs = Math.abs(amount)
+  if (!Number.isFinite(amount) || abs >= 1e15 || (abs !== 0 && abs < 1e-6)) return Math.round(amount * 10 ** d) / 10 ** d // fora da faixa de dinheiro real
+  const shifted = Math.round(Number(`${Number(abs.toPrecision(15))}e${d}`))
+  return (amount < 0 ? -1 : 1) * Number(`${shifted}e-${d}`)
+}
 export const parseAmount = (text) => (String(text).trim() === '' ? NaN : Number(text))
 
 export function validateProposal(v, { creating = true } = {}) {

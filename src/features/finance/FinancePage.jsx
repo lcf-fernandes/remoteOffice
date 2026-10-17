@@ -103,10 +103,10 @@ export default function FinancePage({ openId = null }) {
         return (
           <section key={cur} className="card" aria-labelledby={`fin-${cur}`}>
             <h2 className="card__title" id={`fin-${cur}`}>Totais em {cur}</h2>
-            <div className="table-scroll">
+            <div className="table-scroll" tabIndex={0} role="region" aria-label={`Tabela de totais em ${cur}`}>
               <table className="fin-table">
                 <caption className="sr-only">Totais em {cur} para os filtros selecionados</caption>
-                <thead><tr><th scope="col"></th><th scope="col">Recebido / pago</th><th scope="col">Pendente</th><th scope="col">Vencido</th><th scope="col">Previsto</th></tr></thead>
+                <thead><tr><th scope="col"><span className="sr-only">Tipo</span></th><th scope="col">Recebido / pago</th><th scope="col">Pendente</th><th scope="col">Vencido</th><th scope="col">Previsto</th></tr></thead>
                 <tbody>
                   <tr><th scope="row">Receitas</th><td>{money(s.income.paid, cur)}</td><td>{money(s.income.pending, cur)}</td><td className={s.income.overdue ? 'is-late' : ''}>{money(s.income.overdue, cur)}</td><td>{money(s.income.planned, cur)}</td></tr>
                   <tr><th scope="row">Despesas</th><td>{money(s.expense.paid, cur)}</td><td>{money(s.expense.pending, cur)}</td><td className={s.expense.overdue ? 'is-late' : ''}>{money(s.expense.overdue, cur)}</td><td>{money(s.expense.planned, cur)}</td></tr>

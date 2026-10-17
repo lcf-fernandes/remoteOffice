@@ -25,7 +25,7 @@ import { PriorityBadge } from '../tasks/TasksPage.jsx'
 import {
   addInteraction, clientErrorMessage, deleteClient, deleteInteraction, setClientStatus, subscribeToInteractions,
 } from '../../services/clients.js'
-import { INTERACTION_LABEL, INTERACTION_TYPES, nextActionIsLate, validateInteraction } from '../../utils/clients.js'
+import { INTERACTION_LABEL, INTERACTION_TYPES, nextActionIsLate, safeMailto, validateInteraction } from '../../utils/clients.js'
 import { dateToInput, inputToDate, sortTasks } from '../../utils/tasks.js'
 import { formatDate, relativeDay } from '../../utils/format.js'
 
@@ -91,7 +91,7 @@ export default function ClientDetail({ id }) {
 
       <Card title="Contato e acompanhamento" id="c-info">
         <dl className="detail">
-          <div><dt>E-mail</dt><dd>{client.email ? <a href={`mailto:${client.email}`}>{client.email}</a> : '—'}</dd></div>
+          <div><dt>E-mail</dt><dd>{client.email ? (safeMailto(client.email) ? <a href={safeMailto(client.email)}>{client.email}</a> : client.email) : '—'}</dd></div>
           <div><dt>Telefone</dt><dd>{client.phone || '—'}</dd></div>
           <div><dt>Origem</dt><dd>{client.source || '—'}</dd></div>
           <div>

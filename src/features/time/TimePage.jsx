@@ -56,7 +56,7 @@ export default function TimePage() {
               {REPORTS.map((r) => <button key={r.id} type="button" className="chip" aria-pressed={report === r.id} onClick={() => setReport(r.id)}>{r.label}</button>)}
             </div>
             {rows.length === 0 ? <EmptyState title="Sem registros neste período" /> : (
-              <div className="table-scroll">
+              <div className="table-scroll" tabIndex={0} role="region" aria-label="Tabela do relatório de tempo">
                 <table className="fin-table">
                   <caption className="sr-only">Tempo registrado {REPORTS.find((r) => r.id === report).label.toLowerCase()}</caption>
                   <thead><tr><th scope="col" style={{ textAlign: 'left' }}>{report === 'day' ? 'Dia' : report === 'task' ? 'Tarefa' : report === 'project' ? 'Projeto' : 'Categoria'}</th><th scope="col">Registros</th><th scope="col">Tempo registrado</th><th scope="col">Marcado como faturável</th></tr></thead>

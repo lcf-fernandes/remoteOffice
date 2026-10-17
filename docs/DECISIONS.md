@@ -82,3 +82,9 @@
 | Guia "Comece por aqui" só com tudo carregado e todos os módulos vazios | Estado vazio útil sem cartões vazios repetidos; some assim que existe qualquer registro. |
 | Sem nome fixo no código; nome vem do perfil | Nada de dado pessoal "de exemplo" misturado ao real. |
 | Teste que varre `src/` por fixtures/demonstração | Transforma o critério "não restam dados de exemplo" em verificação automática. |
+| Firebase simulado em memória para testar a interface | Permite rodar todas as telas e fluxos sem credenciais nem rede; é permissivo e próprio, então NÃO substitui testes com o Firebase real nem das regras (documentado em TESTING.md). |
+| Testes de layout/acessibilidade em Chromium com dependências instaladas à parte | São pesadas (≈ 60 MB); ficam fora do `package.json` para não inflar a instalação do app. |
+| Não "corrigir" avisos do `npm audit` quando a correção é rebaixar versão | As 11 vulnerabilidades estão em bibliotecas de servidor que não entram no bundle do navegador (verificado); o "fix" sugerido troca o Firebase 10 pela 9.14. |
+| `overflow-wrap: anywhere` global + selos/valores que não encolhem | Textos longos sem espaço quebram em vez de esticar a página, e o que precisa manter a largura (selo de status, data relativa, valor, link de ação) não encolhe. |
+| Arredondamento monetário pelo valor decimal, não pelo binário | `1,005` deve virar `1,01`; usar `Math.round(x*100)/100` gerava erro de centavo. |
+| Nenhum teste foi afrouxado para passar | Cada falha foi classificada como erro do teste ou do app; só o que foi reproduzido virou correção, com teste de regressão. |
