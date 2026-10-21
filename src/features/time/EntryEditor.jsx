@@ -10,6 +10,7 @@ import { useTime } from './TimeProvider.jsx'
 import { createManualEntry, deleteEntry, subscribeToRevisions, timeErrorMessage, updateEntry } from '../../services/time.js'
 import { dateTimeToInput, inputToDateTime } from '../../utils/events.js'
 import { findOverlaps, formatDuration, validateEntry } from '../../utils/time.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useEntryEditor = () => useContext(EditorContext)
@@ -70,7 +71,7 @@ function EntryFormDialog({ open, entry, onClose }) {
     setSubmitError('')
     const found = validateEntry(values)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     const data = { ...values, start, end }
     if (entry && entry.start.getTime() === start.getTime() && entry.end.getTime() === end.getTime() && entry.description === values.description.trim()
       && (entry.taskId ?? '') === values.taskId && (entry.projectId ?? '') === values.projectId && entry.billable === values.billable) return onClose()

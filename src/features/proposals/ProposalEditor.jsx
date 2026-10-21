@@ -9,6 +9,7 @@ import { createProposal, proposalErrorMessage, updateProposal } from '../../serv
 import { sortClients } from '../../utils/clients.js'
 import { CURRENCY_OPTIONS, NEW_PROPOSAL_STATUS_OPTIONS, parseAmount, validateProposal } from '../../utils/proposals.js'
 import { dateToInput, inputToDate } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useProposalEditor = () => useContext(EditorContext)
@@ -52,7 +53,7 @@ function ProposalFormDialog({ open, proposal, initial, onClose }) {
     setSubmitError('')
     const found = validateProposal(values, { creating: !proposal })
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = {
       ...values, amount: parseAmount(values.amount),

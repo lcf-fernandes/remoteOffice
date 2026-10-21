@@ -22,7 +22,7 @@ npm run test:rules  # testes das regras do Firestore (emulador; requer Java)
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — decisões técnicas
 - [`docs/FIREBASE.md`](docs/FIREBASE.md) — configuração do Firebase
 
-## Estado atual (guia: commits 02–21)
+## Estado atual (guia: commits 02–22)
 
 - Base Vite + React + JavaScript, `.env.example` sem segredos.
 - Tokens de design em `src/styles/tokens.css`.
@@ -53,7 +53,7 @@ Configuração em `src/services/firebase.js` (variáveis `VITE_FIREBASE_*`). Pas
 
 ## Próximos commits
 
-22–23 Polimento e acessibilidade, publicação. Lista completa em `docs/PENDING.md`.
+23 Documentação final e publicação. Lista completa em `docs/PENDING.md`.
 
 ## Segurança
 

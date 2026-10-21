@@ -13,7 +13,8 @@
     "test:tz": "for tz in UTC America/Asuncion America/Sao_Paulo America/New_York Europe/Lisbon Pacific/Auckland Asia/Kolkata; do echo \"== TZ=$tz\"; TZ=$tz npm test --silent || exit 1; done",
     "e2e:build": "E2E_OUT=/tmp/e2e-dist vite build -c vite.e2e.config.js",
     "test:layout": "node tests/e2e/layout.mjs",
-    "test:a11y": "node tests/e2e/a11y.mjs"
+    "test:a11y": "node tests/e2e/a11y.mjs",
+    "test:keyboard": "node tests/e2e/keyboard.mjs"
   },
   "dependencies": {
     "firebase": "^10.14.1",

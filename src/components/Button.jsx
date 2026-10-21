@@ -1,7 +1,10 @@
-export default function Button({ variant = 'secondary', icon: Icon, loading = false, children, className = '', ...props }) {
+import { forwardRef } from 'react'
+
+const Button = forwardRef(function Button({ variant = 'secondary', icon: Icon, loading = false, children, className = '', ...props }, ref) {
   const iconOnly = Icon && !children
   return (
     <button
+      ref={ref}
       type="button"
       className={`btn btn--${variant} ${iconOnly ? 'btn--icon' : ''} ${className}`}
       disabled={loading || props.disabled}
@@ -12,4 +15,6 @@ export default function Button({ variant = 'secondary', icon: Icon, loading = fa
       {loading ? 'Aguarde…' : children}
     </button>
   )
-}
+})
+
+export default Button

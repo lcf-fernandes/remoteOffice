@@ -10,6 +10,7 @@ import { useAuth } from '../auth/AuthProvider.jsx'
 import { createWorkLog, deleteWorkLog, notesErrorMessage, updateWorkLog } from '../../services/notes.js'
 import { validateWorkLog } from '../../utils/notes.js'
 import { dateToInput, inputToDate } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useWorkLogEditor = () => useContext(EditorContext)
@@ -53,7 +54,7 @@ function WorkLogFormDialog({ open, entry, initial, onClose }) {
     setSubmitError('')
     const found = validateWorkLog(values)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = { ...values, date: inputToDate(values.date) }
     try {

@@ -10,6 +10,7 @@ import { createTemplate, deleteTemplate, templateErrorMessage, updateTemplate } 
 import { PROJECT_TYPE_OPTIONS } from '../../utils/projects.js'
 import { MAX_OFFSET_DAYS, MAX_TEMPLATE_TASKS, hasErrors, normalizeTemplateTasks, tasksToForm, validateTemplate } from '../../utils/templates.js'
 import { PRIORITY_OPTIONS } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useTemplateEditor = () => useContext(EditorContext)
@@ -60,7 +61,7 @@ function TemplateFormDialog({ open, template, initial, onClose }) {
     setSubmitError('')
     const found = validateTemplate(values)
     setErrors(found)
-    if (hasErrors(found)) return
+    if (hasErrors(found)) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = { ...values, tasks: normalizeTemplateTasks(values.tasks) }
     try {

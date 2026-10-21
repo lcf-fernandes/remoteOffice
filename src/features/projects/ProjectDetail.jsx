@@ -32,6 +32,7 @@ import {
 } from '../../utils/projects.js'
 import { dateToInput, inputToDate, sortTasks } from '../../utils/tasks.js'
 import { formatDate, relativeDay } from '../../utils/format.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 export default function ProjectDetail({ id }) {
   const { user } = useAuth()
@@ -192,7 +193,7 @@ function Milestones({ uid, projectId }) {
   async function onSubmit(e) {
     e.preventDefault(); setFormError('')
     const found = validateMilestone(form); setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     try { await addMilestone(uid, projectId, { title: form.title, date: inputToDate(form.date) }); setForm({ title: '', date: '' }) }
     catch (err) { setFormError(projectErrorMessage(err)) }
@@ -244,7 +245,7 @@ function Journal({ uid, projectId }) {
   async function onSubmit(e) {
     e.preventDefault(); setFormError('')
     const found = validateJournal(form); setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     try { await addJournalEntry(uid, projectId, { date: inputToDate(form.date), text: form.text }); setForm(blank()) }
     catch (err) { setFormError(projectErrorMessage(err)) }

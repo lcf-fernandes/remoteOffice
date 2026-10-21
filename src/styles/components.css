@@ -63,9 +63,11 @@
 .task-list { display: grid; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg); }
 .task { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--c-border); }
 .task:first-child { border-top: 0; }
-.task__check { flex: none; display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid var(--c-border-strong); border-radius: 50%; background: var(--c-surface); color: var(--on-mark); cursor: pointer; }
-.task__check:hover { border-color: var(--c-accent); }
-.task__check.is-done { background: var(--c-ok); border-color: var(--c-ok); }
+.task__check { position: relative; flex: none; display: grid; place-items: center; width: 44px; height: 44px; margin: -11px -11px -11px -14px; padding: 0; border: 0; background: transparent; color: var(--on-mark); cursor: pointer; } /* área de toque de 44×44; o círculo visível continua com 22px */
+.task__check::before { content: ''; position: absolute; width: 22px; height: 22px; border: 2px solid var(--c-border-strong); border-radius: 50%; background: var(--c-surface); }
+.task__check:hover::before { border-color: var(--c-accent); }
+.task__check.is-done::before { background: var(--c-ok); border-color: var(--c-ok); }
+.task__check svg { position: relative; }
 .task__main { flex: 1; min-width: 0; display: grid; gap: 2px; text-align: left; background: none; border: 0; padding: 0; cursor: pointer; }
 .task__badges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--sp-1); }
 .is-struck { text-decoration: line-through; color: var(--c-ink-3); }
@@ -82,11 +84,11 @@
 }
 
 /* Commit 11 — clientes */
-.back { display: inline-flex; align-items: center; gap: var(--sp-1); font-size: var(--fs-sm); text-decoration: none; }
+.back { display: inline-flex; align-items: center; min-height: 32px; gap: var(--sp-1); font-size: var(--fs-sm); text-decoration: none; }
 .actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .client__link { text-decoration: none; color: inherit; }
 .client__link:hover .row__title { text-decoration: underline; }
-.linklike { background: none; border: 0; padding: 0; font-weight: 600; color: var(--c-link); cursor: pointer; text-align: left; overflow-wrap: anywhere; }
+.linklike { display: inline-flex; align-items: center; min-height: 28px; background: none; border: 0; padding: 0; font-weight: 600; color: var(--c-link); cursor: pointer; text-align: left; overflow-wrap: anywhere; }
 .linklike:hover { text-decoration: underline; }
 .interaction-form { padding-bottom: var(--sp-4); margin-bottom: var(--sp-3); border-bottom: 1px solid var(--c-border); }
 
@@ -173,6 +175,7 @@ details > summary.card__title { cursor: pointer; }
 
 /* Commit 17 — notas e registro de trabalho */
 .links-inline { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-3); }
+.links-inline a { display: inline-flex; align-items: center; min-height: 28px; }
 .log { display: grid; gap: var(--sp-2); margin: var(--sp-2) 0 0; }
 .log dt { font-size: var(--fs-xs); color: var(--c-ink-3); font-weight: 600; }
 .log dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -221,3 +224,9 @@ details > summary.card__title { cursor: pointer; }
 .welcome li { counter-increment: step; display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; padding: var(--sp-3); border: 1px solid var(--c-border); border-radius: var(--r-md); background: var(--c-surface-2); }
 .welcome li::before { content: counter(step); flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--c-accent); color: #fff; font-size: var(--fs-xs); font-weight: 700; }
 .welcome li > span { flex: 1; min-width: 180px; }
+
+/* Links de ação no cabeçalho dos cartões ("Ver", "Abrir"): alvo de toque de pelo menos 32 px de altura. */
+.card__head > a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--sp-1); }
+
+/* Commit 22 — carregamento incremental de listas */
+.more { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; padding: var(--sp-2) 0; }

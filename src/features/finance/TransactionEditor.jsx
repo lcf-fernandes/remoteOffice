@@ -12,6 +12,7 @@ import { sortClients } from '../../utils/clients.js'
 import { CATEGORY_SUGGESTIONS, STATUS_RULES, TX_STATUS_OPTIONS, TX_TYPE_OPTIONS, validateTransaction } from '../../utils/finance.js'
 import { CURRENCY_OPTIONS } from '../../utils/proposals.js'
 import { dateToInput, inputToDate } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useTransactionEditor = () => useContext(EditorContext)
@@ -65,7 +66,7 @@ function TransactionFormDialog({ open, tx, initial, onClose }) {
     setSubmitError('')
     const found = validateTransaction(values)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = { ...values, amount: Number(values.amount), dueDate: inputToDate(values.dueDate), paidDate: values.paidDate ? inputToDate(values.paidDate) : null }
     try {

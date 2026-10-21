@@ -15,6 +15,8 @@ import { useTaskEditor } from './TaskEditor.jsx'
 import { deleteTask, setTaskStatus, taskErrorMessage } from '../../services/tasks.js'
 import { PRIORITY_LABEL, PRIORITY_OPTIONS, STATUS_OPTIONS, VIEWS, filterTasks, isOverdue, sortTasks } from '../../utils/tasks.js'
 import { formatDate, relativeDay } from '../../utils/format.js'
+import useIncremental from '../../components/useIncremental.js'
+import ShowMore from '../../components/ShowMore.jsx'
 
 export function PriorityBadge({ priority }) {
   const tone = priority === 'high' ? 'danger' : priority === 'medium' ? 'warn' : 'neutral'
@@ -43,6 +45,7 @@ export default function TasksPage({ openId = null }) {
   }, [openId, status, tasks])
 
   const visible = useMemo(() => sortTasks(filterTasks(tasks, filters)), [tasks, filters])
+  const inc = useIncremental(visible, JSON.stringify(filters))
   const detail = tasks.find((t) => t.id === detailId) ?? null
   const setFilter = (k) => (e) => setFilters((f) => ({ ...f, [k]: e.target.value }))
 
@@ -99,8 +102,9 @@ export default function TasksPage({ openId = null }) {
       )}
 
       {status === 'ready' && visible.length > 0 && (
+        <>
         <ul className="task-list">
-          {visible.map((t) => (
+          {inc.shown.map((t) => (
             <li key={t.id} className="task">
               <button type="button" className={`task__check ${t.status === 'done' ? 'is-done' : ''}`} aria-label={t.status === 'done' ? `Reabrir: ${t.title}` : `Concluir: ${t.title}`} onClick={() => toggleDone(t)}>
                 {t.status === 'done' && <Check size={14} aria-hidden="true" />}
@@ -119,6 +123,8 @@ export default function TasksPage({ openId = null }) {
             </li>
           ))}
         </ul>
+        <ShowMore inc={inc} noun="tarefas" />
+        </>
       )}
 
       <Dialog

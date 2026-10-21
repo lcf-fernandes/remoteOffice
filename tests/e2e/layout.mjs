@@ -88,25 +88,32 @@ for (const vp of VIEWPORTS.filter((v) => !ONLY.length || ONLY.includes(v.name)))
 }
 // ---- muitos registros: tempo até a tela ficar pronta e ausência de estouro ----
 const perf = []
+const RUNS = Number(process.env.E2E_PERF_RUNS ?? 1) // várias repetições: o tempo oscila; use a mediana
 for (const [route, click] of process.env.E2E_PERF === '0' ? [] : [['dashboard'], ['tarefas'], ['clientes'], ['financeiro', 'Tudo'], ['notas'], ['tempo']]) {
-  const page = await browser.newPage()
-  await page.setRequestInterception(true)
-  page.on('request', (r) => (r.url().startsWith('http://localhost') ? r.continue() : r.abort()))
-  await page.setViewport({ width: 390, height: 844 })
-  const t0 = Date.now()
-  await page.goto(`${base}?big=1200#/${route}`, { waitUntil: 'load' })
-  await page.waitForSelector('h1', { timeout: 60000 })
-  await page.waitForFunction(() => !document.body.innerText.includes('Carregando'), { timeout: 60000 }).catch(() => {})
-  if (click) { const [btn] = await page.$$(`xpath/.//button[normalize-space()="${click}"]`); if (btn) await btn.click() }
-  const ms = Date.now() - t0
-  const info = await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }))
-  perf.push({ route, ms, ...info })
-  if (ms > 8000) problems.push({ vp: 'celular-390', label: `desempenho ${route}`, issues: [`demorou ${ms} ms com ~${info.nodes} elementos`] })
+  const times = []
+  let info = null
+  for (let run = 0; run < RUNS; run++) {
+    const page = await browser.newPage()
+    await page.setRequestInterception(true)
+    page.on('request', (r) => (r.url().startsWith('http://localhost') ? r.continue() : r.abort()))
+    await page.setViewport({ width: 390, height: 844 })
+    const t0 = Date.now()
+    await page.goto(`${base}?big=1200#/${route}`, { waitUntil: 'load' })
+    await page.waitForSelector('h1', { timeout: 60000 })
+    await page.waitForFunction(() => !document.body.innerText.includes('Carregando'), { timeout: 60000 }).catch(() => {})
+    if (click) { const [btn] = await page.$$(`xpath/.//button[normalize-space()="${click}"]`); if (btn) await btn.click() }
+    times.push(Date.now() - t0)
+    info = await page.evaluate(() => ({ nodes: document.querySelectorAll('*').length, overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth }))
+    await page.close()
+  }
+  times.sort((x, y) => x - y)
+  const ms = times[Math.floor(times.length / 2)]
+  perf.push({ route, ms, min: times[0], max: times[times.length - 1], ...info })
+  if (ms > 8000) problems.push({ vp: 'celular-390', label: `desempenho ${route}`, issues: [`demorou ${ms} ms (mediana) com ~${info.nodes} elementos`] })
   if (info.overflow > 1) problems.push({ vp: 'celular-390', label: `muitos-registros ${route}`, issues: [`rolagem horizontal (+${info.overflow}px)`] })
-  await page.close()
 }
 console.log('Desempenho com ~1200 tarefas, 300 clientes, 200 notas, 400 lançamentos, 300 registros de tempo (celular 390px):')
-for (const r of perf) console.log(`  ${r.route.padEnd(11)} ${String(r.ms).padStart(5)} ms  ${String(r.nodes).padStart(6)} elementos no DOM`)
+for (const r of perf) console.log(`  ${r.route.padEnd(11)} mediana ${String(r.ms).padStart(5)} ms (mín ${r.min}, máx ${r.max})  ${String(r.nodes).padStart(6)} elementos no DOM`)
 await browser.close(); server.close()
 console.log(`Telas verificadas: ${checked} (${ONLY.length || VIEWPORTS.length} larguras × ${ROUTES.length + EXTRA.length} telas)`)
 if (problems.length === 0) console.log('Nenhum problema encontrado.')

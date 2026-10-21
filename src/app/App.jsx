@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import Button from '../components/Button.jsx'
 import LeftPanel from '../layout/LeftPanel.jsx'
+import { NAV } from '../layout/nav.js'
 import RightPanel from '../layout/RightPanel.jsx'
 import Dashboard from '../features/dashboard/Dashboard.jsx'
 import ModulePlaceholder from '../features/modules/ModulePlaceholder.jsx'
@@ -59,6 +60,29 @@ function useHashRoute() {
 function Workspace() {
   const [route, param] = useHashRoute().split('/')
   const [drawer, setDrawer] = useState(false)
+  const toggleRef = useRef(null)
+  const leftRef = useRef(null)
+  const mainRef = useRef(null)
+  const firstRoute = useRef(true)
+  const drawerWasOpen = useRef(false)
+
+  // Gaveta (celular): ao abrir, o foco vai para dentro dela; ao fechar, volta ao botão do menu.
+  useEffect(() => {
+    if (drawer) { drawerWasOpen.current = true; leftRef.current?.querySelector('button, a[href], select')?.focus() }
+    else if (drawerWasOpen.current) { drawerWasOpen.current = false; toggleRef.current?.focus() }
+  }, [drawer])
+
+  // Cada tela tem o seu título na aba (e no histórico do navegador).
+  useEffect(() => {
+    const item = NAV.find((n) => n.id === route)
+    document.title = `${item ? item.label : 'Página não encontrada'} · Leandro Desk`
+  }, [route])
+
+  // Ao trocar de tela, o foco vai para o conteúdo (quem usa teclado ou leitor de tela não fica preso no menu). Não age na 1ª carga.
+  useEffect(() => {
+    if (firstRoute.current) { firstRoute.current = false; return }
+    mainRef.current?.focus({ preventScroll: true })
+  }, [route, param])
 
   useEffect(() => {
     if (!drawer) return
@@ -72,16 +96,16 @@ function Workspace() {
       <a className="skip" href="#conteudo">Ir para o conteúdo</a>
 
       <header className="topbar">
-        <Button variant="ghost" icon={drawer ? X : Menu} aria-label={drawer ? 'Fechar menu' : 'Abrir menu'} aria-expanded={drawer} onClick={() => setDrawer((v) => !v)} />
+        <Button ref={toggleRef} variant="ghost" icon={drawer ? X : Menu} aria-label={drawer ? 'Fechar menu' : 'Abrir menu'} aria-expanded={drawer} onClick={() => setDrawer((v) => !v)} />
         <span className="topbar__name">Leandro Desk</span>
       </header>
 
       {drawer && <div className="scrim" onClick={() => setDrawer(false)} aria-hidden="true" />}
-      <aside className={`col col--left ${drawer ? 'is-open' : ''}`} aria-label="Navegação e rotina">
+      <aside ref={leftRef} className={`col col--left ${drawer ? 'is-open' : ''}`} aria-label="Navegação e rotina">
         <LeftPanel route={route} onNavigate={() => setDrawer(false)} />
       </aside>
 
-      <main id="conteudo" className="col col--center" tabIndex={-1}>
+      <main ref={mainRef} id="conteudo" className="col col--center" tabIndex={-1}>
         {route === 'dashboard' ? <Dashboard /> : route === 'tarefas' ? <TasksPage openId={param || null} /> : route === 'clientes' ? (param ? <ClientDetail id={param} /> : <ClientsPage />) : route === 'projetos' ? (param ? <ProjectDetail id={param} /> : <ProjectsPage />) : route === 'agenda' ? <AgendaPage /> : route === 'comercial' ? (param ? <ProposalDetail id={param} /> : <ProposalsPage />) : route === 'financeiro' ? <FinancePage openId={param || null} /> : route === 'tempo' ? <TimePage /> : route === 'notas' ? <NotesPage /> : route === 'configuracoes' ? <SettingsPage /> : route === 'modelos' ? <TemplatesPage /> : <ModulePlaceholder route={route} />}
       </main>
 
@@ -100,6 +124,7 @@ function KeyedWorkspace() {
 
 function Gate() {
   const auth = useAuth()
+  useEffect(() => { if (auth.status === 'signedOut') document.title = 'Entrar · Leandro Desk' }, [auth.status])
   if (auth.status === 'unconfigured') return <main className="login"><div className="login__card"><FirebaseNotice /></div></main>
   if (auth.status === 'loading') return <main className="login"><LoadingState label="Verificando sessão…" /></main>
   if (auth.status === 'error') return <main className="login"><div className="login__card"><ErrorState title="Não foi possível carregar sua conta">{accountErrorMessage(auth.error)}</ErrorState></div></main>

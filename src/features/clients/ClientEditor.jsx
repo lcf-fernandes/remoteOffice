@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthProvider.jsx'
 import { clientErrorMessage, createClient, updateClient } from '../../services/clients.js'
 import { CLIENT_STATUS_OPTIONS, SOURCE_SUGGESTIONS, validateClient } from '../../utils/clients.js'
 import { dateToInput, inputToDate } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useClientEditor = () => useContext(EditorContext)
@@ -40,7 +41,7 @@ function ClientFormDialog({ open, client, onClose }) {
     setSubmitError('')
     const found = validateClient(values)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = { ...values, nextActionDate: inputToDate(values.nextActionDate) }
     try {

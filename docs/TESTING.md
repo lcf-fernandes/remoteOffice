@@ -6,6 +6,7 @@
 | `npm run test:tz` | A mesma suíte em **7 fusos horários** (UTC, Assunção, São Paulo, Nova York, Lisboa, Auckland, Kolkata), incluindo dias com mudança de horário de verão. | só Node |
 | `npm run test:ui` | A **interface inteira** rodando em jsdom com um **Firebase simulado em memória**: todas as telas com dados, login/sessão, isolamento por usuário, formulários inválidos e valores extremos, exclusão com relacionamentos, modelos (tudo ou nada), cronômetro, falhas de rede, links diretos, preferências, dados hostis. 89 casos. | só Node |
 | `npm run e2e:build` + `npm run test:layout` | A interface em um **Chromium real**, em 6 larguras (360 a 1920 px) × 39 telas, claro/escuro, com textos enormes e ≈ 2.400 registros: rolagem horizontal, elementos fora da tela, erros de console, desempenho e capturas de tela. | `puppeteer-core` e `@sparticuz/chromium` (instalar à parte) |
+| `npm run test:keyboard` | **Teclado, foco e alvos de toque** no Chromium: ordem de Tab, foco em elementos invisíveis, indicador de foco, diálogos, menu "Criar", gaveta do celular, título e foco por tela, alvos < 24×24 px em 14 telas. | idem |
 | `npm run test:a11y` | **Acessibilidade** com axe-core (WCAG A/AA e boas práticas), claro/escuro, desktop/celular. | idem + `axe-core` |
 | `npm run test:rules` | As **regras do Firestore** no emulador (acesso cruzado, validação de campos). | Java + `firebase-tools` com acesso à internet para baixar o emulador |
 

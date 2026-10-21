@@ -10,6 +10,7 @@ import { useAuth } from '../auth/AuthProvider.jsx'
 import { createNote, deleteNote, notesErrorMessage, updateNote } from '../../services/notes.js'
 import { validateNote } from '../../utils/notes.js'
 import { parseTags } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useNoteEditor = () => useContext(EditorContext)
@@ -54,7 +55,7 @@ function NoteFormDialog({ open, note, initial, onClose }) {
     setSubmitError('')
     const found = validateNote(values)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = { ...values, tags: parseTags(values.tags) }
     try {

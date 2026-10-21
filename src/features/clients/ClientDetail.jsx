@@ -28,6 +28,7 @@ import {
 import { INTERACTION_LABEL, INTERACTION_TYPES, nextActionIsLate, safeMailto, validateInteraction } from '../../utils/clients.js'
 import { dateToInput, inputToDate, sortTasks } from '../../utils/tasks.js'
 import { formatDate, relativeDay } from '../../utils/format.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 export default function ClientDetail({ id }) {
   const { user } = useAuth()
@@ -201,7 +202,7 @@ function Interactions({ uid, clientId }) {
     setFormError('')
     const found = validateInteraction(form)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     try { await addInteraction(uid, clientId, { ...form, date: inputToDate(form.date) }); setForm(blank()) }
     catch (err) { setFormError(clientErrorMessage(err)) }

@@ -18,6 +18,8 @@ import {
   filterProjects, kanbanColumns, progressByProject, projectIsLate, sortProjects,
 } from '../../utils/projects.js'
 import { formatDate, relativeDay } from '../../utils/format.js'
+import useIncremental from '../../components/useIncremental.js'
+import ShowMore from '../../components/ShowMore.jsx'
 
 export function ClientTag({ client }) {
   if (!client) return null
@@ -36,6 +38,7 @@ export default function ProjectsPage() {
   const [actionError, setActionError] = useState('')
 
   const visible = useMemo(() => sortProjects(filterProjects(projects, filters)), [projects, filters])
+  const inc = useIncremental(visible, JSON.stringify(filters))
   const progress = useMemo(() => progressByProject(tasks), [tasks])
 
   async function move(project, next) {
@@ -98,7 +101,8 @@ export default function ProjectsPage() {
       )}
 
       {status === 'ready' && visible.length > 0 && layout === 'list' && (
-        <ul className="plist">{visible.map((p) => (
+        <>
+        <ul className="plist">{inc.shown.map((p) => (
           <li key={p.id} className="plist__row">
             <div className="plist__main">
               <a href={`#/projetos/${p.id}`} className="pcard__title">{p.name}</a>
@@ -111,6 +115,8 @@ export default function ProjectsPage() {
             <span className="task__badges"><PriorityBadge priority={p.priority} /><StatusBadge status={p.status} /></span>
           </li>
         ))}</ul>
+        <ShowMore inc={inc} noun="projetos" />
+        </>
       )}
 
       {status === 'ready' && visible.length > 0 && layout === 'kanban' && (

@@ -27,7 +27,8 @@ Legenda: ✅ feito · ⏳ pendente (ver [PENDING.md](PENDING.md))
 | 19 | `feat: add project templates and internal reminders` | ✅ código · ⏳ não testado com o Firebase real nem visualmente |
 | 20 | `feat: connect dashboard to real workspace data` | ✅ código · ⏳ não testado com o Firebase real nem visualmente |
 | 21 | `test: harden security, errors and edge cases` | ✅ código · ⏳ regras do Firestore e Firebase real ainda não executados |
-| 22–23 | Polimento e acessibilidade, publicação | ⏳ |
+| 22 | `feat: polish keyboard accessibility and list performance` | ✅ código · ⏳ revisão visual das telas restantes |
+| 23 | Documentação final e publicação | ⏳ |
 
 > Os commits 02–07 foram criados juntos a partir de uma mesma base; commits intermediários podem não compilar isoladamente. O estado de cada commit a partir do 08 foi validado com `npm run build`.
 
@@ -291,3 +292,23 @@ Este commit **não adiciona funcionalidades**: é uma rodada de testes e correç
 - **Dependências:** `npm audit --omit=dev` aponta 11 avisos, **todos** em bibliotecas internas de servidor do pacote `firebase` (`undici`, `@grpc/grpc-js`). Conferi o **bundle de produção**: tem **0 ocorrências** delas, então não chegam ao navegador. A "correção" sugerida pelo `npm audit` seria **rebaixar** o Firebase para a 9.14.0, e **não foi aplicada**. Reavalie ao atualizar o Firebase (testando com o projeto real).
 - **Regras do Firestore: NÃO foram alteradas** neste commit (o que está publicado continua válido) e **continuam sem ter sido executadas**: o emulador não baixa no ambiente de desenvolvimento. O que foi feito é **análise estática** (`tests/rules-static.test.js`): toda permissão exige o dono, nenhuma é "se autenticado" ou "verdadeiro", toda escrita valida campos com `hasOnly`, a regra final nega o resto, e cada coleção usada pelo código tem regra. Provado por mutação: afrouxar uma regra de propósito ou usar uma coleção sem regra faz o teste reprovar.
 - **Como estes testes foram validados:** com mutações (quebrei validações, regras e coleções de propósito e vi os testes reprovarem; fontes restauradas e conferidas) e um controle negativo da rede de segurança de `console.error`.
+
+## Commit 22 — Polimento, acessibilidade e desempenho
+
+Método: primeiro **medir** (auditoria de teclado e foco no Chromium, medição de desempenho), depois corrigir só o que apareceu, depois medir de novo.
+
+- **Teclado e foco (antes: 5 achados; depois: 0 em 14 telas, desktop e celular):**
+  1. No celular, a gaveta de navegação **fechada** ainda recebia foco por Tab (18 controles invisíveis em todas as telas). Agora fechada = fora da tela **e** fora da ordem de tabulação; ao abrir, o foco entra nela; ao fechar (Esc, fundo ou link), volta ao botão do menu.
+  2. O menu "Criar" declarava `role="menu"` mas as setas não funcionavam (o padrão ARIA exige). Virou um botão que expande uma lista (`aria-expanded`): Esc fecha e devolve o foco; sair com Tab também fecha; ao escolher um item o foco volta ao "Criar" antes de abrir o formulário. Removido também o diálogo "ainda não existe" que não era mais usado.
+  3. O título da aba nunca mudava: agora cada tela tem o seu ("Clientes · Leandro Desk", "Entrar · Leandro Desk", "Página não encontrada · …").
+  4. Ao trocar de tela o foco ficava no menu: agora vai para o conteúdo (não na primeira carga).
+  5. Alvos de toque menores que 24×24 px (WCAG 2.2): o botão de concluir tarefa (22 px) agora tem área de 44×44 com o mesmo círculo visual; links "Ver/Abrir" dos cartões, botões que parecem link e "Voltar" têm pelo menos 28–32 px.
+  - **Já estava certo (verificado):** o link "Ir para o conteúdo" é o primeiro foco; diálogos recebem o foco, o Tab não escapa e o Esc devolve o foco a quem abriu; todo foco tem indicador visível.
+- **Formulários:** ao enviar com erro, o foco vai para o **primeiro campo inválido** (13 formulários), e as mensagens de erro de campos de seleção e de texto longo agora ficam associadas ao campo (`aria-describedby`), como já acontecia nos campos de texto.
+- **Desempenho — carregamento incremental ("Mostrar mais 50") em Tarefas, Clientes, Projetos (lista), Propostas, Financeiro, Notas (notas e registros) e Tempo (lista de registros).** Filtros, buscas e **totais continuam valendo para todos os itens** (só a lista na tela é cortada; a busca acha item na posição 118; mudar o filtro volta à primeira página; testado). Medido no Chromium, celular, com ~2.400 registros, **mediana de 5 execuções**, antes → depois (o tempo oscila bastante entre execuções; por isso a mediana):
+  - Tarefas: 8.962 → **748** elementos no DOM; 640 → **394 ms**.
+  - Financeiro: 4.798 → **978** elementos; 953 → **482 ms**.
+  - Clientes: 2.083 → 579; Notas: 1.498 → 592; Tempo: 1.841 → 1.633; tempo ≈ igual (dominado por custo fixo de inicialização).
+  - Dashboard: sem mudança (≈ 390 ms).
+- **O que NÃO foi feito, de propósito:** divisão do código por rota (o pacote principal tem ≈ 400 kB, 110 kB comprimido; sem evidência de que seja problema, "sem otimização prematura"); virtualização de listas (a paginação resolve); animações. A revisão visual (espaçamento/hierarquia) foi feita no dashboard (claro/escuro, desktop/celular), em Tarefas com textos extremos e em Financeiro; as demais telas ficam para passos seguintes.
+- Testes: 297 de lógica, 100 de interface (11 novos: foco em formulários, navegação/título, menu "Criar", carregamento incremental), e `npm run test:keyboard` no Chromium (zero problemas). O ambiente de teste de interface passou a imitar o navegador em dois pontos (foco devolvido ao fechar um diálogo; elemento dentro de diálogo fechado não recebe foco).

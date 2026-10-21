@@ -8,6 +8,7 @@ import { useProjects } from '../projects/ProjectsProvider.jsx'
 import { createEvent, deleteEvent, eventErrorMessage, updateEvent } from '../../services/events.js'
 import { EVENT_TYPE_OPTIONS, REMINDER_OPTIONS, dateTimeToInput, localTimeZone, parseEventInput, validateEvent } from '../../utils/events.js'
 import { dateToInput } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useEventEditor = () => useContext(EditorContext)
@@ -62,7 +63,7 @@ function EventFormDialog({ open, event, initial, onClose }) {
     setSubmitError('')
     const found = validateEvent(values)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = { ...values, start: parseEventInput(values.start, values.allDay), end: values.allDay || !values.end ? null : parseEventInput(values.end, false) }
     try {

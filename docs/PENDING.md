@@ -20,7 +20,6 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 
 | Guia | Entrega |
 |---|---|
-| 22 | Polimento, acessibilidade e performance |
 | 23 | Documentação final e publicação |
 
 ## Limitações atuais conhecidas
@@ -41,7 +40,7 @@ Atualize este arquivo sempre que algo for concluído (mova para [PROGRESS.md](PR
 - Modelos: sem "salvar projeto como modelo", subtarefas, dependências ou tarefas recorrentes. Alertas: não podem ser dispensados/adiados individualmente (somem ao resolver a condição) e não há alertas de eventos da agenda nem notificações por e-mail/push. "Projeto aguardando cliente" não tem limite de dias (o app não registra desde quando o status foi definido).
 - Preferências: sem reordenação manual de blocos, sem contextos personalizados; o contexto afeta o dashboard e as ações rápidas (não filtra as telas de Tarefas/Projetos). O formato de data ISO não altera títulos com dia da semana nem horários.
 - Layout, tema escuro e contraste foram verificados em **Chromium** (6 larguras; axe-core sem violações). **Não testados:** Firefox, Safari/iOS, toque e teclado virtual reais, leitor de tela.
-- **Riscos conhecidos (commit 21):** (1) regras do Firestore sem execução em emulador; (2) app nunca exercitado contra o Firebase real (login, índices, modo offline, cotas); (3) a lista de Tarefas renderiza todos os itens (≈ 9.000 elementos com 1.200 tarefas; 0,9 s) — considere paginar/virtualizar se passar de alguns milhares; (4) sem limite de tamanho do histórico/diário por documento além dos limites de campo; (5) 11 avisos do `npm audit` em dependências de servidor do `firebase` que não entram no bundle do navegador (ver PROGRESS); (6) o texto de valores monetários próximos de 1 trilhão aperta a coluna ao lado em telas de 360 px (legível, sem estouro).
+- **Riscos conhecidos (commit 21):** (1) regras do Firestore sem execução em emulador; (2) app nunca exercitado contra o Firebase real (login, índices, modo offline, cotas); (3) as listas longas usam "Mostrar mais 50" (resolvido no commit 22); o relatório de Tempo e os totais ainda calculam sobre todos os registros (rápido até alguns milhares); (4) sem limite de tamanho do histórico/diário por documento além dos limites de campo; (5) 11 avisos do `npm audit` em dependências de servidor do `firebase` que não entram no bundle do navegador (ver PROGRESS); (6) o texto de valores monetários próximos de 1 trilhão aperta a coluna ao lado em telas de 360 px (legível, sem estouro).
 - Kanban de projetos sem arrastar e soltar (muda o status pelo seletor do cartão).
 - Excluir marco do projeto, registro do diário do projeto e interação de cliente não pede confirmação (as demais exclusões pedem).
 - Excluir cliente ou projeto é limitado a ~480 registros relacionados de uma vez (acima disso, o app orienta a arquivar).

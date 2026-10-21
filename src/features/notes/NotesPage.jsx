@@ -13,6 +13,8 @@ import { useTaskEditor } from '../tasks/TaskEditor.jsx'
 import { notesErrorMessage } from '../../services/notes.js'
 import { allTags, filterNotes, filterWorkLog, noteHeading, snippet, sortNotes, sortWorkLog } from '../../utils/notes.js'
 import { formatDate } from '../../utils/format.js'
+import useIncremental from '../../components/useIncremental.js'
+import ShowMore from '../../components/ShowMore.jsx'
 
 // Chips de vínculo: levem ao registro correto (cliente/projeto → página; tarefa → abre a tarefa).
 export function LinkChips({ item }) {
@@ -42,6 +44,8 @@ export default function NotesPage() {
 
   const shownNotes = useMemo(() => sortNotes(filterNotes(notes, f)), [notes, f])
   const shownLog = useMemo(() => sortWorkLog(filterWorkLog(workLog, f)), [workLog, f])
+  const incNotes = useIncremental(shownNotes, `notes|${JSON.stringify(f)}`)
+  const incLog = useIncremental(shownLog, `log|${JSON.stringify(f)}`)
   const tags = useMemo(() => allTags(notes), [notes])
   const hasFilter = f.search || f.tag || f.from || f.to || f.projectId
 
@@ -80,8 +84,9 @@ export default function NotesPage() {
             ? <EmptyState title="Nenhuma nota ainda" action={<Button variant="primary" icon={Plus} onClick={() => noteEditor.openNew()}>Criar a primeira nota</Button>}>Capture ideias rápidas pela lateral ou aqui.</EmptyState>
             : <EmptyState title="Nenhuma nota encontrada">{hasFilter ? 'Ajuste a busca, a tag ou as datas.' : ''}</EmptyState>
         ) : (
+          <>
           <ul className="plist">
-            {shownNotes.map((n) => (
+            {incNotes.shown.map((n) => (
               <li key={n.id} className="plist__row">
                 <div className="plist__main">
                   <button type="button" className="linklike" onClick={() => noteEditor.openEdit(n)}>{noteHeading(n)}</button>
@@ -93,6 +98,8 @@ export default function NotesPage() {
               </li>
             ))}
           </ul>
+          <ShowMore inc={incNotes} noun="notas" />
+          </>
         )
       )}
 
@@ -102,8 +109,9 @@ export default function NotesPage() {
             ? <EmptyState title="Nenhum registro de trabalho ainda" action={<Button variant="primary" icon={Plus} onClick={() => logEditor.openNew()}>Criar o primeiro registro</Button>}>Anote o que fez, o que travou e o próximo passo para retomar sem esforço depois de uma pausa.</EmptyState>
             : <EmptyState title="Nenhum registro encontrado">{hasFilter ? 'Ajuste a busca, o projeto ou as datas.' : ''}</EmptyState>
         ) : (
+          <>
           <ul className="plist">
-            {shownLog.map((e) => (
+            {incLog.shown.map((e) => (
               <li key={e.id} className="plist__row">
                 <div className="plist__main">
                   <button type="button" className="linklike" onClick={() => logEditor.openEdit(e)}>{formatDate(e.date, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</button>
@@ -113,6 +121,8 @@ export default function NotesPage() {
               </li>
             ))}
           </ul>
+          <ShowMore inc={incLog} noun="registros" />
+          </>
         )
       )}
     </div>

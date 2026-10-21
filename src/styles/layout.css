@@ -72,8 +72,8 @@
   .topbar .btn--ghost { color: var(--c-rail-ink); }
   .topbar .btn--ghost:hover { background: var(--c-rail-2); }
   .topbar__name { font-family: var(--font-display); font-weight: 700; }
-  .col--left { position: fixed; z-index: 40; inset: 0 auto 0 0; width: min(300px, 86vw); transform: translateX(-100%); transition: transform 0.18s; }
-  .col--left.is-open { transform: none; }
+  .col--left { position: fixed; z-index: 40; inset: 0 auto 0 0; width: min(300px, 86vw); transform: translateX(-100%); visibility: hidden; transition: transform 0.18s, visibility 0s linear 0.18s; }
+  .col--left.is-open { transform: none; visibility: visible; transition: transform 0.18s, visibility 0s; } /* fechada: fora da tela E fora da ordem de Tab */
   .scrim { display: block; position: fixed; inset: 0; z-index: 35; background: rgba(23, 32, 43, 0.5); }
   .col--center { padding: var(--sp-4); }
   .col--right { border-left: 0; border-top: 1px solid var(--c-border); padding: var(--sp-4); }
@@ -99,3 +99,6 @@
 .right__list li > :last-child:not(:first-child) { flex: none; white-space: nowrap; margin-left: var(--sp-2); }
 .card__head > a, .card__head > button { flex: none; white-space: nowrap; }
 .row > strong, .plist__side > strong { flex: none; white-space: nowrap; }
+
+/* O <main> só recebe foco por programação (ao trocar de tela): sem anel, o conteúdo em si não é um controle. */
+.col--center:focus, .col--center:focus-visible { outline: none; box-shadow: none; }

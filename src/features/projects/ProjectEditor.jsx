@@ -8,6 +8,7 @@ import { createProject, projectErrorMessage, updateProject } from '../../service
 import { sortClients } from '../../utils/clients.js'
 import { PROJECT_STATUS_OPTIONS, PROJECT_TYPE_OPTIONS, parseLinks, validateProject } from '../../utils/projects.js'
 import { PRIORITY_OPTIONS, dateToInput, inputToDate } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useProjectEditor = () => useContext(EditorContext)
@@ -51,7 +52,7 @@ function ProjectFormDialog({ open, project, initial, onSaved, onClose }) {
     setSubmitError('')
     const found = validateProject(values)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = { ...values, startDate: inputToDate(values.startDate), dueDate: inputToDate(values.dueDate), links: parseLinks(values.links) }
     try {

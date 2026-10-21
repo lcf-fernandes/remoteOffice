@@ -8,6 +8,7 @@ import { useProjects } from '../projects/ProjectsProvider.jsx'
 import { createTask, taskErrorMessage, updateTask } from '../../services/tasks.js'
 import { sortClients } from '../../utils/clients.js'
 import { PRIORITY_OPTIONS, STATUS_OPTIONS, dateToInput, inputToDate, parseTags, validateTask } from '../../utils/tasks.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 const EditorContext = createContext(null)
 export const useTaskEditor = () => useContext(EditorContext)
@@ -58,7 +59,7 @@ function TaskFormDialog({ open, task, initial, onClose }) {
     setSubmitError('')
     const found = validateTask(values)
     setErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     setSaving(true)
     const data = { ...values, due: inputToDate(values.due), tags: parseTags(values.tags) }
     try {

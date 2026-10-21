@@ -11,6 +11,7 @@ import { DASHBOARD_BLOCKS, DATE_STYLE_OPTIONS, MAX_EXTERNAL_LINKS, THEME_OPTIONS
 import { localTimeZone } from '../../utils/events.js'
 import { ALERT_TYPES, DUE_SOON_OPTIONS } from '../../utils/alerts.js'
 import { formatDate } from '../../utils/format.js'
+import { focusFirstInvalid } from '../../utils/focus.js'
 
 export default function SettingsPage() {
   const { status, error, prefs, displayName, update, updateName } = usePreferences()
@@ -35,7 +36,7 @@ export default function SettingsPage() {
     e.preventDefault()
     const found = validateExternalLink(link, prefs.externalLinks)
     setLinkErrors(found)
-    if (Object.keys(found).length) return
+    if (Object.keys(found).length) { focusFirstInvalid(e.currentTarget); return }
     await save({ externalLinks: [...prefs.externalLinks, { label: link.label.trim(), url: link.url.trim() }] }, 'Atalho adicionado.')
     setLink({ label: '', url: '' })
   }

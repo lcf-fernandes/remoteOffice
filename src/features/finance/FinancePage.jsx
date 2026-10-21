@@ -16,6 +16,8 @@ import {
 import { CURRENCY_OPTIONS } from '../../utils/proposals.js'
 import { dateToInput, inputToDate } from '../../utils/tasks.js'
 import { formatDate, formatMoney, relativeDay } from '../../utils/format.js'
+import useIncremental from '../../components/useIncremental.js'
+import ShowMore from '../../components/ShowMore.jsx'
 
 const STATUS_BADGE = {
   planned: ['neutral', () => 'Prevista'],
@@ -55,6 +57,7 @@ export default function FinancePage({ openId = null }) {
   }, [openId, status, transactions]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const visible = useMemo(() => sortTransactions(filterTransactions(transactions, filters)), [transactions, filters])
+  const inc = useIncremental(visible, JSON.stringify(filters))
   const summary = useMemo(() => summarize(visible), [visible])
   const currencies = Object.keys(summary).sort()
   const set = (f) => (e) => setFilters((x) => ({ ...x, [f]: e.target.value }))
@@ -137,8 +140,9 @@ export default function FinancePage({ openId = null }) {
       )}
 
       {status === 'ready' && visible.length > 0 && (
-        <ul className="plist">
-          {visible.map((t) => {
+        <>
+<ul className="plist">
+          {inc.shown.map((t) => {
             const eff = effectiveStatus(t, now)
             const canPay = t.status === 'planned' || t.status === 'pending'
             return (
@@ -163,6 +167,8 @@ export default function FinancePage({ openId = null }) {
             )
           })}
         </ul>
+<ShowMore inc={inc} noun="lançamentos" />
+</>
       )}
       <p className="card__hint">{OVERDUE_RULE}</p>
 

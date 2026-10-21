@@ -15,6 +15,8 @@ import { discardTimer, startTimer, stopTimer, timeErrorMessage } from '../../ser
 import { dateTimeToInput, inputToDateTime } from '../../utils/events.js'
 import { isOpen } from '../../utils/tasks.js'
 import { MAX_ENTRY_SECONDS, STALE_TIMER_SECONDS, TIME_PERIODS, buildReport, durationSeconds, filterEntries, formatClock, formatDuration, totals } from '../../utils/time.js'
+import useIncremental from '../../components/useIncremental.js'
+import ShowMore from '../../components/ShowMore.jsx'
 
 const hm = (d) => new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(d)
 const REPORTS = [{ id: 'day', label: 'Por dia' }, { id: 'task', label: 'Por tarefa' }, { id: 'project', label: 'Por projeto' }, { id: 'category', label: 'Por categoria' }]
@@ -28,6 +30,7 @@ export default function TimePage() {
   const [report, setReport] = useState('day')
   const tasksById = useMemo(() => Object.fromEntries(tasks.map((t) => [t.id, t])), [tasks])
   const entries = useMemo(() => filterEntries(time.entries, period), [time.entries, period])
+  const inc = useIncremental(entries, period)
   const rows = useMemo(() => buildReport(entries, report, { tasksById, projectsById }), [entries, report, tasksById, projectsById])
   const sum = totals(entries)
 
@@ -72,8 +75,9 @@ export default function TimePage() {
 
           <Card title="Registros" id="t-list">
             {entries.length === 0 ? <EmptyState title="Nenhum registro neste período">Inicie o cronômetro ou use “Registro manual”.</EmptyState> : (
+              <>
               <ul className="rows">
-                {entries.map((e) => (
+                {inc.shown.map((e) => (
                   <li key={e.id} className="row">
                     <div>
                       <button type="button" className="linklike" onClick={() => editor.openEdit(e)}>{e.description || (e.taskId && tasksById[e.taskId]?.title) || 'Sem descrição'}</button>
@@ -88,6 +92,8 @@ export default function TimePage() {
                   </li>
                 ))}
               </ul>
+              <ShowMore inc={inc} noun="registros" />
+              </>
             )}
           </Card>
         </>

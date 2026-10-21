@@ -16,10 +16,10 @@ export function Select({ label, options, error, ...props }) {
   return (
     <div className="field">
       <label className="field__label" htmlFor={id}>{label}</label>
-      <select id={id} className="select" aria-invalid={!!error} {...props}>
+      <select id={id} className="select" aria-invalid={!!error} aria-describedby={error ? `${id}-err` : undefined} {...props}>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {error && <p className="field__error">{error}</p>}
+      {error && <p className="field__error" id={`${id}-err`}>{error}</p>}
     </div>
   )
 }
@@ -29,8 +29,8 @@ export function Textarea({ label, error, ...props }) {
   return (
     <div className="field">
       <label className="field__label" htmlFor={id}>{label}</label>
-      <textarea id={id} className="input textarea" rows={4} aria-invalid={!!error} {...props} />
-      {error && <p className="field__error">{error}</p>}
+      <textarea id={id} className="input textarea" rows={4} aria-invalid={!!error} aria-describedby={error ? `${id}-err` : undefined} {...props} />
+      {error && <p className="field__error" id={`${id}-err`}>{error}</p>}
     </div>
   )
 }

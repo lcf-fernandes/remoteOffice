@@ -11,6 +11,8 @@ import { clientErrorMessage } from '../../services/clients.js'
 import { CLIENT_VIEWS, filterClients, nextActionIsLate, sortClients } from '../../utils/clients.js'
 import { isOpen } from '../../utils/tasks.js'
 import { formatDate } from '../../utils/format.js'
+import useIncremental from '../../components/useIncremental.js'
+import ShowMore from '../../components/ShowMore.jsx'
 
 export default function ClientsPage() {
   const { status, clients, error, retry } = useClients()
@@ -18,6 +20,7 @@ export default function ClientsPage() {
   const editor = useClientEditor()
   const [filters, setFilters] = useState({ view: 'current', search: '' })
   const visible = useMemo(() => sortClients(filterClients(clients, filters)), [clients, filters])
+  const inc = useIncremental(visible, JSON.stringify(filters))
   const openTasks = useMemo(() => {
     const m = {}
     tasks.filter(isOpen).forEach((t) => { if (t.clientId) m[t.clientId] = (m[t.clientId] ?? 0) + 1 })
@@ -48,8 +51,9 @@ export default function ClientsPage() {
           : <EmptyState title="Nenhum cliente encontrado">Ajuste a visão ou a busca.</EmptyState>
       )}
       {status === 'ready' && visible.length > 0 && (
+        <>
         <ul className="task-list">
-          {visible.map((c) => (
+          {inc.shown.map((c) => (
             <li key={c.id} className="task">
               <a className="task__main client__link" href={`#/clientes/${c.id}`}>
                 <span className="row__title">{c.name}{c.company ? <span className="row__meta"> · {c.company}</span> : null}</span>
@@ -67,6 +71,8 @@ export default function ClientsPage() {
             </li>
           ))}
         </ul>
+        <ShowMore inc={inc} noun="clientes" />
+        </>
       )}
     </div>
   )

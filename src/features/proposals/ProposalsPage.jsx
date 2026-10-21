@@ -11,6 +11,8 @@ import { useClients } from '../clients/ClientsProvider.jsx'
 import { proposalErrorMessage } from '../../services/proposals.js'
 import { FOLLOW_UP_DAY_OPTIONS, PROPOSAL_VIEWS, filterProposals, followUpReason, followUpRuleText, pipelineTotals, sortProposals } from '../../utils/proposals.js'
 import { formatDate, formatMoney, relativeDay } from '../../utils/format.js'
+import useIncremental from '../../components/useIncremental.js'
+import ShowMore from '../../components/ShowMore.jsx'
 
 export function FollowUpBadge({ reason }) {
   if (!reason) return null
@@ -25,6 +27,7 @@ export default function ProposalsPage() {
   const [daysError, setDaysError] = useState('')
   const [filters, setFilters] = useState({ view: 'open', search: '' })
   const visible = useMemo(() => sortProposals(filterProposals(proposals, filters, clientsById)), [proposals, filters, clientsById])
+  const inc = useIncremental(visible, JSON.stringify(filters))
   const totals = useMemo(() => pipelineTotals(proposals), [proposals])
   const totalEntries = Object.entries(totals)
 
@@ -63,8 +66,9 @@ export default function ProposalsPage() {
           : <EmptyState title="Nenhuma proposta encontrada">Ajuste o status ou a busca.</EmptyState>
       )}
       {status === 'ready' && visible.length > 0 && (
-        <ul className="plist">
-          {visible.map((p) => {
+        <>
+<ul className="plist">
+          {inc.shown.map((p) => {
             const reason = followUpReason(p, { days })
             return (
               <li key={p.id} className="plist__row">
@@ -81,6 +85,8 @@ export default function ProposalsPage() {
             )
           })}
         </ul>
+<ShowMore inc={inc} noun="propostas" />
+</>
       )}
     </div>
   )

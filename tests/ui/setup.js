@@ -8,9 +8,21 @@ if (!window.matchMedia) {
   window.matchMedia = (query) => ({ matches: false, media: query, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, onchange: null, dispatchEvent: () => false })
 }
 if (typeof HTMLDialogElement !== 'undefined') {
-  HTMLDialogElement.prototype.showModal = function showModal() { this.setAttribute('open', '') }
-  HTMLDialogElement.prototype.close = function close() { if (this.hasAttribute('open')) { this.removeAttribute('open'); this.dispatchEvent(new Event('close')) } }
+  // Imita a especificação do HTML: showModal() lembra o elemento focado; close() devolve o foco a ele (o jsdom não faz isso).
+  const previous = new WeakMap()
+  HTMLDialogElement.prototype.showModal = function showModal() { previous.set(this, document.activeElement); this.setAttribute('open', '') }
+  HTMLDialogElement.prototype.close = function close() {
+    if (!this.hasAttribute('open')) return
+    this.removeAttribute('open')
+    const back = previous.get(this)
+    if (back && back.isConnected && typeof back.focus === 'function') back.focus()
+    this.dispatchEvent(new Event('close'))
+  }
 }
+
+// Elementos dentro de um <dialog> fechado não são renderizados e, no navegador, não recebem foco (o jsdom deixa).
+const nativeFocus = HTMLElement.prototype.focus
+HTMLElement.prototype.focus = function focus(...args) { if (this.closest && this.closest('dialog:not([open])')) return; return nativeFocus.apply(this, args) }
 
 // Qualquer console.error/warn (ex.: avisos do React, chaves repetidas, exceções) FALHA o teste, salvo quando o teste declara o contrário.
 let consoleProblems = []
