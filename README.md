@@ -51,6 +51,8 @@ O que cada teste cobre — **e o que não cobre** — está em [`docs/TESTING.md
 
 - [`docs/FIREBASE.md`](docs/FIREBASE.md) — configuração do Firebase e publicação
 - [`docs/TESTING.md`](docs/TESTING.md) — testes: como rodar e limites
+- [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) — coleções, campos, vínculos e o que acontece ao excluir
+- [`docs/SECURITY.md`](docs/SECURITY.md) — modelo de segurança, limites e checklist manual
 - [`docs/PROGRESS.md`](docs/PROGRESS.md) — o que foi feito em cada etapa e como testar
 - [`docs/PENDING.md`](docs/PENDING.md) — o que ainda falta, limitações e riscos conhecidos
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — decisões técnicas e motivos
